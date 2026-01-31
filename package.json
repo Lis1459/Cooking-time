@@ -1,0 +1,26 @@
+{
+  "name": "cooking-time",
+  "version": "1.0.0",
+  "description": "Full stack application using Node Js + Express, React and Postgress. Web application for recipies and cooking",
+  "keywords": [
+    "React",
+    "NodeJS",
+    "ExpressJS",
+    "Postgress"
+  ],
+  "homepage": "https://github.com/Lis1459/Cooking-time#readme",
+  "bugs": {
+    "url": "https://github.com/Lis1459/Cooking-time/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lis1459/Cooking-time.git"
+  },
+  "license": "ISC",
+  "author": "Evgeniy Lupach [Lis1459@yandex.ru]",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node --watch ./src/server.js"
+  }
+}
