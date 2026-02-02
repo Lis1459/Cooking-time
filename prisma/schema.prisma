@@ -1,0 +1,286 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+   url      = env("DATABASE_URL")
+}
+
+enum Role{
+  ADMIN
+  USER
+}
+//Пользователи
+model User{
+  id                String     @id @default(cuid())
+  email             String     @unique
+  password_hash     String
+  role              Role       @default(USER)
+  is_blocked        Boolean    @default(false)
+  created_at        DateTime   @default(now())
+  profile           UserProfile?
+
+
+  @@map("users")
+}
+
+model UserProfile{
+  id                String     @id 
+  user              User       @relation(fields: [id], references: [id])  
+  name              String
+  
+  preferences       String?
+  allergies         String?
+  diet_type         String?
+  
+  comments          Comment[]
+  recipe            Recipe[]
+  favorites         Favorite[]
+  cook_history      CookHistory[]
+  follower_sub      Subscription[]  @relation("follower")
+  author_sub        Subscription[]  @relation("author")
+  user_reports      Report[]        @relation("user")
+  admin_reports     Report[]        @relation("admin")
+  notific_recip     Notification[]  @relation("recipient")
+  notific_init      Notification[]  @relation("initiator")
+
+  @@map("users_profiles")
+}
+
+enum Difficulty{
+  VERY_EASY
+  EASY
+  MEDIUM
+  HARD
+  VERY_HARD
+}
+
+enum Status{
+  PUBLISHED
+  PENDING
+  HIDDEN
+}
+
+//Рецепты
+model Recipe{
+  id                Int           @id @default(autoincrement())
+  author_id         String    
+  author            UserProfile   @relation(fields: [author_id], references: [id])
+  title             String
+  description       String        @db.Text
+  preview_img_url   String        @db.Text
+  thumbnail         String?       @db.Text
+  cooking_time      Int
+  calories          Int
+  difficulty        Difficulty    
+  status            Status        @default(PENDING)
+  created_at        DateTime      @default(now())
+
+  ingredient        RecipeIngredients[]
+  steps             RecipeSteps[]
+  categories        Category[]
+  tags              Tag[]
+  cuisines          Cuisine[]
+  comments          Comment[]
+  favorite          Favorite[]
+  cook_history      CookHistory[]     
+  @@map("recipes")
+}
+
+//Ингредиенты
+model Ingredient{
+  id                Int           @id @default(autoincrement())
+  name              String
+  recipe            RecipeIngredients[]
+  @@map("ingredients")
+}
+
+model RecipeIngredients{
+  recipe_id         Int          
+  recipe            Recipe        @relation(fields: [recipe_id], references: [id])
+  ingredient_id     Int
+  ingredient        Ingredient    @relation(fields: [ingredient_id], references: [id])
+  amount            Float
+  unit              String
+
+  @@map("recipe_ingredients")
+  @@id([recipe_id, ingredient_id])
+}
+
+model RecipeSteps{
+  id                Int           @id @default(autoincrement())
+  recipe_id         Int          
+  recipe            Recipe        @relation(fields: [recipe_id], references: [id])
+  step_number       Int
+  description       String?       @db.Text
+  image_url         String        @db.Text
+  @@map("recipe_steps")
+}
+
+//Filter Options
+
+model Category{
+  id                Int           @id @default(autoincrement())
+  name              String        @unique
+  recipes           Recipe[]
+  @@map("categories")
+}
+
+model Tag{
+  id                Int           @id @default(autoincrement())
+  name              String        @unique
+  recipes           Recipe[]
+  @@map("tags")
+}
+
+model Cuisine{
+  id                Int           @id @default(autoincrement())
+  name              String        @unique
+  recipes           Recipe[]
+  @@map("cuisines")
+}
+
+
+
+//Комментарии
+model Comment{
+  id                Int           @id @default(autoincrement())
+  recipe_id         Int
+  recipe            Recipe        @relation(fields: [recipe_id],references: [id])
+  user_id           String
+  user              UserProfile   @relation(fields: [user_id],references: [id])
+  text              String        @db.Text
+  created_at        DateTime      @default(now())
+  is_hidden         Boolean       @default(false)
+
+  @@map("comments")
+}
+
+//Избранное
+model Favorite{
+  user_id            String     
+  user              UserProfile   @relation(fields: [user_id],references: [id])
+  recipe_id         Int
+  recipe            Recipe        @relation(fields: [recipe_id], references: [id])
+  
+  @@id([user_id, recipe_id])
+  @@map("favorites")
+}
+
+//История приготовлений
+model CookHistory{
+  user_id           String
+  user              UserProfile   @relation(fields: [user_id],references: [id])
+  recipe_id         Int
+  recipe            Recipe        @relation(fields: [recipe_id], references: [id])
+  cooked_at         DateTime      @default(now())
+
+  @@id([user_id, recipe_id])
+  @@map("cook_history")
+}
+
+//Подписки
+model Subscription{
+  follower_id       String        
+  follower          UserProfile   @relation("follower",fields: [follower_id],references: [id])
+  author_id         String
+  author            UserProfile   @relation("author",fields: [author_id],references: [id])
+  subscribed_at     DateTime      @default(now())
+
+  @@id([follower_id, author_id])
+  @@map("subscriptions")
+}
+
+//Жалобы
+
+enum Target{
+  RECIPE
+  USER
+  COMMENT
+}
+
+enum ReportStatus{
+  PENDING
+  APPROVED
+  REJECTED
+}
+model Report{
+  id                Int           @id @default(autoincrement())
+  reporter_id       String
+  user              UserProfile   @relation("user",fields: [reporter_id], references: [id])
+  target_type       Target
+  target_id         String        ///ID сущности, на которую жалуются
+  reason            String        @db.Text
+  status            ReportStatus
+  created_at        DateTime      @default(now())
+  reviewed_by_id    String?        ///ID админа, который проверял
+  admin             UserProfile?  @relation("admin",fields: [reviewed_by_id], references: [id])
+  resolution_comment String?      @db.Text  ///Текст к репорту
+  @@map("reports")
+}
+
+
+//Уведомления
+
+enum  NotificationType{
+  NEW_COMMENT
+  NEW_FOLLOWER
+  NEW_RECIPE_FROM_SUBSCRIPTION
+  RECIPE_APPROVED
+  RECIPE_REJECTED
+  REPORT_RESULT
+}
+
+model Notification{
+  id                Int           @id @default(autoincrement())
+  user_id           String
+  user              UserProfile   @relation("recipient",fields: [user_id], references: [id])
+  initiator_id      String
+  initiator              UserProfile   @relation("initiator",fields: [initiator_id], references: [id])
+  type              NotificationType
+  entity_id         String     ///ID того, к чему применяется уведомление
+  is_read           Boolean       @default(false)
+  created_at        DateTime      @default(now())
+  
+  @@map("notifications")
+}
+
+
+
+// model RecipeCategory{
+//   recipe_id         Int
+//   recipe            Recipe      @relation(fields: [recipe_id],references: [id])
+//   category_id       Int
+//   category          Category      @relation(fields: [category_id],references: [id])
+
+//   @@map("recipe_categories")
+//   @@id([recipe_id,category_id])
+// }
+
+// model RecipeTag{
+//   recipe_id         Int
+//   recipe            Recipe      @relation(fields: [recipe_id],references: [id])
+//   tag_id       Int
+//   tag         Tag      @relation(fields: [tag_id],references: [id])
+
+//   @@map("recipe_tags")
+//   @@id([recipe_id,tag_id])
+// }
+
+// model RecipeCuisine{
+//   recipe_id         Int
+//   recipe            Recipe      @relation(fields: [recipe_id],references: [id])
+//   cuisine_id       Int
+//   cuisine         Cuisine      @relation(fields: [cuisine_id],references: [id])
+
+//   @@map("recipe_cuisineы")
+//   @@id([recipe_id,cuisine_id])
+// }
