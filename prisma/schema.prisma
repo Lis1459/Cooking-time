@@ -41,6 +41,7 @@ model UserProfile{
   diet_type         String?
   
   comments          Comment[]
+  ratings           Rating[]
   recipe            Recipe[]
   favorites         Favorite[]
   cook_history      CookHistory[]
@@ -88,6 +89,7 @@ model Recipe{
   categories        Category[]
   tags              Tag[]
   cuisines          Cuisine[]
+  ratings           Rating[]
   comments          Comment[]
   favorite          Favorite[]
   cook_history      CookHistory[]     
@@ -147,6 +149,17 @@ model Cuisine{
   @@map("cuisines")
 }
 
+//Рейтинг
+model Rating{
+  recipe_id         Int
+  recipe            Recipe        @relation(fields: [recipe_id],references: [id])
+  user_id           String
+  user              UserProfile   @relation(fields: [user_id],references: [id])
+  rating            Int           
+
+  @@id([recipe_id, user_id])
+  @@map("ratings")
+}
 
 
 //Комментарии
