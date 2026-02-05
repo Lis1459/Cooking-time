@@ -1,0 +1,374 @@
+# Register a new user
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123",
+  "name": "Test User"
+}
+
+###
+
+# Login
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+###
+
+# Logout
+POST http://localhost:5000/api/auth/logout
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Refresh token
+POST http://localhost:5000/api/auth/refresh
+
+###
+
+# Get user profile
+GET http://localhost:5000/api/users/profile/1
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Update user profile
+PUT http://localhost:5000/api/users/profile/1
+Authorization: Bearer YOUR_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Updated Name",
+  "preferences": "Vegan",
+  "allergies": "Nuts"
+}
+
+###
+
+# Get all users (admin only)
+GET http://localhost:5000/api/users?page=1&limit=10
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+
+###
+
+# Block user (admin only)
+PUT http://localhost:5000/api/users/1/block
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+
+###
+
+# Get recipes
+GET http://localhost:5000/api/recipes?page=1&limit=10
+
+###
+
+# Get recipe by ID
+GET http://localhost:5000/api/recipes/1
+
+###
+
+# Get popular recipes
+GET http://localhost:5000/api/recipes/popular?limit=5
+
+###
+
+# Create recipe (requires auth)
+POST http://localhost:5000/api/recipes
+Authorization: Bearer YOUR_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "title": "Sample Recipe",
+  "description": "A delicious recipe",
+  "cooking_time": 30,
+  "calories": 500,
+  "difficulty": "MEDIUM",
+  "ingredients": "[{\"ingredient_id\": 1, \"amount\": 2.0, \"unit\": \"cups\"}]",
+  "steps": "[{\"step_number\": 1, \"description\": \"Mix ingredients\"}]",
+  "categories": "[1]",
+  "tags": "[1]",
+  "cuisines": "[1]"
+}
+
+###
+
+# Update recipe
+PUT http://localhost:5000/api/recipes/1
+Authorization: Bearer YOUR_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "title": "Updated Recipe"
+}
+
+###
+
+# Delete recipe
+DELETE http://localhost:5000/api/recipes/1
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Add to favorites
+POST http://localhost:5000/api/recipes/1/favorite
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Remove from favorites
+DELETE http://localhost:5000/api/recipes/1/favorite
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Mark as cooked
+POST http://localhost:5000/api/recipes/1/cook
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Get comments for recipe
+GET http://localhost:5000/api/recipes/1/comments?page=1&limit=10
+
+###
+
+# Create comment
+POST http://localhost:5000/api/recipes/1/comments
+Authorization: Bearer YOUR_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "text": "Great recipe!"
+}
+
+###
+
+# Update comment
+PUT http://localhost:5000/api/recipes/1/comments/1
+Authorization: Bearer YOUR_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "text": "Updated comment"
+}
+
+###
+
+# Delete comment
+DELETE http://localhost:5000/api/recipes/1/comments/1
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Get reports (admin only)
+GET http://localhost:5000/api/reports?page=1&limit=10
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+
+###
+
+# Create report
+POST http://localhost:5000/api/reports
+Authorization: Bearer YOUR_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "target_type": "RECIPE",
+  "target_id": "1",
+  "reason": "Inappropriate content"
+}
+
+###
+
+# Update report (admin only)
+PUT http://localhost:5000/api/reports/1
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "status": "APPROVED"
+}
+
+###
+
+# Get notifications
+GET http://localhost:5000/api/notifications?page=1&limit=10
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Mark notification as read
+PUT http://localhost:5000/api/notifications/1/read
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Mark all notifications as read
+PUT http://localhost:5000/api/notifications/mark-all-read
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Get ingredients
+GET http://localhost:5000/api/ingredients?page=1&limit=10
+
+###
+
+# Create ingredient (admin only)
+POST http://localhost:5000/api/ingredients
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Flour"
+}
+
+###
+
+# Update ingredient (admin only)
+PUT http://localhost:5000/api/ingredients/1
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Whole Wheat Flour"
+}
+
+###
+
+# Delete ingredient (admin only)
+DELETE http://localhost:5000/api/ingredients/1
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+
+###
+
+# Get categories
+GET http://localhost:5000/api/categories
+
+###
+
+# Create category (admin only)
+POST http://localhost:5000/api/categories
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Desserts"
+}
+
+###
+
+# Update category (admin only)
+PUT http://localhost:5000/api/categories/1
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Sweet Desserts"
+}
+
+###
+
+# Delete category (admin only)
+DELETE http://localhost:5000/api/categories/1
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+
+###
+
+# Get tags
+GET http://localhost:5000/api/tags
+
+###
+
+# Create tag (admin only)
+POST http://localhost:5000/api/tags
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Quick"
+}
+
+###
+
+# Update tag (admin only)
+PUT http://localhost:5000/api/tags/1
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Fast"
+}
+
+###
+
+# Delete tag (admin only)
+DELETE http://localhost:5000/api/tags/1
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+
+###
+
+# Get cuisines
+GET http://localhost:5000/api/cuisines
+
+###
+
+# Create cuisine (admin only)
+POST http://localhost:5000/api/cuisines
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Italian"
+}
+
+###
+
+# Update cuisine (admin only)
+PUT http://localhost:5000/api/cuisines/1
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+Content-Type: application/json
+
+{
+  "name": "Italian Cuisine"
+}
+
+###
+
+# Delete cuisine (admin only)
+DELETE http://localhost:5000/api/cuisines/1
+Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN
+
+###
+
+# Get subscriptions
+GET http://localhost:5000/api/subscriptions
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Get followers of a user
+GET http://localhost:5000/api/subscriptions/followers/1
+
+###
+
+# Subscribe to user
+POST http://localhost:5000/api/subscriptions/1
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Unsubscribe from user
+DELETE http://localhost:5000/api/subscriptions/1
+Authorization: Bearer YOUR_ACCESS_TOKEN
+
+###
+
+# Check subscription status
+GET http://localhost:5000/api/subscriptions/1/status
+Authorization: Bearer YOUR_ACCESS_TOKEN

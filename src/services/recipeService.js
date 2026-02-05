@@ -1,0 +1,131 @@
+import { RecipeRepository } from "../repositories/recipeRepository.js";
+import redisClient from "../config/redis.js";
+import prisma from "../config/database.js";
+
+const recipeRepo = new RecipeRepository();
+const CACHE_TTL = 3600; // 1 hour
+
+export class RecipeService {
+  async getRecipeById(id) {
+    const cacheKey = `recipe:${id}`;
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
+    const recipe = await recipeRepo.findById(id);
+    if (!recipe) {
+      throw new Error("Recipe not found");
+    }
+    if (recipe) {
+      await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(recipe));
+    }
+    return recipe;
+  }
+
+  async getRecipes(filters, page, limit) {
+    const cacheKey = `recipes:${JSON.stringify(filters)}:${page}:${limit}`;
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
+    const recipes = await recipeRepo.findAll(filters, page, limit);
+    const total = await recipeRepo.count(filters);
+
+    const result = { recipes, total, page, limit };
+    await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
+    return result;
+  }
+
+  async createRecipe(recipeData) {
+    const recipe = await recipeRepo.create(recipeData);
+    // Invalidate popular cache
+    await redisClient.del("popular_recipes");
+    return recipe;
+  }
+
+  async updateRecipe(id, data) {
+    const recipe = await recipeRepo.update(id, data);
+    await redisClient.del(`recipe:${id}`);
+    return recipe;
+  }
+
+  async deleteRecipe(id) {
+    await recipeRepo.delete(id);
+    await redisClient.del(`recipe:${id}`);
+    await redisClient.del("popular_recipes");
+  }
+
+  async getPopularRecipes(limit = 10) {
+    const cacheKey = "popular_recipes";
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
+    const recipes = await recipeRepo.getPopular(limit);
+    await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(recipes));
+    return recipes;
+  }
+
+  async getAllRecipes(page, limit) {
+    return await this.getRecipes({}, page, limit);
+  }
+
+  async getRecipesByUser(userId, page, limit) {
+    return await recipeRepo.findByUserId(userId, page, limit);
+  }
+
+  async searchRecipes(query, page, limit) {
+    return await recipeRepo.search(query, page, limit);
+  }
+
+  async getRecipesByCategory(categoryId, page, limit) {
+    return await recipeRepo.findByCategory(categoryId, page, limit);
+  }
+
+  async getRecipesByCuisine(cuisineId, page, limit) {
+    return await recipeRepo.findByCuisine(cuisineId, page, limit);
+  }
+
+  async getRecipesByTag(tagId, page, limit) {
+    return await recipeRepo.findByTag(tagId, page, limit);
+  }
+
+  async getFavoriteRecipes(userId, page, limit) {
+    return await recipeRepo.getFavorites(userId, page, limit);
+  }
+
+  async addToFavorites(userId, recipeId) {
+    await prisma.favorite.create({
+      data: { user_id: userId, recipe_id: parseInt(recipeId) },
+    });
+  }
+
+  async removeFromFavorites(userId, recipeId) {
+    await prisma.favorite.deleteMany({
+      where: { user_id: userId, recipe_id: parseInt(recipeId) },
+    });
+  }
+
+  async addCookHistory(userId, recipeId) {
+    await prisma.cookHistory.create({
+      data: { user_id: userId, recipe_id: parseInt(recipeId) },
+    });
+    return { user_id: userId, recipe_id: recipeId };
+  }
+
+  async getCookHistory(userId, page, limit) {
+    return await recipeRepo.getCookHistory(userId, page, limit);
+  }
+
+  async rateRecipe(recipeId, userId, rating) {
+    // Implementation for rating
+  }
+
+  async getRecipeRating(recipeId) {
+    // Implementation for getting rating
+    return { average: 0, count: 0 };
+  }
+}
