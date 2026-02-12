@@ -1,6 +1,7 @@
 import { AuthService } from "../services/authService.js";
 
 const authService = new AuthService();
+const isProd = process.env.NODE_ENV === "production";
 
 export const register = async (req, res) => {
   try {
@@ -23,14 +24,21 @@ export const login = async (req, res) => {
       email,
       password,
     );
+    console.log(user);
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: isProd,
+      sameSite: isProd ? "None" : "Lax",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     res.json({
       accessToken,
-      user: { id: user.id, email: user.email, role: user.role },
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.profile.name,
+      },
     });
   } catch (error) {
     console.log("controller", error.message);

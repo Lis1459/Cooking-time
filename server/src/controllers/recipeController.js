@@ -5,7 +5,11 @@ const recipeService = new RecipeService();
 
 export const getRecipe = async (req, res) => {
   try {
-    const recipe = await recipeService.getRecipeById(req.params.id);
+    const user = req.query;
+    const recipe = await recipeService.getRecipeById(
+      req.params.id,
+      user.userId,
+    );
     if (!recipe) {
       return res.status(404).json({ message: "Recipe not found" });
     }
@@ -17,10 +21,10 @@ export const getRecipe = async (req, res) => {
 
 export const getRecipes = async (req, res) => {
   try {
-    const filters = req.query;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const result = await recipeService.getRecipes(filters, page, limit);
+    const { page, limit, ...filters } = req.query;
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const result = await recipeService.getRecipes(filters, pageNum, limitNum);
     res.json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -29,6 +33,7 @@ export const getRecipes = async (req, res) => {
 
 export const createRecipe = async (req, res) => {
   try {
+    console.log("Received recipe data", req.body);
     let recipeData = { ...req.body, author_id: req.user.id };
 
     // Process preview image
@@ -50,11 +55,30 @@ export const createRecipe = async (req, res) => {
 
     // Parse nested data
     if (recipeData.ingredients) {
-      recipeData.ingredient = JSON.parse(recipeData.ingredients);
+      const ingredientsParsed = JSON.parse(recipeData.ingredients);
+
+      recipeData.ingredients = {
+        create: ingredientsParsed.map((i) => ({
+          ingredient: {
+            connect: { id: Number(i.ingredient_id) },
+          },
+          amount: Number(i.amount),
+          unit: i.unit,
+        })),
+      };
     }
+
     if (recipeData.steps) {
-      recipeData.steps = JSON.parse(recipeData.steps);
+      const stepsParsed = JSON.parse(recipeData.steps);
+
+      recipeData.steps = {
+        create: stepsParsed.map((s) => ({
+          description: s.description,
+          step_number: Number(s.step_number),
+        })),
+      };
     }
+
     if (recipeData.categories) {
       recipeData.categories = {
         connect: JSON.parse(recipeData.categories).map((id) => ({
@@ -131,37 +155,41 @@ export const getPopularRecipes = async (req, res) => {
 //   }
 // };
 
-export const markAsCooked = async (req, res) => {
+export const markRecipeStatus = async (req, res) => {
   try {
-    await recipeService.markAsCooked(req.user.id, req.params.id);
+    const status = req.body.status || "COOKED";
+    await recipeService.markRecipeStatus(req.user.id, req.params.id, status);
     res.json({ message: "Marked as cooked" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export const getRecipeById = async (req, res) => {
-  try {
-    const recipe = await recipeService.getRecipeById(req.params.id);
-    if (!recipe) {
-      return res.status(404).json({ message: "Recipe not found" });
+    if (error.message === "RECIPE_ALREADY_MARKED_AS_COOKED") {
+      return res.status(409).json({ message: error.message });
     }
-    res.json(recipe);
-  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-export const getAllRecipes = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const result = await recipeService.getAllRecipes(page, limit);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+// export const getRecipeById = async (req, res) => {
+//   try {
+//     const recipe = await recipeService.getRecipeById(req.params.id);
+//     if (!recipe) {
+//       return res.status(404).json({ message: "Recipe not found" });
+//     }
+//     res.json(recipe);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
+// export const getAllRecipes = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = parseInt(req.query.limit) || 10;
+//     const result = await recipeService.getAllRecipes(page, limit);
+//     res.json(result);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 
 export const searchRecipes = async (req, res) => {
   try {
@@ -273,15 +301,6 @@ export const rateRecipe = async (req, res) => {
     const { rating } = req.body;
     await recipeService.rateRecipe(req.params.id, req.user.id, rating);
     res.json({ message: "Recipe rated successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export const getRecipeRating = async (req, res) => {
-  try {
-    const rating = await recipeService.getRecipeRating(req.params.id);
-    res.json(rating);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -1,11 +1,8 @@
 import prisma from "../config/database.js";
 
 export class IngredientRepository {
-  async findAll(page = 1, limit = 10) {
-    const skip = (page - 1) * limit;
+  async findAll() {
     return prisma.ingredient.findMany({
-      skip,
-      take: limit,
       orderBy: { name: "asc" },
     });
   }

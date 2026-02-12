@@ -6,11 +6,14 @@ import {
 } from "../utils/jwt.js";
 import prisma from "../config/database.js";
 
+const isProd = process.env.NODE_ENV === "production";
+
 export const authenticate = async (req, res, next) => {
   const accessToken = req.headers.authorization?.split(" ")[1];
   const refreshToken = req.cookies?.refreshToken;
 
   if (!accessToken && !refreshToken) {
+    console.log("Authentication failed: No tokens provided");
     return res.status(401).json({ message: "No tokens provided" });
   }
 
@@ -46,7 +49,8 @@ export const authenticate = async (req, res, next) => {
         res.setHeader("Authorization", `Bearer ${newAccessToken}`);
         res.cookie("refreshToken", newRefreshToken, {
           httpOnly: true,
-          secure: true,
+          secure: isProd,
+          sameSite: isProd ? "None" : "Lax",
           maxAge: 30 * 24 * 60 * 60 * 1000,
         });
       }
@@ -54,9 +58,11 @@ export const authenticate = async (req, res, next) => {
   }
 
   if (!user) {
+    console.log("Authentication failed: Invalid tokens");
     return res.status(401).json({ message: "Invalid tokens" });
   }
 
   req.user = user;
+  // console.log("resolve", res.getHeaders());
   next();
 };

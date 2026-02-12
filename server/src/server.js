@@ -16,14 +16,21 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import tagRoutes from "./routes/tagRoutes.js";
 import cuisineRoutes from "./routes/cuisineRoutes.js";
 import subscriptionRoutes from "./routes/subscriptionRoutes.js";
+import ratingRoutes from "./routes/ratingRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(compression());
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+    exposedHeaders: ["Authorization"],
+  }),
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static("public/uploads"));
@@ -33,6 +40,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/recipes", recipeRoutes);
 app.use("/api/recipes/:recipeId/comments", commentRoutes);
+app.use("/api/recipes/:recipeId/ratings", ratingRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/ingredients", ingredientRoutes);

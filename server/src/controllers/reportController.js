@@ -33,6 +33,7 @@ export const createReport = async (req, res) => {
 
 export const updateReport = async (req, res) => {
   try {
+    console.log("Data", req.body);
     const report = await reportService.updateReport(req.params.id, req.body);
     res.json(report);
   } catch (error) {

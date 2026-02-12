@@ -1,0 +1,131 @@
+@import "@radix-ui/colors/black-alpha.css";
+@import "@radix-ui/colors/mauve.css";
+@import "@radix-ui/colors/violet.css";
+@import "@radix-ui/colors/red.css";
+
+/* reset */
+button {
+  all: unset;
+}
+
+.SelectTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 45px;
+  padding: 0 16px;
+
+  border-radius: 8px;
+
+  background: white;
+  color: var(--red-11);
+
+  border: 1px solid var(--red-6);
+
+  box-shadow: 0 2px 8px var(--black-a6);
+
+  font-size: 14px;
+  font-weight: 500;
+
+  transition: all 0.15s ease;
+}
+
+.SelectTrigger:hover {
+  background: var(--red-2);
+  border-color: var(--red-7);
+}
+
+.SelectTrigger:focus {
+  box-shadow: 0 0 0 2px var(--red-7);
+}
+
+.SelectTrigger[data-placeholder] {
+  color: var(--red-8);
+}
+
+.SelectIcon {
+  color: var(--red-10);
+}
+
+.SelectContent {
+  overflow: hidden;
+  background: white;
+
+  border-radius: 10px;
+
+  border: 1px solid var(--red-4);
+
+  box-shadow:
+    0px 12px 40px -10px var(--black-a7),
+    0px 8px 20px -15px var(--black-a6);
+}
+
+.SelectViewport {
+  padding: 5px;
+}
+
+.SelectItem {
+  font-size: 14px;
+  color: var(--red-11);
+
+  border-radius: 6px;
+
+  display: flex;
+  align-items: center;
+
+  height: 32px;
+
+  padding: 0 36px 0 28px;
+
+  position: relative;
+
+  cursor: pointer;
+}
+
+.SelectItem[data-highlighted] {
+  background: var(--red-9);
+  color: white;
+}
+
+.SelectItem[data-disabled] {
+  color: var(--mauve-8);
+  pointer-events: none;
+}
+
+.SelectLabel {
+  padding: 0 25px;
+  font-size: 12px;
+  line-height: 25px;
+  color: var(--mauve-11);
+}
+
+.SelectSeparator {
+  height: 1px;
+  background-color: var(--violet-6);
+  margin: 5px;
+}
+
+/* .SelectItemIndicator {
+  position: absolute;
+  left: 0;
+  width: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+} */
+.SelectItemIndicator {
+  position: absolute;
+  left: 6px;
+}
+
+.SelectScrollButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 25px;
+  background-color: white;
+  color: var(--violet-11);
+  cursor: default;
+}

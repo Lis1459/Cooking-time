@@ -1,35 +1,52 @@
 import { RecipeRepository } from "../repositories/recipeRepository.js";
+import { FavoriteRepository } from "../repositories/favoriteRepository.js";
+import parseCookStatus from "../utils/recipeUtils.js";
 import redisClient from "../config/redis.js";
 import prisma from "../config/database.js";
 
 const recipeRepo = new RecipeRepository();
+const favoriteRepo = new FavoriteRepository();
 const CACHE_TTL = 3600; // 1 hour
 
 export class RecipeService {
-  async getRecipeById(id) {
+  async getRecipeById(id, userId = null) {
     const cacheKey = `recipe:${id}`;
     const cached = await redisClient.get(cacheKey);
+
+    let recipe;
     if (cached) {
-      return JSON.parse(cached);
+      recipe = JSON.parse(cached);
+    } else {
+      recipe = await recipeRepo.findById(id);
+      if (!recipe) {
+        throw new Error("Recipe not found");
+      }
+      if (recipe) {
+        await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(recipe));
+      }
     }
 
-    const recipe = await recipeRepo.findById(id);
-    if (!recipe) {
-      throw new Error("Recipe not found");
+    let isFavorite = false;
+    let cookMark = null;
+
+    if (userId) {
+      isFavorite = await favoriteRepo.exists(userId, id);
+      cookMark = await recipeRepo.getCookMark(userId, id);
     }
-    if (recipe) {
-      await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(recipe));
-    }
-    return recipe;
+
+    return {
+      ...recipe,
+      isFavorite,
+      cookMark,
+    };
   }
 
   async getRecipes(filters, page, limit) {
     const cacheKey = `recipes:${JSON.stringify(filters)}:${page}:${limit}`;
     const cached = await redisClient.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
-    }
-
+    // if (cached) {
+    //   return JSON.parse(cached);
+    // }
     const recipes = await recipeRepo.findAll(filters, page, limit);
     const total = await recipeRepo.count(filters);
 
@@ -71,6 +88,24 @@ export class RecipeService {
 
   async getAllRecipes(page, limit) {
     return await this.getRecipes({}, page, limit);
+  }
+
+  async markRecipeStatus(userId, recipeId, statusFromFrontend) {
+    try {
+      const status = parseCookStatus(statusFromFrontend);
+      const result = await recipeRepo.markRecipeStatus(
+        userId,
+        recipeId,
+        status,
+      );
+
+      await redisClient.del(`recipe:${recipeId}`);
+
+      return result;
+    } catch (err) {
+      console.log("Error marking recipe status:", err.message);
+      throw err;
+    }
   }
 
   async getRecipesByUser(userId, page, limit) {

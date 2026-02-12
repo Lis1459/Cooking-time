@@ -7,8 +7,8 @@ export class IngredientService {
     return ingredientRepo.findById(id);
   }
 
-  async getIngredients(page, limit) {
-    return ingredientRepo.findAll(page, limit);
+  async getIngredients() {
+    return ingredientRepo.findAll();
   }
 
   async getAllIngredients(page, limit) {

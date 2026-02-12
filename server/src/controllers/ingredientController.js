@@ -4,11 +4,11 @@ const ingredientService = new IngredientService();
 
 export const getIngredients = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const ingredients = await ingredientService.getIngredients(page, limit);
-    const total = await ingredientService.getIngredientCount();
-    res.json({ ingredients, total, page, limit });
+    // const page = parseInt(req.query.page) || 1;
+    // const limit = parseInt(req.query.limit) || 10;
+    const ingredients = await ingredientService.getIngredients();
+    // const total = await ingredientService.getIngredientCount();
+    res.json(ingredients);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

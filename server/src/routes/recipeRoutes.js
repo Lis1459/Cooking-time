@@ -8,7 +8,7 @@ import {
   getPopularRecipes,
   addToFavorites,
   removeFromFavorites,
-  markAsCooked,
+  markRecipeStatus,
 } from "../controllers/recipeController.js";
 import { authenticate } from "../middleware/auth.js";
 import { requireAdmin } from "../middleware/role.js";
@@ -25,6 +25,6 @@ router.delete("/:id", authenticate, deleteRecipe);
 
 router.post("/:id/favorite", authenticate, addToFavorites);
 router.delete("/:id/favorite", authenticate, removeFromFavorites);
-router.post("/:id/cook", authenticate, markAsCooked);
+router.post("/:id/cook", authenticate, markRecipeStatus);
 
 export default router;
