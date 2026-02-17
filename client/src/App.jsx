@@ -75,9 +75,7 @@ function AppContent() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <UserProfilePage
-                  userId={JSON.parse(localStorage.getItem("user"))?.id}
-                />
+                <UserProfilePage />
               </ProtectedRoute>
             }
           />

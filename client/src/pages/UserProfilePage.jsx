@@ -20,18 +20,15 @@ import {
 } from "../components/ui";
 import "./UserProfile.css";
 
-export const UserProfilePage = ({ userId }) => {
+export const UserProfilePage = () => {
   const { userId: paramsUserId } = useParams();
   const { user: authUser } = useAuth();
-  const { data: userData, isLoading } = useUserProfileQuery(
-    userId || paramsUserId,
-  );
+  const finalUser = paramsUserId || authUser?.id;
+  const { data: userData, isLoading } = useUserProfileQuery(finalUser);
 
   const profile = userData?.profile;
 
-  const updateProfileMutation = useUpdateProfileMutation(
-    userId || paramsUserId,
-  );
+  const updateProfileMutation = useUpdateProfileMutation(finalUser);
   const [isEditing, setIsEditing] = useState(false);
   const [error] = useState(null);
 
@@ -79,7 +76,7 @@ export const UserProfilePage = ({ userId }) => {
     );
   }
 
-  const isOwnProfile = authUser?.id === userId || authUser?.id === paramsUserId;
+  const isOwnProfile = !paramsUserId;
   console.log("profile:", profile);
 
   return (

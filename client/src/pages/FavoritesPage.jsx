@@ -71,12 +71,12 @@ export const FavoritesPage = () => {
                   >
                     View
                   </Button>
-                  <Button
+                  {/* <Button
                     variant="danger"
                     onClick={() => handleRemoveFavorite(recipe.id)}
                   >
                     Remove
-                  </Button>
+                  </Button> */}
                 </div>
               </CardContent>
             </Card>

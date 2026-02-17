@@ -129,7 +129,7 @@ export const Header = () => {
                   {
                     label: "Logout",
                     variant: "danger",
-                    onClick: () => handleLogout,
+                    onClick: handleLogout,
                   },
                 ]}
               />
