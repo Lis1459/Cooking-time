@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 const ACCESS_TOKEN_EXPIRY = "15m";
-const REFRESH_TOKEN_EXPIRY = "30d";
+const REFRESH_TOKEN_EXPIRY = "10d";
 
 export const generateAccessToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {

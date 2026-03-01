@@ -20,6 +20,8 @@ export const HomePage = () => {
     limit: 6,
   });
 
+  console.log(popularRecipes);
+
   const loading = popularLoading || recipesLoading;
 
   if (loading) {
