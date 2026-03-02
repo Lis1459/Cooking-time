@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../config/api";
+import { toast } from "sonner";
 
 // const isAuthenticated = localStorage.getItem("accessToken");
 // console.log(isAuthenticated);
@@ -191,6 +192,7 @@ export const useCreateRecipeMutation = () => {
       return response.data;
     },
     onSuccess: () => {
+      toast.success("Рецепт успешно добавлен!");
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
     },
   });
@@ -776,6 +778,7 @@ export const commentService = {
     return api.delete(`/recipes/${recipeId}/comments/${commentId}`);
   },
 };
+
 export const recipeService = {
   getRecipes: async (params = {}) => {
     const response = await api.get("/recipes", { params });

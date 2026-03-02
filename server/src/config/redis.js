@@ -1,33 +1,31 @@
 import { createClient } from "redis";
 
+const redisHost = process.env.REDIS_HOST || "127.0.0.1";
+const redisPort = process.env.REDIS_PORT || 6379;
+const redisUrl = process.env.REDIS_URL || `redis://${redisHost}:${redisPort}`;
+
 const redisClient = createClient({
-  // url: process.env.REDIS_URL || "redis://localhost:6379",
+  url: redisUrl,
   socket: {
-    host: process.env.REDIS_HOST || "localhost",
-    port: process.env.REDIS_PORT || 6379,
-    reconnectStrategy: (retries) => {
-      if (retries > 10) {
-        console.error("Max reconnection attempts reached");
-        return new Error("Max retries reached");
-      }
-      return Math.min(retries * 50, 500);
-    },
+    // connection timeout in ms
     connectTimeout: 10000,
+    // keep the socket alive (initialDelay ms)
     keepAlive: 30000,
+    // reconnect strategy: linear backoff capped to 3s
+    reconnectStrategy: (retries) => Math.min(retries * 100, 3000),
   },
+  // allow node-redis to retry commands; avoid infinite retry loops in some cases
+  maxRetriesPerRequest: 5,
+  // don't open connection automatically; we control initial connect
   lazyConnect: true,
 });
 
-let isConnected = false;
-
 redisClient.on("error", (err) => {
   console.error("Redis Client Error:", err);
-  isConnected = false;
 });
 
 redisClient.on("connect", () => {
   console.log("Redis connected successfully");
-  isConnected = true;
 });
 
 redisClient.on("ready", () => {
@@ -36,18 +34,23 @@ redisClient.on("ready", () => {
 
 redisClient.on("end", () => {
   console.log("Redis disconnected");
-  isConnected = false;
+});
+
+redisClient.on("reconnecting", (delay) => {
+  console.log(`Redis reconnecting, next attempt in ${delay}ms`);
 });
 
 // Initialize Redis connection
 export async function initializeRedis() {
-  if (!isConnected) {
+  if (!redisClient.isOpen) {
     try {
       await redisClient.connect();
-      isConnected = true;
       console.log("Redis initialized successfully");
     } catch (err) {
-      console.error("Failed to connect to Redis:", err.message);
+      console.error(
+        "Failed to connect to Redis:",
+        err && err.message ? err.message : err,
+      );
       console.warn("Continuing without Redis cache...");
       // Don't throw - allow server to run without Redis
     }
@@ -55,76 +58,47 @@ export async function initializeRedis() {
   return redisClient;
 }
 
-// Safe Redis wrapper - handles errors gracefully
+// Safe Redis wrapper - DISABLED (Redis temporarily bypassed)
+// All methods are no-ops, forcing code to always fetch from DB
+console.warn(
+  "⚠️  Redis is DISABLED - all requests will bypass cache and go to database",
+);
+
 export const safeRedis = {
   async get(key) {
-    try {
-      if (!isConnected) return null;
-      return await redisClient.get(key);
-    } catch (err) {
-      console.warn(`Redis GET error for key ${key}:`, err.message);
-      return null;
-    }
+    // Always return null = cache miss, will fetch from DB
+    return null;
   },
 
   async set(key, value, options = {}) {
-    try {
-      if (!isConnected) return;
-      return await redisClient.set(key, value, options);
-    } catch (err) {
-      console.warn(`Redis SET error for key ${key}:`, err.message);
-    }
+    // No-op: don't cache anything
   },
 
   async setEx(key, seconds, value) {
-    try {
-      if (!isConnected) return;
-      return await redisClient.setEx(key, seconds, value);
-    } catch (err) {
-      console.warn(`Redis SETEX error for key ${key}:`, err.message);
-    }
+    // No-op: don't cache anything
   },
 
   async del(...keys) {
-    try {
-      if (!isConnected) return;
-      return await redisClient.del(keys);
-    } catch (err) {
-      console.warn(`Redis DEL error for keys ${keys}:`, err.message);
-    }
+    // No-op: nothing to delete
   },
 
   async exists(key) {
-    try {
-      if (!isConnected) return false;
-      return await redisClient.exists(key);
-    } catch (err) {
-      console.warn(`Redis EXISTS error for key ${key}:`, err.message);
-      return false;
-    }
+    // Always return false: key doesn't exist
+    return false;
   },
 
   async incr(key) {
-    try {
-      if (!isConnected) return 0;
-      return await redisClient.incr(key);
-    } catch (err) {
-      console.warn(`Redis INCR error for key ${key}:`, err.message);
-      return 0;
-    }
+    // Always return 0
+    return 0;
   },
 
   async expire(key, seconds) {
-    try {
-      if (!isConnected) return;
-      return await redisClient.expire(key, seconds);
-    } catch (err) {
-      console.warn(`Redis EXPIRE error for key ${key}:`, err.message);
-    }
+    // No-op: nothing to expire
   },
 
   isConnected() {
-    return isConnected;
+    // Always return false: Redis is disabled
+    return false;
   },
 };
 

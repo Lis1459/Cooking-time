@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Select from "react-select";
 import {
-  recipeService,
+  useCreateRecipeMutation,
   ingredientService,
   useIngredientsQuery,
 } from "../../services/apiService";
@@ -49,6 +49,7 @@ export const AddRecipePage = () => {
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
   const [error, setError] = useState(null);
+  const createRecipeMutation = useCreateRecipeMutation();
 
   console.log("image", image);
 
@@ -112,7 +113,7 @@ export const AddRecipePage = () => {
       formData.append("ingredients", JSON.stringify(data.ingredients));
       formData.append("steps", JSON.stringify(data.steps));
 
-      const response = await recipeService.createRecipe(formData);
+      const response = await createRecipeMutation.mutateAsync(formData);
       navigate(`/recipes/${response.id}`);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create recipe");
