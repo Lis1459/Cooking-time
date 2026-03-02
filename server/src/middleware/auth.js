@@ -27,9 +27,16 @@ export const authenticate = async (req, res, next) => {
     const refreshPayload = verifyRefreshToken(refreshToken);
     if (refreshPayload) {
       // Check if refresh token exists in DB
-      const tokenRecord = await prisma.refreshToken.findUnique({
-        where: { token: refreshToken },
-      });
+      console.log("checking refresh token", refreshToken);
+      let tokenRecord;
+      try {
+        tokenRecord = await prisma.refreshToken.findUnique({
+          where: { token: refreshToken },
+        });
+      } catch (error) {
+        console.log("token error", error.message);
+      }
+      console.log("token record", tokenRecord);
       if (tokenRecord) {
         user = {
           id: refreshPayload.id,

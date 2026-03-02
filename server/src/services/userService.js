@@ -1,5 +1,5 @@
 import { UserRepository } from "../repositories/userRepository.js";
-import redisClient from "../config/redis.js";
+import { safeRedis } from "../config/redis.js";
 
 const userRepo = new UserRepository();
 const CACHE_TTL = 3600; // 1 hour
@@ -7,7 +7,7 @@ const CACHE_TTL = 3600; // 1 hour
 export class UserService {
   async getUserById(id) {
     const cacheKey = `user:${id}`;
-    const cached = await redisClient.get(cacheKey);
+    const cached = await safeRedis.get(cacheKey);
     if (cached) {
       return JSON.parse(cached);
     }
@@ -17,7 +17,7 @@ export class UserService {
       throw new Error("User not found");
     }
     if (user) {
-      await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(user));
+      await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(user));
     }
     return user;
   }
@@ -25,7 +25,7 @@ export class UserService {
   async updateUser(id, userData) {
     const updatedUser = await userRepo.update(id, userData);
     // Invalidate cache
-    await redisClient.del(`user:${id}`);
+    await safeRedis.del(`user:${id}`);
     return updatedUser;
   }
 
@@ -36,7 +36,7 @@ export class UserService {
       },
     });
     // Invalidate cache
-    await redisClient.del(`user:${id}`);
+    await safeRedis.del(`user:${id}`);
     return updatedUser;
   }
 
@@ -46,18 +46,18 @@ export class UserService {
 
   async blockUser(id) {
     const user = await userRepo.update(id, { is_blocked: true });
-    await redisClient.del(`user:${id}`);
+    await safeRedis.del(`user:${id}`);
     return user;
   }
 
   async unblockUser(id) {
     const user = await userRepo.update(id, { is_blocked: false });
-    await redisClient.del(`user:${id}`);
+    await safeRedis.del(`user:${id}`);
     return user;
   }
 
   async deleteUser(id) {
-    await redisClient.del(`user:${id}`);
+    await safeRedis.del(`user:${id}`);
     return userRepo.delete(id);
   }
 }

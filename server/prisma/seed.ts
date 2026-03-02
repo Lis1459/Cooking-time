@@ -47,7 +47,7 @@ async function main() {
 
     const user = await prisma.user.create({
       data: {
-        email: `пользователь${i}@mail.ru`,
+        email: `user${i}@mail.ru`,
         password_hash: hashedPassword,
         role: i === 1 ? Role.ADMIN : Role.USER,
         profile: {
@@ -315,7 +315,7 @@ async function main() {
       data: {
         recipe_id: recipe.id,
         user_id: user.profile!.id,
-        text: `Очень вкусно! Обязательно приготовлю снова. (${i})`,
+        text: `Очень вкусно! Обязательно приготовлю снова.`,
       },
     });
   }

@@ -32,6 +32,7 @@ export class AuthService {
   }
 
   async login(email, password) {
+    console.log("email, pass", email, password);
     const user = await userRepo.findByEmail(email);
     if (!user || user.is_blocked) {
       throw new Error("Invalid credentials");

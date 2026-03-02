@@ -1,7 +1,7 @@
 import { RecipeRepository } from "../repositories/recipeRepository.js";
 import { FavoriteRepository } from "../repositories/favoriteRepository.js";
 import parseCookStatus from "../utils/recipeUtils.js";
-import redisClient from "../config/redis.js";
+import { safeRedis } from "../config/redis.js";
 import prisma from "../config/database.js";
 
 const recipeRepo = new RecipeRepository();
@@ -11,7 +11,7 @@ const CACHE_TTL = 3600; // 1 hour
 export class RecipeService {
   async getRecipeById(id, userId = null) {
     const cacheKey = `recipe:${id}`;
-    const cached = await redisClient.get(cacheKey);
+    const cached = await safeRedis.get(cacheKey);
 
     let recipe;
     if (cached) {
@@ -22,7 +22,7 @@ export class RecipeService {
         throw new Error("Recipe not found");
       }
       if (recipe) {
-        await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(recipe));
+        await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(recipe));
       }
     }
 
@@ -43,46 +43,47 @@ export class RecipeService {
 
   async getRecipes(filters, page, limit) {
     const cacheKey = `recipes:${JSON.stringify(filters)}:${page}:${limit}`;
-    const cached = await redisClient.get(cacheKey);
-    // if (cached) {
-    //   return JSON.parse(cached);
-    // }
+    const cached = await safeRedis.get(cacheKey);
+    if (cached) {
+      console.log("redis detached");
+      return JSON.parse(cached);
+    }
     const recipes = await recipeRepo.findAll(filters, page, limit);
     const total = await recipeRepo.count(filters);
 
     const result = { recipes, total, page, limit };
-    await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
+    await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
     return result;
   }
 
   async createRecipe(recipeData) {
     const recipe = await recipeRepo.create(recipeData);
     // Invalidate popular cache
-    await redisClient.del("popular_recipes");
+    await safeRedis.del("popular_recipes");
     return recipe;
   }
 
   async updateRecipe(id, data) {
     const recipe = await recipeRepo.update(id, data);
-    await redisClient.del(`recipe:${id}`);
+    await safeRedis.del(`recipe:${id}`);
     return recipe;
   }
 
   async deleteRecipe(id) {
     await recipeRepo.delete(id);
-    await redisClient.del(`recipe:${id}`);
-    await redisClient.del("popular_recipes");
+    await safeRedis.del(`recipe:${id}`);
+    await safeRedis.del("popular_recipes");
   }
 
   async getPopularRecipes(limit = 10) {
     const cacheKey = "popular_recipes";
-    const cached = await redisClient.get(cacheKey);
+    const cached = await safeRedis.get(cacheKey);
     if (cached) {
       return JSON.parse(cached);
     }
 
     const recipes = await recipeRepo.getPopular(limit);
-    await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(recipes));
+    await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(recipes));
     return recipes;
   }
 
@@ -99,7 +100,7 @@ export class RecipeService {
         status,
       );
 
-      await redisClient.del(`recipe:${recipeId}`);
+      await safeRedis.del(`recipe:${recipeId}`);
 
       return result;
     } catch (err) {

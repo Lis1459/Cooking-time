@@ -1,4 +1,4 @@
-import redisClient from "../config/redis.js";
+import { safeRedis } from "../config/redis.js";
 import { RatingRepository } from "../repositories/ratingRepository.js";
 
 const ratingRepo = new RatingRepository();
@@ -28,7 +28,7 @@ export class RatingService {
     try {
       const rating = await ratingRepo.upsert(recipeId, userId, score);
       const cacheKey = `recipe_rating_${recipeId}`;
-      await redisClient.del(cacheKey);
+      await safeRedis.del(cacheKey);
       return rating;
     } catch (error) {
       throw error;
