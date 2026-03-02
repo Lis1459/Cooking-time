@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+
 import {
   useRecipesQuery,
   useRemoveFromFavoritesMutation,
 } from "../services/apiService";
 import { Card, CardContent, Button, Loader, Badge } from "../components/ui";
 import "./Favorites.css";
+import { SOCKET_URL } from "../config/constants";
 
 export const FavoritesPage = () => {
   const navigate = useNavigate();
@@ -48,7 +50,7 @@ export const FavoritesPage = () => {
           {displayRecipes.map((recipe) => (
             <Card key={recipe.id} className="recipe-card">
               <img
-                src={recipe.preview_img_url}
+                src={`${SOCKET_URL}${recipe.preview_img_url}`}
                 alt={recipe.title}
                 className="recipe-image"
               />

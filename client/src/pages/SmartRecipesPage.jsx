@@ -11,6 +11,7 @@ import {
   Badge,
 } from "../components/ui";
 import "./SmartRecipes.css";
+import { SOCKET_URL } from "../config/constants";
 
 export const SmartRecipesPage = () => {
   const navigate = useNavigate();
@@ -143,7 +144,7 @@ export const SmartRecipesPage = () => {
             {matchedRecipes.map((recipe) => (
               <Card key={recipe.id} className="recipe-card">
                 <img
-                  src={recipe.preview_img_url}
+                  src={`${SOCKET_URL}${recipe.preview_img_url}`}
                   alt={recipe.title}
                   className="recipe-image"
                 />
