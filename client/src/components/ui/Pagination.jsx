@@ -1,12 +1,29 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./index";
 
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+const Pagination = ({ currentPage, totalPages, onPageChange, className }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 480);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   if (totalPages <= 1) return null;
 
   const getPageNumbers = () => {
+    if (isMobile) {
+      // На мобильных показывать только текущую страницу
+      return [currentPage];
+    }
+
     const pages = [];
-    const showPages = 1; // Показывать первые 3 и последние 3
+    const showPages = 1; // Показывать первые и последние страницы
 
     if (totalPages <= showPages * 2 + 1) {
       // Если страниц мало, показать все
@@ -14,7 +31,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         pages.push(i);
       }
     } else {
-      // Показать первые 3
+      // Показать первые
       for (let i = 1; i <= showPages; i++) {
         pages.push(i);
       }
@@ -39,7 +56,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         pages.push("...");
       }
 
-      // Показать последние 3
+      // Показать последние
       for (let i = totalPages - showPages + 1; i <= totalPages; i++) {
         if (!pages.includes(i)) {
           pages.push(i);
@@ -53,7 +70,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className="pagination">
+    <div className={"pagination " + className}>
       <Button
         variant="outline"
         size="sm"
@@ -63,21 +80,27 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         {"<"}
       </Button>
 
-      {pageNumbers.map((page, index) => (
-        <React.Fragment key={index}>
-          {page === "..." ? (
-            <span className="pagination-ellipsis">...</span>
-          ) : (
-            <Button
-              variant={page === currentPage ? "primary" : "outline"}
-              size="sm"
-              onClick={() => onPageChange(page)}
-            >
-              {page}
-            </Button>
-          )}
-        </React.Fragment>
-      ))}
+      {isMobile ? (
+        <span className="pagination-mobile">
+          {currentPage} / {totalPages}
+        </span>
+      ) : (
+        pageNumbers.map((page, index) => (
+          <React.Fragment key={index}>
+            {page === "..." ? (
+              <span className="pagination-ellipsis">...</span>
+            ) : (
+              <Button
+                variant={page === currentPage ? "primary" : "outline"}
+                size="sm"
+                onClick={() => onPageChange(page)}
+              >
+                {page}
+              </Button>
+            )}
+          </React.Fragment>
+        ))
+      )}
 
       <Button
         variant="outline"

@@ -311,7 +311,7 @@ export const RecipeDetailPage = () => {
           </Card>
 
           {/* Comments */}
-          <Card>
+          <Card className="comments-card">
             <CardHeader>Comments ({totalComments})</CardHeader>
             <CardContent>
               {isAuthenticated && (
@@ -367,6 +367,7 @@ export const RecipeDetailPage = () => {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
+                className="comments-pagination"
               />
             </CardContent>
           </Card>
