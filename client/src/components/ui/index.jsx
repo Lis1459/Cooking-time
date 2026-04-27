@@ -1,5 +1,6 @@
 import "../../styles/components.css";
 export { PasswordToggle } from "./PasswordToggle";
+export { default as Pagination } from "./Pagination";
 
 export const Button = ({
   children,

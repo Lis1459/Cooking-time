@@ -267,11 +267,18 @@ export const useMarkRecipeMutation = () => {
 
 // ============= COMMENT HOOKS =============
 
-export const useCommentsQuery = (recipeId, options = {}) => {
+export const useCommentsQuery = (
+  recipeId,
+  page = 1,
+  limit = 10,
+  options = {},
+) => {
   return useQuery({
-    queryKey: ["comments", recipeId],
+    queryKey: ["comments", recipeId, page, limit],
     queryFn: async () => {
-      const response = await api.get(`/recipes/${recipeId}/comments`);
+      const response = await api.get(`/recipes/${recipeId}/comments`, {
+        params: { page, limit },
+      });
       return response.data;
     },
     enabled: !!recipeId,

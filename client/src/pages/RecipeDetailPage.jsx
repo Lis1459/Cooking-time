@@ -21,6 +21,7 @@ import {
   Badge,
   Input,
   Select,
+  Pagination,
 } from "../components/ui";
 import "./RecipeDetail.css";
 import { SelectButton } from "../components/ui/selectButton/selectButton";
@@ -32,11 +33,15 @@ export const RecipeDetailPage = () => {
   const { user, isAuthenticated } = useAuth();
   const userId = { userId: user?.id };
   const { data: currentRecipe, isLoading } = useRecipeQuery(id, userId);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 3;
+
   const {
     data: commentsData,
     isLoading: loading_comments,
     refetch: refetchComments,
-  } = useCommentsQuery(id);
+  } = useCommentsQuery(id, currentPage, limit);
 
   const { data: ratingData, isLoading: loading_rating } = useRateQuery(
     id,
@@ -44,6 +49,8 @@ export const RecipeDetailPage = () => {
   );
 
   const comments = commentsData ? commentsData.comments : [];
+  const totalComments = commentsData ? commentsData.total : 0;
+  const totalPages = Math.ceil(totalComments / limit);
   const addToFavsMutation = useAddToFavoritesMutation();
   const removeFromFavsMutation = useRemoveFromFavoritesMutation();
   const markRecipeMutation = useMarkRecipeMutation();
@@ -79,6 +86,7 @@ export const RecipeDetailPage = () => {
       {
         onSuccess: () => {
           setCommentText("");
+          setCurrentPage(1);
           refetchComments();
         },
       },
@@ -130,6 +138,10 @@ export const RecipeDetailPage = () => {
     } catch (error) {
       console.error("Failed to mark as cooked:", error);
     }
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   if (isLoading) {
@@ -300,7 +312,7 @@ export const RecipeDetailPage = () => {
 
           {/* Comments */}
           <Card>
-            <CardHeader>Comments ({comments.length})</CardHeader>
+            <CardHeader>Comments ({totalComments})</CardHeader>
             <CardContent>
               {isAuthenticated && (
                 <div className="add-comment">
@@ -351,6 +363,11 @@ export const RecipeDetailPage = () => {
                   <p className="no-comments">No comments yet. Be the first!</p>
                 )}
               </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
             </CardContent>
           </Card>
         </div>
