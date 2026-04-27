@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   Button,
@@ -102,12 +103,9 @@ export const LoginPage = () => {
           <div className="auth-footer">
             <p>
               Don't have an account?{" "}
-              <button
-                className="auth-link"
-                onClick={() => navigate("/register")}
-              >
+              <Link to="/register" className="auth-link">
                 Sign up
-              </button>
+              </Link>
             </p>
           </div>
         </CardContent>

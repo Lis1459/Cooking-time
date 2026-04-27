@@ -26,9 +26,21 @@ export class AuthService {
       },
     });
 
+    const payload = { id: user.id, email: user.email, role: user.role };
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+
+    await prisma.refreshToken.create({
+      data: {
+        user_id: user.id,
+        token: refreshToken,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      },
+    });
+
     console.log("Created user:", user);
 
-    return user;
+    return { accessToken, refreshToken, user: { name, ...user } };
   }
 
   async login(email, password) {

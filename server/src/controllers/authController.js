@@ -6,10 +6,27 @@ const isProd = process.env.NODE_ENV === "production";
 export const register = async (req, res) => {
   try {
     const { email, password, name } = req.body;
-    const user = await authService.register({ email, password, name });
+    const { accessToken, refreshToken, user } = await authService.register({
+      email,
+      password,
+      name,
+    });
+    console.log(user);
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "None" : "Lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
     res.status(201).json({
       message: "User registered successfully",
-      user: { id: user.id, email: user.email },
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+      },
     });
   } catch (error) {
     console.log("controller", error.message);
