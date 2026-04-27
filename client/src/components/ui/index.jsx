@@ -1,4 +1,5 @@
 import "../../styles/components.css";
+export { PasswordToggle } from "./PasswordToggle";
 
 export const Button = ({
   children,

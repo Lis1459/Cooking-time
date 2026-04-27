@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import {
   Button,
   Input,
+  PasswordToggle,
   Card,
   CardHeader,
   CardContent,
@@ -77,9 +78,8 @@ export const LoginPage = () => {
 
             <div className="form-group">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordToggle
                 id="password"
-                type="password"
                 placeholder="••••••••"
                 {...register("password")}
                 error={!!errors.password}

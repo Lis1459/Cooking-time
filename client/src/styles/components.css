@@ -435,3 +435,48 @@
   min-height: 100px;
   font-family: inherit;
 }
+
+/* Password Toggle */
+.password-toggle-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input {
+  padding-right: 40px;
+}
+
+.password-toggle-button {
+  position: absolute;
+  right: var(--spacing-lg);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-500);
+  transition: var(--transition);
+}
+
+.password-toggle-button:hover {
+  color: var(--gray-700);
+  background: none;
+}
+
+.password-toggle-button:focus {
+  outline: none;
+}
+
+.password-toggle-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.toggle-icon {
+  width: 20px;
+  height: 20px;
+}
