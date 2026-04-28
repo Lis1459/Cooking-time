@@ -164,4 +164,23 @@ export class RecipeService {
     // Implementation for getting rating
     return { average: 0, count: 0 };
   }
+
+  async searchByIngredients(ingredientIds, page = 1, limit = 10) {
+    const cacheKey = `recipes:ingredients:${ingredientIds.sort().join(",")}:${page}:${limit}`;
+    const cached = await safeRedis.get(cacheKey);
+    // if (cached) {
+    //   return JSON.parse(cached);
+    // }
+
+    const recipes = await recipeRepo.findByIngredients(
+      ingredientIds,
+      page,
+      limit,
+    );
+    const total = await recipeRepo.countByIngredients(ingredientIds);
+
+    const result = { recipes, total, page, limit };
+    await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
+    return result;
+  }
 }

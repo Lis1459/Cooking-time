@@ -153,4 +153,85 @@ export class RecipeRepository {
       },
     });
   }
+
+  /**
+   * Find recipes by ingredients with smart matching
+   * Returns recipes that have at least one of the provided ingredients,
+   * sorted by percentage of available ingredients (highest first)
+   * @param {number[]} ingredientIds - Array of ingredient IDs to search for
+   * @param {number} page - Page number for pagination
+   * @param {number} limit - Number of results per page
+   * @returns {Promise<Array>} Array of recipes with matchPercentage property
+   */
+  async findByIngredients(ingredientIds, page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+
+    // Convert to integers
+    const ids = ingredientIds.map((id) => parseInt(id));
+
+    // Find all recipes that have at least one of the provided ingredients
+    const recipes = await prisma.recipe.findMany({
+      where: {
+        ingredients: {
+          some: {
+            ingredient_id: { in: ids },
+          },
+        },
+        status: "PUBLISHED", // Only show published recipes
+      },
+      include: {
+        author: true,
+        categories: true,
+        tags: true,
+        cuisines: true,
+        ingredients: {
+          include: { ingredient: true },
+        },
+      },
+      skip,
+      take: limit,
+    });
+
+    // Calculate match percentage for each recipe
+    const recipesWithMatch = recipes.map((recipe) => {
+      const totalIngredients = recipe.ingredients.length;
+      const matchedIngredients = recipe.ingredients.filter((ri) =>
+        ids.includes(ri.ingredient_id),
+      ).length;
+
+      const matchPercentage = (matchedIngredients / totalIngredients) * 100;
+      const missingPercentage = 100 - matchPercentage;
+
+      return {
+        ...recipe,
+        matchPercentage: Math.round(matchPercentage),
+        missingPercentage: Math.round(missingPercentage),
+        availableIngredientsCount: matchedIngredients,
+        totalIngredientsCount: totalIngredients,
+      };
+    });
+
+    // Sort by match percentage (highest first)
+    return recipesWithMatch.sort(
+      (a, b) => b.matchPercentage - a.matchPercentage,
+    );
+  }
+
+  /**
+   * Count recipes that match by ingredients
+   */
+  async countByIngredients(ingredientIds) {
+    const ids = ingredientIds.map((id) => parseInt(id));
+
+    return prisma.recipe.count({
+      where: {
+        ingredients: {
+          some: {
+            ingredient_id: { in: ids },
+          },
+        },
+        status: "PUBLISHED",
+      },
+    });
+  }
 }

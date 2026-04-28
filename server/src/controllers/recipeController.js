@@ -325,3 +325,39 @@ export const addToCookHistory = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const smartSearch = async (req, res) => {
+  try {
+    const { ingredientIds } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    if (!ingredientIds) {
+      return res
+        .status(400)
+        .json({ message: "ingredientIds query parameter is required" });
+    }
+
+    // Parse ingredientIds (can be comma-separated string or array)
+    let ids = [];
+    if (typeof ingredientIds === "string") {
+      ids = ingredientIds
+        .split(",")
+        .map((id) => parseInt(id))
+        .filter((id) => !isNaN(id));
+    } else if (Array.isArray(ingredientIds)) {
+      ids = ingredientIds.map((id) => parseInt(id)).filter((id) => !isNaN(id));
+    }
+
+    if (ids.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "At least one valid ingredientId is required" });
+    }
+
+    const result = await recipeService.searchByIngredients(ids, page, limit);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

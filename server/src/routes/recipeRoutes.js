@@ -9,6 +9,7 @@ import {
   addToFavorites,
   removeFromFavorites,
   markRecipeStatus,
+  smartSearch,
 } from "../controllers/recipeController.js";
 import { authenticate } from "../middleware/auth.js";
 import { requireAdmin } from "../middleware/role.js";
@@ -17,6 +18,7 @@ import { uploadRecipeImage } from "../middleware/upload.js";
 const router = express.Router();
 
 router.get("/popular", getPopularRecipes);
+router.get("/smart-search", smartSearch);
 router.get("/", getRecipes);
 router.get("/:id", getRecipe);
 router.post("/", authenticate, uploadRecipeImage, createRecipe);

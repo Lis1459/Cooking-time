@@ -55,9 +55,7 @@ export const SmartRecipesPage = () => {
     try {
       setLoading(true);
       const ingredientIds = ingredients.map((i) => i.id);
-      const data = await recipeService.getRecipes({
-        ingredientIds: ingredientIds.join(","),
-      });
+      const data = await recipeService.smartSearch(ingredientIds);
       setMatchedRecipes(data.recipes || []);
     } catch (error) {
       console.error("Failed to fetch recipes:", error);
@@ -169,6 +167,42 @@ export const SmartRecipesPage = () => {
                     <span className="cooking-time">
                       ⏱️ {recipe.cooking_time}min
                     </span>
+                  </div>
+                  <div style={{ marginBottom: "var(--spacing-md)" }}>
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "var(--gray-600)",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Match: {recipe.availableIngredientsCount}/
+                      {recipe.totalIngredientsCount} ingredients (
+                      {recipe.matchPercentage}%)
+                    </div>
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "4px",
+                        backgroundColor: "var(--gray-200)",
+                        borderRadius: "2px",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          width: `${recipe.matchPercentage}%`,
+                          backgroundColor:
+                            recipe.matchPercentage === 100
+                              ? "#4CAF50"
+                              : recipe.matchPercentage >= 50
+                                ? "#FFC107"
+                                : "#FF9800",
+                          transition: "width 0.3s ease",
+                        }}
+                      />
+                    </div>
                   </div>
                   <Button
                     variant="primary"

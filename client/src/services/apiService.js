@@ -802,6 +802,18 @@ export const recipeService = {
     return response.data;
   },
 
+  smartSearch: async (ingredientIds, page = 1, limit = 10) => {
+    const params = {
+      ingredientIds: Array.isArray(ingredientIds)
+        ? ingredientIds.join(",")
+        : ingredientIds,
+      page,
+      limit,
+    };
+    const response = await api.get("/recipes/smart-search", { params });
+    return response.data;
+  },
+
   createRecipe: async (formData) => {
     const response = await api.post("/recipes", formData, {
       headers: { "Content-Type": "multipart/form-data" },
