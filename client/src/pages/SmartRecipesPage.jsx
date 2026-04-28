@@ -19,9 +19,14 @@ export const SmartRecipesPage = () => {
   const [availableIngredients, setAvailableIngredients] = useState([]);
   const [matchedRecipes, setMatchedRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalRecipes, setTotalRecipes] = useState(0);
   const [ingredientInput, setIngredientInput] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchInput = useRef();
+  const sentinelRef = useRef(null);
 
   useEffect(() => {
     fetchAvailableIngredients();
@@ -49,20 +54,76 @@ export const SmartRecipesPage = () => {
     setIngredients(ingredients.filter((i) => i.id !== ingredientId));
   };
 
-  const handleSearch = async () => {
+  const fetchRecipes = async (pageToLoad = 1) => {
     if (ingredients.length === 0) return;
 
     try {
-      setLoading(true);
+      if (pageToLoad === 1) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
       const ingredientIds = ingredients.map((i) => i.id);
-      const data = await recipeService.smartSearch(ingredientIds);
-      setMatchedRecipes(data.recipes || []);
+      const data = await recipeService.smartSearch(
+        ingredientIds,
+        pageToLoad,
+        10,
+      );
+      const newRecipes = data.recipes || [];
+
+      setMatchedRecipes((prev) =>
+        pageToLoad === 1 ? newRecipes : [...prev, ...newRecipes],
+      );
+      setTotalRecipes(data.total || 0);
+      setHasMore(pageToLoad * 10 < (data.total || 0));
     } catch (error) {
       console.error("Failed to fetch recipes:", error);
     } finally {
-      setLoading(false);
+      if (pageToLoad === 1) {
+        setLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
     }
   };
+
+  const handleSearch = async () => {
+    if (ingredients.length === 0) return;
+
+    setPage(1);
+    setMatchedRecipes([]);
+    setTotalRecipes(0);
+    setHasMore(false);
+
+    await fetchRecipes(1);
+  };
+
+  useEffect(() => {
+    if (page === 1) return;
+    fetchRecipes(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
+  useEffect(() => {
+    if (!hasMore || loading || loadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    const current = sentinelRef.current;
+    if (current) observer.observe(current);
+
+    return () => {
+      if (current) observer.unobserve(current);
+    };
+  }, [hasMore, loading, loadingMore]);
 
   const filteredIngredients = availableIngredients.filter(
     (i) =>
@@ -148,7 +209,7 @@ export const SmartRecipesPage = () => {
       {/* Results */}
       {matchedRecipes.length > 0 && (
         <div className="results-section">
-          <h2>Found {matchedRecipes.length} Recipes</h2>
+          <h2>Found {totalRecipes || matchedRecipes.length} Recipes</h2>
           <div className="recipes-grid">
             {matchedRecipes.map((recipe) => (
               <Card key={recipe.id} className="recipe-card">
@@ -215,6 +276,14 @@ export const SmartRecipesPage = () => {
               </Card>
             ))}
           </div>
+          {hasMore && (
+            <div ref={sentinelRef} style={{ width: "100%", height: "1px" }} />
+          )}
+          {loadingMore && (
+            <div className="loading-container">
+              <Loader size="lg" />
+            </div>
+          )}
         </div>
       )}
 
