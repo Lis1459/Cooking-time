@@ -164,12 +164,16 @@ export class RecipeRepository {
    * @returns {Promise<Array>} Array of recipes with matchPercentage property
    */
   async findByIngredients(ingredientIds, page = 1, limit = 10) {
-    const skip = (page - 1) * limit;
+    const ids = ingredientIds
+      .map((id) => parseInt(id))
+      .filter((id) => !Number.isNaN(id));
 
-    // Convert to integers
-    const ids = ingredientIds.map((id) => parseInt(id));
+    if (ids.length === 0) {
+      return [];
+    }
 
-    // Find all recipes that have at least one of the provided ingredients
+    // Find all recipes that have at least one of the provided ingredients,
+    // then sort them by match percentage and apply pagination in memory.
     const recipes = await prisma.recipe.findMany({
       where: {
         ingredients: {
@@ -177,7 +181,7 @@ export class RecipeRepository {
             ingredient_id: { in: ids },
           },
         },
-        status: "PUBLISHED", // Only show published recipes
+        status: "PUBLISHED",
       },
       include: {
         author: true,
@@ -188,33 +192,31 @@ export class RecipeRepository {
           include: { ingredient: true },
         },
       },
-      skip,
-      take: limit,
     });
 
-    // Calculate match percentage for each recipe
-    const recipesWithMatch = recipes.map((recipe) => {
-      const totalIngredients = recipe.ingredients.length;
-      const matchedIngredients = recipe.ingredients.filter((ri) =>
-        ids.includes(ri.ingredient_id),
-      ).length;
+    const recipesWithMatch = recipes
+      .map((recipe) => {
+        const totalIngredients = recipe.ingredients.length;
+        const matchedIngredients = recipe.ingredients.filter((ri) =>
+          ids.includes(ri.ingredient_id),
+        ).length;
 
-      const matchPercentage = (matchedIngredients / totalIngredients) * 100;
-      const missingPercentage = 100 - matchPercentage;
+        const matchPercentage = totalIngredients
+          ? (matchedIngredients / totalIngredients) * 100
+          : 0;
 
-      return {
-        ...recipe,
-        matchPercentage: Math.round(matchPercentage),
-        missingPercentage: Math.round(missingPercentage),
-        availableIngredientsCount: matchedIngredients,
-        totalIngredientsCount: totalIngredients,
-      };
-    });
+        return {
+          ...recipe,
+          matchPercentage: Math.round(matchPercentage),
+          missingPercentage: Math.round(100 - matchPercentage),
+          availableIngredientsCount: matchedIngredients,
+          totalIngredientsCount: totalIngredients,
+        };
+      })
+      .sort((a, b) => b.matchPercentage - a.matchPercentage);
 
-    // Sort by match percentage (highest first)
-    return recipesWithMatch.sort(
-      (a, b) => b.matchPercentage - a.matchPercentage,
-    );
+    const start = (page - 1) * limit;
+    return recipesWithMatch.slice(start, start + limit);
   }
 
   /**
