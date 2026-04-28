@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ingredientService, recipeService } from "../services/apiService";
 import {
@@ -20,6 +20,8 @@ export const SmartRecipesPage = () => {
   const [matchedRecipes, setMatchedRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [ingredientInput, setIngredientInput] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchInput = useRef();
 
   useEffect(() => {
     fetchAvailableIngredients();
@@ -38,6 +40,8 @@ export const SmartRecipesPage = () => {
     if (!ingredients.find((i) => i.id === ingredient.id)) {
       setIngredients([...ingredients, ingredient]);
       setIngredientInput("");
+      searchInput.current.blur();
+      setShowSuggestions(false);
     }
   };
 
@@ -81,17 +85,24 @@ export const SmartRecipesPage = () => {
           <div className="ingredient-section">
             <div className="ingredient-input-wrapper">
               <Input
+                ref={searchInput}
                 type="text"
                 placeholder="Search ingredients..."
                 value={ingredientInput}
-                onChange={(e) => setIngredientInput(e.target.value)}
+                onChange={(e) => {
+                  setIngredientInput(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
               />
-              {filteredIngredients.length > 0 && ingredientInput && (
+              {filteredIngredients.length > 0 && showSuggestions && (
                 <div className="ingredient-suggestions">
-                  {filteredIngredients.slice(0, 5).map((ing) => (
+                  {filteredIngredients.map((ing) => (
                     <button
                       key={ing.id}
                       className="suggestion-item"
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={() => handleAddIngredient(ing)}
                     >
                       {ing.name}

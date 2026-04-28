@@ -15,13 +15,17 @@
 
 .ingredient-input-wrapper {
   position: relative;
+  /* width: 100%; */
 }
 
 .ingredient-suggestions {
-  position: absolute;
+  /* position: absolute; */
   top: 100%;
   left: 0;
   right: 0;
+  width: 100%;
+  min-width: 100%;
+  box-sizing: border-box;
   background-color: white;
   border: 1px solid var(--gray-200);
   border-top: none;
@@ -34,6 +38,7 @@
 
 .suggestion-item {
   display: block;
+  box-sizing: border-box;
   width: 100%;
   padding: var(--spacing-md) var(--spacing-lg);
   background: none;
@@ -175,7 +180,7 @@
 @media (max-width: 768px) {
   .ingredient-tag {
     flex: 1;
-    min-width: 100px;
+    justify-content: space-between;
   }
 
   .recipes-grid {
