@@ -12,10 +12,7 @@ export const MyRecipesPage = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(12);
 
-  const queryParams = useMemo(
-    () => ({ page, limit }),
-    [page, limit],
-  );
+  const queryParams = useMemo(() => ({ page, limit }), [page, limit]);
 
   const { data, isLoading } = useMyRecipesQuery(user?.id, queryParams, {
     enabled: !!user?.id,
