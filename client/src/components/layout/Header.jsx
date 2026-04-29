@@ -119,7 +119,7 @@ export const Header = () => {
                   },
                   {
                     label: "My Recipes",
-                    href: "/recipes",
+                    href: "/my-recipes",
                   },
                   {
                     label: "Add Recipe",

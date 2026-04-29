@@ -6,6 +6,7 @@ import {
   updateRecipe,
   deleteRecipe,
   getPopularRecipes,
+  getMyRecipes,
   addToFavorites,
   removeFromFavorites,
   markRecipeStatus,
@@ -20,6 +21,7 @@ const router = express.Router();
 router.get("/popular", getPopularRecipes);
 router.get("/smart-search", smartSearch);
 router.get("/", getRecipes);
+router.get("/my", authenticate, getMyRecipes);
 router.get("/:id", getRecipe);
 router.post("/", authenticate, uploadRecipeImage, createRecipe);
 router.put("/:id", authenticate, updateRecipe);

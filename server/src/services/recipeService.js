@@ -110,7 +110,9 @@ export class RecipeService {
   }
 
   async getRecipesByUser(userId, page, limit) {
-    return await recipeRepo.findByUserId(userId, page, limit);
+    const recipes = await recipeRepo.findByUserId(userId, page, limit);
+    const total = await recipeRepo.count({ author_id: userId });
+    return { recipes, total, page, limit };
   }
 
   async searchRecipes(query, page, limit) {

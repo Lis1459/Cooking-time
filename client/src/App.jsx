@@ -26,6 +26,7 @@ import LoginPage from "./features/auth/LoginPage";
 import RegisterPage from "./features/auth/RegisterPage";
 import AddRecipePage from "./features/recipes/AddRecipePage";
 import AdminPanelPage from "./features/admin/AdminPanelPage";
+import MyRecipesPage from "./pages/MyRecipesPage";
 
 import "./App.css";
 import ScrollToTop from "./components/common/ScrollToTop";
@@ -92,6 +93,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <FavoritesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-recipes"
+            element={
+              <ProtectedRoute>
+                <MyRecipesPage />
               </ProtectedRoute>
             }
           />

@@ -182,6 +182,19 @@ export const usePopularRecipesQuery = (options = {}) => {
   });
 };
 
+export const useMyRecipesQuery = (userId, options = {}) => {
+  return useQuery({
+    queryKey: ["myRecipes", userId],
+    queryFn: async () => {
+      const response = await api.get("/recipes/my");
+      return response.data;
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    ...options,
+  });
+};
+
 export const useCreateRecipeMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({

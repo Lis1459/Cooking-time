@@ -85,6 +85,7 @@ export class RecipeRepository {
     if (filters.cuisine) where.cuisines = { some: { name: filters.cuisine } };
     if (filters.difficulty) where.difficulty = filters.difficulty;
     if (filters.status) where.status = filters.status;
+    if (filters.author_id) where.author_id = filters.author_id;
 
     return prisma.recipe.count({ where });
   }
@@ -101,6 +102,23 @@ export class RecipeRepository {
         _count: { select: { comments: true, favorite: true } },
       },
       orderBy: { comments: { _count: "desc" } },
+    });
+  }
+
+  async findByUserId(userId, page = 1, limit = 10) {
+    console.log(userId);
+    const skip = (page - 1) * limit;
+    return prisma.recipe.findMany({
+      where: { author_id: userId },
+      skip,
+      take: limit,
+      include: {
+        author: true,
+        categories: true,
+        tags: true,
+        cuisines: true,
+      },
+      orderBy: { created_at: "desc" },
     });
   }
 

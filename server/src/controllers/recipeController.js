@@ -31,6 +31,21 @@ export const getRecipes = async (req, res) => {
   }
 };
 
+export const getMyRecipes = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const result = await recipeService.getRecipesByUser(
+      req.user.id,
+      page,
+      limit,
+    );
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const createRecipe = async (req, res) => {
   try {
     console.log("Received recipe data", req.body);
