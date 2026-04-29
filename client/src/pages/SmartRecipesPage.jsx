@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useNavigationType } from "react-router-dom";
 import { ingredientService, recipeService } from "../services/apiService";
 import {
   Card,
@@ -27,10 +27,65 @@ export const SmartRecipesPage = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchInput = useRef();
   const sentinelRef = useRef(null);
+  const isRestoring = useRef(true);
+
+  const isBackNavigation = useNavigationType() === "POP";
+  useEffect(() => {
+    console.log(isBackNavigation);
+
+    const saved = sessionStorage.getItem("smartRecipesState");
+
+    if (isBackNavigation && saved) {
+      const parsed = JSON.parse(saved);
+
+      setIngredients(parsed.ingredients || []);
+      setMatchedRecipes(parsed.matchedRecipes || []);
+      setPage(parsed.page || 1);
+      setHasMore(parsed.hasMore || false);
+      setTotalRecipes(parsed.totalRecipes || 0);
+      setIngredientInput(parsed.ingredientInput || "");
+      setShowSuggestions(false);
+
+      console.log("State restored");
+    } else {
+      // 👉 новый заход — очищаем
+      sessionStorage.removeItem("smartRecipesState");
+
+      console.log("Fresh page");
+    }
+
+    fetchAvailableIngredients();
+
+    setTimeout(() => {
+      isRestoring.current = false;
+    }, 0);
+  }, [isBackNavigation]);
 
   useEffect(() => {
-    fetchAvailableIngredients();
-  }, []);
+    if (isRestoring.current) return;
+    sessionStorage.setItem(
+      "smartRecipesState",
+      JSON.stringify({
+        ingredients,
+        matchedRecipes,
+        page,
+        hasMore,
+        totalRecipes,
+        ingredientInput,
+      }),
+    );
+  }, [
+    ingredients,
+    matchedRecipes,
+    page,
+    hasMore,
+    totalRecipes,
+    ingredientInput,
+  ]);
+
+  // useEffect(() => {
+  //   fetchAvailableIngredients();
+  // }, []);
 
   const fetchAvailableIngredients = async () => {
     try {
@@ -100,6 +155,7 @@ export const SmartRecipesPage = () => {
   };
 
   useEffect(() => {
+    if (isRestoring.current) return;
     if (page === 1) return;
     fetchRecipes(page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
