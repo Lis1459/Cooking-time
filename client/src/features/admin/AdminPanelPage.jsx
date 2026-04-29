@@ -56,7 +56,7 @@ export const AdminPanelPage = () => {
       setUsers((prev) =>
         page === 1 ? usersData.users : [...prev, ...usersData.users],
       );
-      setTotalUsers(usersData.total || usersData.users.length);
+      setTotalUsers(usersData.total);
       setHasMore(page * usersLimit < (usersData.total || 0));
       setLoadingMore(false);
     }

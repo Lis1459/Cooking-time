@@ -38,11 +38,15 @@ export class UserRepository {
 
   async findAllUsers(page = 1, limit = 10) {
     const skip = (page - 1) * limit;
-    return prisma.user.findMany({
-      skip,
-      take: limit,
-      include: { profile: true },
-    });
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        skip,
+        take: limit,
+        include: { profile: true },
+      }),
+      prisma.user.count(),
+    ]);
+    return { users, total };
   }
 
   async countUsers() {
