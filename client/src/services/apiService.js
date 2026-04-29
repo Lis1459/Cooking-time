@@ -666,6 +666,19 @@ export const useReportsQuery = (options = {}) => {
   });
 };
 
+export const useReportQuery = (reportId, options = {}) => {
+  return useQuery({
+    queryKey: ["report", reportId],
+    queryFn: async () => {
+      const response = await api.get(`/reports/${reportId}`);
+      return response.data;
+    },
+    enabled: !!reportId,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+};
+
 export const useCreateReportMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({

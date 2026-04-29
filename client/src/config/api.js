@@ -26,8 +26,10 @@ api.interceptors.request.use(
 
 api.interceptors.response.use((response) => {
   const authHeader = response.headers["authorization"];
+  console.log(authHeader);
   if (authHeader) {
     const token = authHeader.replace("Bearer ", "");
+    console.log("set 5");
     localStorage.setItem(AUTH_TOKEN_KEY, token);
   }
   return response;

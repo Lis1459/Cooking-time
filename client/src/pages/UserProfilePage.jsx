@@ -18,6 +18,7 @@ import {
   Loader,
   Alert,
 } from "../components/ui";
+import { ReportDialog } from "../components/common/ReportDialog";
 import "./UserProfile.css";
 
 export const UserProfilePage = () => {
@@ -31,6 +32,7 @@ export const UserProfilePage = () => {
   const updateProfileMutation = useUpdateProfileMutation(finalUser);
   const [isEditing, setIsEditing] = useState(false);
   const [error] = useState(null);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
   const {
     register,
@@ -88,14 +90,25 @@ export const UserProfilePage = () => {
               <h1>{profile?.name}</h1>
               <p className="profile-email">{authUser?.email}</p>
             </div>
-            {isOwnProfile && (
-              <Button
-                variant={isEditing ? "secondary" : "primary"}
-                onClick={() => setIsEditing(!isEditing)}
-              >
-                {isEditing ? "Cancel" : "Edit Profile"}
-              </Button>
-            )}
+            <div className="profile-actions">
+              {isOwnProfile ? (
+                <Button
+                  variant={isEditing ? "secondary" : "primary"}
+                  onClick={() => setIsEditing(!isEditing)}
+                >
+                  {isEditing ? "Cancel" : "Edit Profile"}
+                </Button>
+              ) : (
+                authUser?.id && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setReportDialogOpen(true)}
+                  >
+                    ⚠️ Report User
+                  </Button>
+                )
+              )}
+            </div>
           </div>
         </CardHeader>
 
@@ -174,6 +187,12 @@ export const UserProfilePage = () => {
           )}
         </CardContent>
       </Card>
+      <ReportDialog
+        isOpen={reportDialogOpen}
+        onClose={() => setReportDialogOpen(false)}
+        targetType="USER"
+        targetId={finalUser}
+      />
     </div>
   );
 };

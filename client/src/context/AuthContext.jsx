@@ -41,6 +41,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
+      console.log("set 1");
       localStorage.setItem(AUTH_TOKEN_KEY, token);
     } else {
       localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -52,9 +53,11 @@ export const AuthProvider = ({ children }) => {
     setError(null);
     try {
       const response = await api.post("/auth/login", credentials);
-      console.log(response);
+      console.log("responce: ", response.data);
       const { accessToken, user: userData } = response.data;
 
+      console.log("accessToken", accessToken);
+      console.log("set 2");
       localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
       localStorage.setItem(USER_KEY, JSON.stringify(userData));
 
@@ -77,7 +80,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.post("/auth/register", userData);
       const { accessToken, user: userPayload } = response.data;
-
+      console.log("set 3");
       localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
       localStorage.setItem(USER_KEY, JSON.stringify(userPayload));
 
@@ -126,6 +129,7 @@ export const AuthProvider = ({ children }) => {
 
       const { accessToken, refreshToken: newRefreshToken } = response.data;
 
+      console.log("set 4");
       localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
       localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
 

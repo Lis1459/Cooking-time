@@ -7,6 +7,10 @@ export class ReportService {
     return reportRepo.findAll(filters, page, limit);
   }
 
+  async getReportById(id) {
+    return reportRepo.findById(id);
+  }
+
   async createReport(reportData) {
     return reportRepo.create(reportData);
   }

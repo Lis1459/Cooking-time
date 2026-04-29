@@ -4,7 +4,20 @@ export class ReportRepository {
   async findById(id) {
     return prisma.report.findUnique({
       where: { id: parseInt(id) },
-      include: { user: true, admin: true },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        admin: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   }
 
@@ -19,7 +32,20 @@ export class ReportRepository {
       where,
       skip,
       take: limit,
-      include: { user: true, admin: true },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        admin: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
       orderBy: { created_at: "desc" },
     });
   }
@@ -27,7 +53,14 @@ export class ReportRepository {
   async create(reportData) {
     return prisma.report.create({
       data: reportData,
-      include: { user: true },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   }
 
@@ -35,6 +68,20 @@ export class ReportRepository {
     return prisma.report.update({
       where: { id: parseInt(id) },
       data,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        admin: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   }
 

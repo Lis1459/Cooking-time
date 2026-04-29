@@ -3,8 +3,8 @@ import {
   useAllUsersQuery,
   useBlockUserMutation,
   useUnblockUserMutation,
-  useDeleteUserMutation,
   useReportsQuery,
+  useReportQuery,
   useUpdateReportMutation,
   useCategoriesQuery,
   useCreateCategoryMutation,
@@ -31,6 +31,7 @@ import {
   Select,
   Textarea,
 } from "../../components/ui";
+import { ReportModal } from "../../components/common/ReportModal";
 import "./AdminPanel.css";
 
 export const AdminPanelPage = () => {
@@ -100,7 +101,6 @@ export const AdminPanelPage = () => {
 
   const blockUserMutation = useBlockUserMutation();
   const unblockUserMutation = useUnblockUserMutation();
-  const deleteUserMutation = useDeleteUserMutation();
 
   const updateReportMutation = useUpdateReportMutation();
 
@@ -121,7 +121,12 @@ export const AdminPanelPage = () => {
   const [newTagName, setNewTagName] = useState("");
   const [newCuisineName, setNewCuisineName] = useState("");
   const [newIngredientName, setNewIngredientName] = useState("");
+  const [selectedReportId, setSelectedReportId] = useState(null);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
 
+  const { data: selectedReport } = useReportQuery(selectedReportId, {
+    enabled: reportModalOpen && !!selectedReportId,
+  });
   const loading =
     (usersLoading && page === 1) ||
     reportsLoading ||
@@ -140,19 +145,6 @@ export const AdminPanelPage = () => {
   };
 
   //report handlers
-  const handleApproveReport = (reportId) => {
-    updateReportMutation.mutate({
-      id: reportId,
-      status: "APPROVED",
-    });
-  };
-
-  const handleRejectReport = (reportId) => {
-    updateReportMutation.mutate({
-      id: reportId,
-      status: "REJECTED",
-    });
-  };
 
   //category handlers
   const handleAddCategory = async () => {
@@ -380,29 +372,20 @@ export const AdminPanelPage = () => {
                         <p className="report-reason">{report.reason}</p>
                         <p className="report-meta">
                           Reported by: <strong>{report.user?.name}</strong> |
-                          Status:{" "}
                           <Badge variant="warning">{report.status}</Badge>
                         </p>
                       </div>
                       <div className="report-actions">
-                        {report.status === "PENDING" && (
-                          <>
-                            <Button
-                              variant="success"
-                              size="sm"
-                              onClick={() => handleApproveReport(report.id)}
-                            >
-                              Approve
-                            </Button>
-                            <Button
-                              variant="danger"
-                              size="sm"
-                              onClick={() => handleRejectReport(report.id)}
-                            >
-                              Reject
-                            </Button>
-                          </>
-                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedReportId(report.id);
+                            setReportModalOpen(true);
+                          }}
+                        >
+                          View
+                        </Button>
                       </div>
                     </div>
                   ))
@@ -623,6 +606,23 @@ export const AdminPanelPage = () => {
           </Card>
         </div>
       )}
+      <ReportModal
+        isOpen={reportModalOpen}
+        report={selectedReport}
+        onClose={() => {
+          setReportModalOpen(false);
+          setSelectedReportId(null);
+        }}
+        onSubmit={async ({ id, status, resolution_comment }) => {
+          await updateReportMutation.mutateAsync({
+            id,
+            status,
+            resolution_comment,
+          });
+          setReportModalOpen(false);
+          setSelectedReportId(null);
+        }}
+      />
     </div>
   );
 };

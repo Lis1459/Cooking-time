@@ -22,7 +22,7 @@ export const authenticate = async (req, res, next) => {
   if (accessToken) {
     user = verifyAccessToken(accessToken);
   }
-
+  console.log("user from assess token: ", user, "  ", accessToken);
   if (!user && refreshToken) {
     const refreshPayload = verifyRefreshToken(refreshToken);
     if (refreshPayload) {
@@ -70,5 +70,6 @@ export const authenticate = async (req, res, next) => {
   }
 
   req.user = user;
+  console.log(user);
   next();
 };

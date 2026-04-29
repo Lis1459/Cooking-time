@@ -23,6 +23,7 @@ import {
   Select,
   Pagination,
 } from "../components/ui";
+import { ReportDialog } from "../components/common/ReportDialog";
 import "./RecipeDetail.css";
 import { SelectButton } from "../components/ui/selectButton/selectButton";
 import { SOCKET_URL } from "../config/constants";
@@ -31,6 +32,7 @@ export const RecipeDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  console.log("user: ", user);
   const userId = { userId: user?.id };
   const { data: currentRecipe, isLoading } = useRecipeQuery(id, userId);
 
@@ -63,6 +65,9 @@ export const RecipeDetailPage = () => {
   const [cookMark, setCookMark] = useState(
     currentRecipe ? currentRecipe.cookMark : null,
   );
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [reportCommentDialogOpen, setReportCommentDialogOpen] = useState(false);
+  const [selectedCommentId, setSelectedCommentId] = useState(null);
 
   useEffect(() => {
     if (currentRecipe) {
@@ -184,6 +189,15 @@ export const RecipeDetailPage = () => {
               onClick={() => navigate(`/edit-recipe/${id}`)}
             >
               Edit
+            </Button>
+          )}
+          {isAuthenticated && user?.id !== currentRecipe.author_id && (
+            <Button
+              variant="outline"
+              onClick={() => setReportDialogOpen(true)}
+              title="Report this recipe"
+            >
+              ⚠️ Report
             </Button>
           )}
           <Button
@@ -350,11 +364,25 @@ export const RecipeDetailPage = () => {
                 ) : comments.length > 0 ? (
                   comments.map((comment) => (
                     <div key={comment.id} className="comment-item">
-                      <div className="comment-author">
-                        <strong>{comment.user?.name}</strong>
-                        <span className="comment-date">
-                          {new Date(comment.created_at).toLocaleDateString()}
-                        </span>
+                      <div className="comment-header">
+                        <div className="comment-author">
+                          <strong>{comment.user?.name}</strong>
+                          <span className="comment-date">
+                            {new Date(comment.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        {isAuthenticated && user?.id !== comment.user_id && (
+                          <button
+                            className="comment-report-btn"
+                            onClick={() => {
+                              setSelectedCommentId(comment.id);
+                              setReportCommentDialogOpen(true);
+                            }}
+                            title="Report this comment"
+                          >
+                            ⚠️
+                          </button>
+                        )}
                       </div>
                       <p className="comment-text">{comment.text}</p>
                     </div>
@@ -373,6 +401,23 @@ export const RecipeDetailPage = () => {
           </Card>
         </div>
       </div>
+
+      {/* Report Dialogs */}
+      <ReportDialog
+        isOpen={reportDialogOpen}
+        onClose={() => setReportDialogOpen(false)}
+        targetType="RECIPE"
+        targetId={id}
+      />
+      <ReportDialog
+        isOpen={reportCommentDialogOpen}
+        onClose={() => {
+          setReportCommentDialogOpen(false);
+          setSelectedCommentId(null);
+        }}
+        targetType="COMMENT"
+        targetId={selectedCommentId}
+      />
     </div>
   );
 };
