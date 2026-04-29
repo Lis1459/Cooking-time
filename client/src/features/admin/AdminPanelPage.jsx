@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useAllUsersQuery,
   useBlockUserMutation,
@@ -34,7 +34,56 @@ import {
 import "./AdminPanel.css";
 
 export const AdminPanelPage = () => {
-  const { data: users = [], isLoading: usersLoading } = useAllUsersQuery();
+  // Users pagination state
+  const [page, setPage] = useState(1);
+  const [users, setUsers] = useState([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const usersLimit = 10;
+  const sentinelRef = useRef(null);
+
+  // Fetch users data
+  const { data: usersData = {}, isLoading: usersLoading } = useAllUsersQuery(
+    page,
+    usersLimit,
+  );
+
+  // Update users when data changes
+  useEffect(() => {
+    console.log(usersData);
+    if (usersData) {
+      setUsers((prev) =>
+        page === 1 ? usersData.users : [...prev, ...usersData.users],
+      );
+      setTotalUsers(usersData.total || usersData.users.length);
+      setHasMore(page * usersLimit < (usersData.total || 0));
+      setLoadingMore(false);
+    }
+  }, [usersData, page]);
+
+  // Setup IntersectionObserver for infinite scroll
+  useEffect(() => {
+    if (!hasMore || usersLoading || loadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setPage((prevPage) => prevPage + 1);
+          setLoadingMore(true);
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    const current = sentinelRef.current;
+    if (current) observer.observe(current);
+
+    return () => {
+      if (current) observer.unobserve(current);
+    };
+  }, [hasMore, usersLoading, loadingMore]);
+
   const { data: reportsData, isLoading: reportsLoading } = useReportsQuery();
   const { data: categories = [], isLoading: categoriesLoading } =
     useCategoriesQuery();
@@ -72,7 +121,7 @@ export const AdminPanelPage = () => {
   const [newIngredientName, setNewIngredientName] = useState("");
 
   const loading =
-    usersLoading ||
+    (usersLoading && page === 1) ||
     reportsLoading ||
     categoriesLoading ||
     tagsLoading ||
@@ -201,7 +250,7 @@ export const AdminPanelPage = () => {
           className={`tab-button ${activeTab === "users" ? "active" : ""}`}
           onClick={() => setActiveTab("users")}
         >
-          👥 Users ({users.length})
+          👥 Users ({totalUsers})
         </button>
         <button
           className={`tab-button ${activeTab === "reports" ? "active" : ""}`}
@@ -239,54 +288,77 @@ export const AdminPanelPage = () => {
       {activeTab === "users" && (
         <div className="tab-content">
           <Card>
-            <CardHeader>User Management</CardHeader>
+            <CardHeader>User Management ({totalUsers} total)</CardHeader>
             <CardContent>
-              <div className="users-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((user) => (
-                      <tr key={user.id}>
-                        <td>{user.profile?.name}</td>
-                        <td>{user.email}</td>
-                        <td>
-                          <Badge
-                            variant={user.is_blocked ? "error" : "success"}
-                          >
-                            {user.is_blocked ? "Blocked" : "Active"}
-                          </Badge>
-                        </td>
-                        <td>
-                          {user.is_blocked ? (
-                            <Button
-                              variant="success"
-                              size="sm"
-                              onClick={() => handleUnblockUser(user.id)}
-                            >
-                              Unblock
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="danger"
-                              size="sm"
-                              onClick={() => handleBlockUser(user.id)}
-                            >
-                              Block
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              {usersLoading && page === 1 ? (
+                <div className="loading-container">
+                  <Loader size="lg" />
+                </div>
+              ) : users.length > 0 ? (
+                <>
+                  <div className="users-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Email</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {users.map((user) => (
+                          <tr key={user.id}>
+                            <td>{user.profile?.name}</td>
+                            <td>{user.email}</td>
+                            <td>
+                              <Badge
+                                variant={user.is_blocked ? "error" : "success"}
+                              >
+                                {user.is_blocked ? "Blocked" : "Active"}
+                              </Badge>
+                            </td>
+                            <td>
+                              {user.is_blocked ? (
+                                <Button
+                                  variant="success"
+                                  size="sm"
+                                  onClick={() => handleUnblockUser(user.id)}
+                                >
+                                  Unblock
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="danger"
+                                  size="sm"
+                                  onClick={() => handleBlockUser(user.id)}
+                                >
+                                  Block
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {hasMore && (
+                    <div
+                      ref={sentinelRef}
+                      style={{ width: "100%", height: "1px" }}
+                    />
+                  )}
+                  {loadingMore && (
+                    <div className="loading-container">
+                      <Loader size="lg" />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="empty-state">
+                  <p>No users found</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

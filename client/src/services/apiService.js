@@ -91,11 +91,13 @@ export const useUpdateProfileMutation = (userId) => {
   });
 };
 
-export const useAllUsersQuery = (options = {}) => {
+export const useAllUsersQuery = (page = 1, limit = 10, options = {}) => {
   return useQuery({
-    queryKey: ["allUsers"],
+    queryKey: ["allUsers", page, limit],
     queryFn: async () => {
-      const response = await api.get("/users");
+      const response = await api.get("/users", {
+        params: { page, limit },
+      });
       return response.data;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
