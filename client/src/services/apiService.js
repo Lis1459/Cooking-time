@@ -182,11 +182,11 @@ export const usePopularRecipesQuery = (options = {}) => {
   });
 };
 
-export const useMyRecipesQuery = (userId, options = {}) => {
+export const useMyRecipesQuery = (userId, params = {}, options = {}) => {
   return useQuery({
-    queryKey: ["myRecipes", userId],
+    queryKey: ["myRecipes", userId, params],
     queryFn: async () => {
-      const response = await api.get("/recipes/my");
+      const response = await api.get("/recipes/my", { params });
       return response.data;
     },
     enabled: !!userId,
