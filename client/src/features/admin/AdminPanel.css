@@ -153,6 +153,8 @@
 @media (max-width: 768px) {
   .tab-navigation {
     overflow-x: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .items-list {

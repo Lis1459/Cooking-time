@@ -40,7 +40,7 @@ export const AdminPanelPage = () => {
   const [hasMore, setHasMore] = useState(false);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
-  const usersLimit = 10;
+  const usersLimit = 15;
   const sentinelRef = useRef(null);
 
   // Fetch users data
@@ -51,8 +51,7 @@ export const AdminPanelPage = () => {
 
   // Update users when data changes
   useEffect(() => {
-    console.log(usersData);
-    if (usersData) {
+    if (usersData.users) {
       setUsers((prev) =>
         page === 1 ? usersData.users : [...prev, ...usersData.users],
       );
@@ -64,12 +63,15 @@ export const AdminPanelPage = () => {
 
   // Setup IntersectionObserver for infinite scroll
   useEffect(() => {
-    if (!hasMore || usersLoading || loadingMore) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
-          setPage((prevPage) => prevPage + 1);
+        if (
+          entries[0].isIntersecting &&
+          hasMore &&
+          !usersLoading &&
+          !loadingMore
+        ) {
+          setPage((prev) => prev + 1);
           setLoadingMore(true);
         }
       },
