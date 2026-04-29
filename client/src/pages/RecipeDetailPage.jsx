@@ -146,7 +146,7 @@ export const RecipeDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="loading-container">
+      <div className="recipe-detail__loading">
         <Loader size="lg" />
       </div>
     );

@@ -125,8 +125,8 @@ export const RecipeCatalogPage = () => {
       <h1>Recipe Catalog</h1>
 
       {/* Filters */}
-      <div className="filters-section">
-        <div className="filter-group">
+      <div className="recipe-catalog__filters">
+        <div className="recipe-catalog__filter-group">
           <Input
             type="text"
             placeholder="Search recipes..."
@@ -135,7 +135,7 @@ export const RecipeCatalogPage = () => {
           />
         </div>
 
-        <div className="filter-group">
+        <div className="recipe-catalog__filter-group">
           <Select
             options={categories?.map((cat) => ({
               value: cat.id,
@@ -147,7 +147,7 @@ export const RecipeCatalogPage = () => {
           />
         </div>
 
-        <div className="filter-group">
+        <div className="recipe-catalog__filter-group">
           <Select
             options={[
               { value: "VERY_EASY", name: "Very Easy" },
@@ -168,36 +168,36 @@ export const RecipeCatalogPage = () => {
       </div>
 
       {/* Results Count */}
-      <div className="results-info">
+      <div className="recipe-catalog__results-info">
         <p>Found {totalRecipes} recipes</p>
       </div>
 
       {isLoading && (
-        <div className="loading-container">
+        <div className="recipe-catalog__loading">
           <Loader size="lg" />
         </div>
       )}
       {/* Recipes Grid */}
       {recipes.length > 0 ? (
-        <div className="recipes-grid">
+        <div className="recipe-catalog__recipes-grid">
           {recipes.map((recipe) => (
-            <Card key={recipe.id} className="recipe-card">
+            <Card key={recipe.id} className="recipe-catalog__recipe-card">
               <img
                 src={`${SOCKET_URL}${recipe.preview_img_url}`}
                 alt={recipe.title}
-                className="recipe-image"
+                className="recipe-catalog__recipe-image"
               />
               <CardContent>
                 <h3>{recipe.title}</h3>
-                <p className="recipe-description">
+                <p className="recipe-catalog__recipe-description">
                   {recipe.description.substring(0, 80)}...
                 </p>
-                <div className="recipe-meta">
-                  <div className="recipe-tags">
+                <div className="recipe-catalog__recipe-meta">
+                  <div className="recipe-catalog__recipe-tags">
                     <Badge variant="primary">{recipe.difficulty}</Badge>
                     <Badge variant="success">{recipe.calories} cal</Badge>
                   </div>
-                  <span className="cooking-time">
+                  <span className="recipe-catalog__cooking-time">
                     ⏱️ {recipe.cooking_time}min
                   </span>
                 </div>
@@ -215,13 +215,13 @@ export const RecipeCatalogPage = () => {
             <div ref={sentinelRef} style={{ width: "100%", height: "1px" }} />
           )}
           {loadingMore && (
-            <div className="loading-container">
+            <div className="recipe-catalog__loading">
               <Loader size="lg" />
             </div>
           )}
         </div>
       ) : (
-        <div className="empty-state">
+        <div className="recipe-catalog__empty-state">
           <p>No recipes found. Try adjusting your filters.</p>
           <Button variant="primary" onClick={handleClearFilters}>
             Clear All Filters

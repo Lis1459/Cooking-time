@@ -26,7 +26,7 @@ export const HomePage = () => {
 
   if (loading) {
     return (
-      <div className="loading-container">
+      <div className="home-page__loading">
         <Loader size="lg" />
       </div>
     );
@@ -35,13 +35,13 @@ export const HomePage = () => {
   return (
     <div className="home-page">
       {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-content">
+      <section className="home-page__hero">
+        <div className="home-page__hero-content">
           <h1>Welcome to Cooking Time</h1>
           <p>
             Discover, share, and master delicious recipes from around the world
           </p>
-          <div className="hero-actions">
+          <div className="home-page__hero-actions">
             <Button
               variant="primary"
               size="lg"
@@ -63,24 +63,24 @@ export const HomePage = () => {
       </section>
 
       {/* Popular Recipes Section */}
-      <section className="section">
+      <section className="home-page__section">
         <h2>Popular Recipes This Week</h2>
-        <div className="recipes-grid">
+        <div className="home-page__recipes-grid">
           {(popularRecipes || []).slice(0, 6).map((recipe) => (
-            <Card key={recipe.id} className="recipe-card">
+            <Card key={recipe.id} className="home-page__recipe-card">
               <img
                 src={`${SOCKET_URL}${recipe.preview_img_url}`}
                 alt={recipe.title}
-                className="recipe-image"
+                className="home-page__recipe-image"
               />
               <CardContent>
                 <h3>{recipe.title}</h3>
-                <p className="recipe-description">
+                <p className="home-page__recipe-description">
                   {recipe.description.substring(0, 100)}...
                 </p>
-                <div className="recipe-info">
+                <div className="home-page__recipe-info">
                   <Badge variant="primary">{recipe.difficulty}</Badge>
-                  <span className="cooking-time">
+                  <span className="home-page__cooking-time">
                     ⏱️ {recipe.cooking_time}min
                   </span>
                 </div>
@@ -98,15 +98,15 @@ export const HomePage = () => {
       </section>
 
       {/* Recent Recipes Section */}
-      <section className="section">
+      <section className="home-page__section">
         <h2>Latest Recipes</h2>
-        {/* <div className="recipes-grid">
+        {/* <div className="home-page__recipes-grid">
           {(recipes || []).slice(0, 6).map((recipe) => (
-            <Card key={recipe.id} className="recipe-card">
+            <Card key={recipe.id} className="home-page__recipe-card">
               <img
                 src={recipe.preview_img_url}
                 alt={recipe.title}
-                className="recipe-image"
+                className="home-page__recipe-image"
               />
               <CardContent>
                 <h3>{recipe.title}</h3>
@@ -134,10 +134,10 @@ export const HomePage = () => {
 
       {/* CTA Section */}
       {!isAuthenticated && (
-        <section className="cta-section">
+        <section className="home-page__cta-section">
           <h2>Ready to share your favorite recipes?</h2>
           <p>Join our community of food lovers and start cooking together</p>
-          <div className="cta-actions">
+          <div className="home-page__cta-actions">
             <Button
               variant="primary"
               size="lg"

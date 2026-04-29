@@ -22,7 +22,7 @@ export const MyRecipesPage = () => {
 
   if (isLoading) {
     return (
-      <div className="loading-container">
+      <div className="my-recipes-page__loading">
         <Loader size="lg" />
       </div>
     );
@@ -30,12 +30,12 @@ export const MyRecipesPage = () => {
 
   return (
     <div className="my-recipes-page">
-      <div className="page-header">
+      <div className="my-recipes-page__header">
         <div>
           <h1>My Recipes</h1>
-          <p className="page-subtitle">Recipes created by you</p>
+          <p className="my-recipes-page__subtitle">Recipes created by you</p>
         </div>
-        <div className="pagination-controls">
+        <div className="my-recipes-page__pagination-controls">
           <label>
             Recipes per page
             <select
@@ -54,29 +54,29 @@ export const MyRecipesPage = () => {
       </div>
 
       {recipes.length > 0 ? (
-        <div className="recipes-grid">
+        <div className="my-recipes-page__recipes-grid">
           {recipes.map((recipe) => (
-            <Card key={recipe.id} className="recipe-card">
+            <Card key={recipe.id} className="my-recipes-page__recipe-card">
               <img
                 src={`${SOCKET_URL}${recipe.preview_img_url}`}
                 alt={recipe.title}
-                className="recipe-image"
+                className="my-recipes-page__recipe-image"
               />
               <CardContent>
                 <h3>{recipe.title}</h3>
-                <p className="recipe-description">
+                <p className="my-recipes-page__recipe-description">
                   {recipe.description?.substring(0, 100)}...
                 </p>
-                <div className="recipe-meta">
-                  <div className="recipe-tags">
+                <div className="my-recipes-page__recipe-meta">
+                  <div className="my-recipes-page__recipe-tags">
                     <Badge variant="primary">{recipe.difficulty}</Badge>
                     <Badge variant="success">{recipe.calories} cal</Badge>
                   </div>
-                  <span className="cooking-time">
+                  <span className="my-recipes-page__cooking-time">
                     ⏱️ {recipe.cooking_time} min
                   </span>
                 </div>
-                <div className="recipe-actions">
+                <div className="my-recipes-page__actions">
                   <Button
                     variant="primary"
                     onClick={() => navigate(`/recipes/${recipe.id}`)}
@@ -95,7 +95,7 @@ export const MyRecipesPage = () => {
           ))}
         </div>
       ) : (
-        <div className="empty-state">
+        <div className="my-recipes-page__empty-state">
           <p>You haven’t created any recipes yet.</p>
           <Button variant="primary" onClick={() => navigate("/add-recipe")}>
             Add Recipe
@@ -104,7 +104,7 @@ export const MyRecipesPage = () => {
       )}
 
       {data?.total > limit && (
-        <div className="pagination-footer">
+        <div className="my-recipes-page__pagination-footer">
           <Button
             variant="outline"
             disabled={page === 1}

@@ -66,6 +66,13 @@
   font-size: 12px;
 }
 
+.user-profile__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+}
+
 .loading-container {
   display: flex;
   align-items: center;

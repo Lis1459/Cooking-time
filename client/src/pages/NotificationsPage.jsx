@@ -41,7 +41,7 @@ export const NotificationsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="loading-container">
+      <div className="notifications-page__loading">
         <Loader size="lg" />
       </div>
     );
@@ -49,7 +49,7 @@ export const NotificationsPage = () => {
 
   return (
     <div className="notifications-page">
-      <div className="notifications-header">
+      <div className="notifications-page__header">
         <h1>Notifications</h1>
         {unreadCount > 0 && (
           <Button variant="outline" size="sm" onClick={handleMarkAllAsRead}>
@@ -105,7 +105,7 @@ export const NotificationsPage = () => {
       ) : (
         <Card>
           <CardContent>
-            <div className="empty-state">
+            <div className="notifications-page__empty-state">
               <p>🔔 No notifications yet</p>
               <p>You're all caught up!</p>
             </div>

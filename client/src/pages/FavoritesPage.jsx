@@ -33,7 +33,7 @@ export const FavoritesPage = () => {
 
   if (isLoading) {
     return (
-      <div className="loading-container">
+      <div className="favorites-page__loading">
         <Loader size="lg" />
       </div>
     );
@@ -46,26 +46,26 @@ export const FavoritesPage = () => {
       <h1>My Favorite Recipes</h1>
 
       {displayRecipes.length > 0 ? (
-        <div className="recipes-grid">
+        <div className="favorites-page__recipes-grid">
           {displayRecipes.map((recipe) => (
-            <Card key={recipe.id} className="recipe-card">
+            <Card key={recipe.id} className="favorites-page__recipe-card">
               <img
                 src={`${SOCKET_URL}${recipe.preview_img_url}`}
                 alt={recipe.title}
-                className="recipe-image"
+                className="favorites-page__recipe-image"
               />
               <CardContent>
                 <h3>{recipe.title}</h3>
-                <p className="recipe-description">
+                <p className="favorites-page__recipe-description">
                   {recipe.description.substring(0, 100)}...
                 </p>
-                <div className="recipe-meta">
+                <div className="favorites-page__recipe-meta">
                   <Badge variant="primary">{recipe.difficulty}</Badge>
-                  <span className="cooking-time">
+                  <span className="favorites-page__cooking-time">
                     ⏱️ {recipe.cooking_time}min
                   </span>
                 </div>
-                <div className="recipe-actions">
+                <div className="favorites-page__actions">
                   <Button
                     variant="primary"
                     style={{ flex: 1 }}
@@ -85,7 +85,7 @@ export const FavoritesPage = () => {
           ))}
         </div>
       ) : (
-        <div className="empty-state">
+        <div className="favorites-page__empty-state">
           <p>No favorite recipes yet.</p>
           <Button onClick={() => navigate("/recipes")}>Browse Recipes</Button>
         </div>

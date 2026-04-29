@@ -192,13 +192,13 @@ export const SmartRecipesPage = () => {
       <Card>
         <CardHeader>Find Recipes by Ingredients</CardHeader>
         <CardContent>
-          <p className="subtitle">
+          <p className="smart-recipes__subtitle">
             Enter the ingredients you have, and find recipes you can make!
           </p>
 
           {/* Ingredient Input */}
-          <div className="ingredient-section">
-            <div className="ingredient-input-wrapper">
+          <div className="smart-recipes__ingredient-section">
+            <div className="smart-recipes__ingredient-input-wrapper">
               <Input
                 ref={searchInput}
                 type="text"
@@ -212,11 +212,11 @@ export const SmartRecipesPage = () => {
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
               />
               {filteredIngredients.length > 0 && showSuggestions && (
-                <div className="ingredient-suggestions">
+                <div className="smart-recipes__ingredient-suggestions">
                   {filteredIngredients.map((ing) => (
                     <button
                       key={ing.id}
-                      className="suggestion-item"
+                      className="smart-recipes__suggestion-item"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => handleAddIngredient(ing)}
                     >
@@ -230,13 +230,13 @@ export const SmartRecipesPage = () => {
 
           {/* Selected Ingredients */}
           {ingredients.length > 0 && (
-            <div className="selected-ingredients">
-              <p className="selected-label">
+            <div className="smart-recipes__selected-ingredients">
+              <p className="smart-recipes__selected-label">
                 Selected Ingredients ({ingredients.length})
               </p>
-              <div className="ingredients-tags">
+              <div className="smart-recipes__ingredients-tags">
                 {ingredients.map((ing) => (
-                  <div key={ing.id} className="ingredient-tag">
+                  <div key={ing.id} className="smart-recipes__ingredient-tag">
                     <span>{ing.name}</span>
                     <button onClick={() => handleRemoveIngredient(ing.id)}>
                       ×
@@ -264,24 +264,24 @@ export const SmartRecipesPage = () => {
 
       {/* Results */}
       {matchedRecipes.length > 0 && (
-        <div className="results-section">
+        <div className="smart-recipes__results">
           <h2>Found {totalRecipes || matchedRecipes.length} Recipes</h2>
-          <div className="recipes-grid">
+          <div className="smart-recipes__recipes-grid">
             {matchedRecipes.map((recipe) => (
-              <Card key={recipe.id} className="recipe-card">
+              <Card key={recipe.id} className="smart-recipes__recipe-card">
                 <img
                   src={`${SOCKET_URL}${recipe.preview_img_url}`}
                   alt={recipe.title}
-                  className="recipe-image"
+                  className="smart-recipes__recipe-image"
                 />
                 <CardContent>
                   <h3>{recipe.title}</h3>
-                  <p className="recipe-description">
+                  <p className="smart-recipes__recipe-description">
                     {recipe.description.substring(0, 100)}...
                   </p>
-                  <div className="recipe-meta">
+                  <div className="smart-recipes__recipe-meta">
                     <Badge variant="primary">{recipe.difficulty}</Badge>
-                    <span className="cooking-time">
+                    <span className="smart-recipes__cooking-time">
                       ⏱️ {recipe.cooking_time}min
                     </span>
                   </div>
@@ -336,7 +336,7 @@ export const SmartRecipesPage = () => {
             <div ref={sentinelRef} style={{ width: "100%", height: "1px" }} />
           )}
           {loadingMore && (
-            <div className="loading-container">
+            <div className="smart-recipes__loading">
               <Loader size="lg" />
             </div>
           )}
@@ -344,13 +344,13 @@ export const SmartRecipesPage = () => {
       )}
 
       {loading && (
-        <div className="loading-container">
+        <div className="smart-recipes__loading">
           <Loader size="lg" />
         </div>
       )}
 
       {!loading && matchedRecipes.length === 0 && ingredients.length > 0 && (
-        <div className="no-results">
+        <div className="smart-recipes__no-results">
           <p>No recipes found with those ingredients. Try different ones!</p>
           <Button variant="outline" onClick={() => navigate("/recipes")}>
             Browse All Recipes

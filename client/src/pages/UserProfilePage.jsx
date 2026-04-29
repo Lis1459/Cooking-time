@@ -70,7 +70,7 @@ export const UserProfilePage = () => {
 
   if (isLoading) {
     return (
-      <div className="loading-container">
+      <div className="user-profile__loading">
         <Loader size="lg" />
       </div>
     );
