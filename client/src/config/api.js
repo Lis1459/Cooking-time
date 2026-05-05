@@ -1,5 +1,10 @@
 import axios from "axios";
-import { API_BASE_URL, AUTH_TOKEN_KEY, USER_KEY } from "./constants";
+import {
+  API_BASE_URL,
+  AUTH_TOKEN_KEY,
+  AUTH_TOKEN_UPDATED_AT_KEY,
+  USER_KEY,
+} from "./constants";
 import { toast } from "sonner";
 import { navigateTo } from "../services/navigation";
 import { logout } from "../services/authService";
@@ -19,6 +24,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    config.metadata = { requestStartedAt: Date.now() };
     return config;
   },
   (error) => Promise.reject(error),
@@ -26,11 +32,14 @@ api.interceptors.request.use(
 
 api.interceptors.response.use((response) => {
   const authHeader = response.headers["authorization"];
-  console.log(authHeader);
-  if (authHeader) {
+  const requestStartedAt = response.config?.metadata?.requestStartedAt || 0;
+  const lastAuthUpdate = Number(
+    localStorage.getItem(AUTH_TOKEN_UPDATED_AT_KEY) || 0,
+  );
+  if (authHeader && requestStartedAt >= lastAuthUpdate) {
     const token = authHeader.replace("Bearer ", "");
-    console.log("set 5");
     localStorage.setItem(AUTH_TOKEN_KEY, token);
+    localStorage.setItem(AUTH_TOKEN_UPDATED_AT_KEY, Date.now().toString());
   }
   return response;
 });

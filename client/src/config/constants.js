@@ -6,6 +6,7 @@ export const SOCKET_URL =
 
 // Auth Configuration
 export const AUTH_TOKEN_KEY = "accessToken";
+export const AUTH_TOKEN_UPDATED_AT_KEY = "accessTokenUpdatedAt";
 export const REFRESH_TOKEN_KEY = "refreshToken";
 export const USER_KEY = "user";
 

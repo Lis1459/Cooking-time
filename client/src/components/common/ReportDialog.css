@@ -12,7 +12,7 @@
 }
 
 .report-dialog-card {
-  background-color: var(--color-bg-primary);
+  background-color: var(--gray-200);
   border-radius: var(--radius-lg);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   max-width: 500px;

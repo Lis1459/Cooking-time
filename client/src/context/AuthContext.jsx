@@ -9,6 +9,7 @@ import api from "../config/api";
 import { queryClient } from "./../libs/queryClient";
 import {
   AUTH_TOKEN_KEY,
+  AUTH_TOKEN_UPDATED_AT_KEY,
   REFRESH_TOKEN_KEY,
   USER_KEY,
 } from "../config/constants";
@@ -43,8 +44,10 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       console.log("set 1");
       localStorage.setItem(AUTH_TOKEN_KEY, token);
+      localStorage.setItem(AUTH_TOKEN_UPDATED_AT_KEY, Date.now().toString());
     } else {
       localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(AUTH_TOKEN_UPDATED_AT_KEY);
     }
   }, [token]);
 
@@ -59,6 +62,7 @@ export const AuthProvider = ({ children }) => {
       console.log("accessToken", accessToken);
       console.log("set 2");
       localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
+      localStorage.setItem(AUTH_TOKEN_UPDATED_AT_KEY, Date.now().toString());
       localStorage.setItem(USER_KEY, JSON.stringify(userData));
 
       setToken(accessToken);
@@ -82,6 +86,7 @@ export const AuthProvider = ({ children }) => {
       const { accessToken, user: userPayload } = response.data;
       console.log("set 3");
       localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
+      localStorage.setItem(AUTH_TOKEN_UPDATED_AT_KEY, Date.now().toString());
       localStorage.setItem(USER_KEY, JSON.stringify(userPayload));
 
       setToken(accessToken);
@@ -106,6 +111,7 @@ export const AuthProvider = ({ children }) => {
       console.error("Logout error:", err);
     } finally {
       localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(AUTH_TOKEN_UPDATED_AT_KEY);
       localStorage.removeItem(USER_KEY);
 
       queryClient.clear();
@@ -131,6 +137,7 @@ export const AuthProvider = ({ children }) => {
 
       console.log("set 4");
       localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
+      localStorage.setItem(AUTH_TOKEN_UPDATED_AT_KEY, Date.now().toString());
       localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
 
       setToken(accessToken);
