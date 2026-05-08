@@ -10,7 +10,6 @@ import { queryClient } from "./../libs/queryClient";
 import {
   AUTH_TOKEN_KEY,
   AUTH_TOKEN_UPDATED_AT_KEY,
-  REFRESH_TOKEN_KEY,
   USER_KEY,
 } from "../config/constants";
 
@@ -122,37 +121,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const refreshToken = useCallback(async () => {
-    try {
-      const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-      if (!storedRefreshToken) {
-        throw new Error("No refresh token available");
-      }
-
-      const response = await api.post("/auth/refresh", {
-        refreshToken: storedRefreshToken,
-      });
-
-      const { accessToken, refreshToken: newRefreshToken } = response.data;
-
-      console.log("set 4");
-      localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
-      localStorage.setItem(AUTH_TOKEN_UPDATED_AT_KEY, Date.now().toString());
-      localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
-
-      setToken(accessToken);
-      return { success: true };
-    } catch (err) {
-      localStorage.removeItem(AUTH_TOKEN_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
-
-      setToken(null);
-      setUser(null);
-      return { success: false, error: err.message };
-    }
-  }, []);
-
   const clearError = useCallback(() => {
     setError(null);
   }, []);
@@ -166,7 +134,6 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
-    refreshToken,
     clearError,
   };
 

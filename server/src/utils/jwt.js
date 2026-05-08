@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const ACCESS_TOKEN_EXPIRY = "15m";
+const ACCESS_TOKEN_EXPIRY = "1m";
 const REFRESH_TOKEN_EXPIRY = "10d";
 
 export const generateAccessToken = (payload) => {

@@ -7,7 +7,6 @@ export const SOCKET_URL =
 // Auth Configuration
 export const AUTH_TOKEN_KEY = "accessToken";
 export const AUTH_TOKEN_UPDATED_AT_KEY = "accessTokenUpdatedAt";
-export const REFRESH_TOKEN_KEY = "refreshToken";
 export const USER_KEY = "user";
 
 // Pagination
@@ -25,7 +24,6 @@ export const MIN_RECIPE_DESCRIPTION_LENGTH = 10;
 export default {
   API_BASE_URL,
   AUTH_TOKEN_KEY,
-  REFRESH_TOKEN_KEY,
   USER_KEY,
   DEFAULT_PAGE_SIZE,
   MAX_FILE_SIZE,
