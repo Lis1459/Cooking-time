@@ -43,7 +43,6 @@ export const AdminPanelPage = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const usersLimit = 15;
   const sentinelRef = useRef(null);
-
   // Fetch users data
   const { data: usersData = {}, isLoading: usersLoading } = useAllUsersQuery(
     page,
@@ -137,11 +136,27 @@ export const AdminPanelPage = () => {
 
   //user handlers
   const handleBlockUser = (userId) => {
-    blockUserMutation.mutate(userId);
+    blockUserMutation.mutate(userId, {
+      onSuccess: () => {
+        setUsers((prev) =>
+          prev.map((user) =>
+            user.id === userId ? { ...user, is_blocked: true } : user,
+          ),
+        );
+      },
+    });
   };
 
   const handleUnblockUser = (userId) => {
-    unblockUserMutation.mutate(userId);
+    unblockUserMutation.mutate(userId, {
+      onSuccess: () => {
+        setUsers((prev) =>
+          prev.map((user) =>
+            user.id === userId ? { ...user, is_blocked: false } : user,
+          ),
+        );
+      },
+    });
   };
 
   //report handlers

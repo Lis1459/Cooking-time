@@ -106,27 +106,19 @@ export const useAllUsersQuery = (page = 1, limit = 10, options = {}) => {
 };
 
 export const useBlockUserMutation = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (userId) => {
       const response = await api.put(`/users/${userId}/block`);
       return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["allUsers"] });
-    },
   });
 };
 
 export const useUnblockUserMutation = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (userId) => {
       const response = await api.put(`/users/${userId}/unblock`);
       return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["allUsers"] });
     },
   });
 };
