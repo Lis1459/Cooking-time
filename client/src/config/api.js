@@ -36,7 +36,29 @@ api.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const requestUrl = originalRequest?.url || "";
+
+    if (
+      error.response?.status === 401 &&
+      requestUrl.includes("/auth/refresh")
+    ) {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      toast.error("Session expired. Please log in again.");
+      logout();
+      navigateTo("/login");
+      return Promise.reject(error);
+    }
+
+    const isAuthAction = ["/auth/login", "/auth/register"].some((path) =>
+      requestUrl.includes(path),
+    );
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest?._retry &&
+      !isAuthAction
+    ) {
       originalRequest._retry = true;
       try {
         const refreshResponse = await api.post("/auth/refresh");
