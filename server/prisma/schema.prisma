@@ -96,10 +96,16 @@ model Recipe{
   @@map("recipes")
 }
 
+enum IngredientStatus{
+  Verified
+  NotVerified
+}
+
 //Ингредиенты
 model Ingredient{
-  id                Int           @id @default(autoincrement())
+  id                Int                   @id @default(autoincrement())
   name              String
+  status            IngredientStatus      @default(NotVerified)
   recipe            RecipeIngredients[]
   @@map("ingredients")
 }

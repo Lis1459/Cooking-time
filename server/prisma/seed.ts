@@ -187,7 +187,9 @@ async function main() {
   const ingredients = [];
 
   for (const name of ingredientNames) {
-    ingredients.push(await prisma.ingredient.create({ data: { name } }));
+    ingredients.push(
+      await prisma.ingredient.create({ data: { name, status: "Verified" } }),
+    );
   }
 
   console.log("✔ Ingredients created (30)");
