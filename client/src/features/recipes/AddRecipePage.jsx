@@ -279,6 +279,7 @@ export const AddRecipePage = () => {
 
                                     const isNew = selected.__isNew__;
                                     const selectedValue = selected.value;
+
                                     field.onChange({
                                       ingredient_id: isNew
                                         ? undefined

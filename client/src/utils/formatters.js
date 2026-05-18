@@ -39,7 +39,7 @@ export const truncateText = (text, length) => {
 };
 
 export const capitalizeFirst = (text) => {
-  return text.charAt(0).toUpperCase() + text.slice(1);
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 };
 
 export const toSlug = (text) => {

@@ -3,6 +3,7 @@ import { FavoriteRepository } from "../repositories/favoriteRepository.js";
 import parseCookStatus from "../utils/recipeUtils.js";
 import { safeRedis } from "../config/redis.js";
 import prisma from "../config/database.js";
+import { capitalizeFirst } from "./../utils/formatter.js";
 
 const recipeRepo = new RecipeRepository();
 const favoriteRepo = new FavoriteRepository();
@@ -89,7 +90,7 @@ export class RecipeService {
         } else {
           const createdIngredient = await prisma.ingredient.create({
             data: {
-              name: ingredientEntry.ingredient_name,
+              name: capitalizeFirst(ingredientEntry.ingredient_name),
               status: "NotVerified",
             },
           });
