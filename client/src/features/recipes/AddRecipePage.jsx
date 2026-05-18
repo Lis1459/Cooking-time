@@ -3,10 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
 import {
   useCreateRecipeMutation,
-  ingredientService,
   useIngredientsQuery,
 } from "../../services/apiService";
 import {
@@ -30,14 +29,15 @@ const recipeSchema = z.object({
   difficulty: z.enum(["VERY_EASY", "EASY", "MEDIUM", "HARD", "VERY_HARD"]),
   ingredients: z.array(
     z.object({
-      ingredient_id: z.coerce.number(),
-      amount: z.coerce.number().min(0.1),
-      unit: z.string().min(1),
+      ingredient_id: z.number().optional(),
+      ingredient_name: z.string().min(1, "Ingredient name is required"),
+      amount: z.coerce.number().min(0.1, "Amount must be greater than zero"),
+      unit: z.string().min(1, "Unit is required"),
     }),
   ),
   steps: z.array(
     z.object({
-      description: z.string().min(1),
+      description: z.string().min(1, "Step description is required"),
       step_number: z.coerce.number(),
     }),
   ),
@@ -54,7 +54,7 @@ export const AddRecipePage = () => {
   console.log("image", image);
 
   const { data: ingredients, isLoading: ingredientsLoading } =
-    useIngredientsQuery();
+    useIngredientsQuery({ status: "Verified" });
 
   const options =
     ingredients?.map((i) => ({
@@ -71,7 +71,14 @@ export const AddRecipePage = () => {
     resolver: zodResolver(recipeSchema),
     defaultValues: {
       difficulty: "MEDIUM",
-      ingredients: [{ ingredient_id: "", amount: "", unit: "g" }],
+      ingredients: [
+        {
+          ingredient_id: undefined,
+          ingredient_name: "",
+          amount: "",
+          unit: "g",
+        },
+      ],
       steps: [{ description: "", step_number: 1 }],
     },
   });
@@ -235,23 +242,70 @@ export const AddRecipePage = () => {
                           error={!!errors.ingredients?.[index]?.ingredient_id}
                         /> */}
                         <Controller
-                          name={`ingredients.${index}.ingredient_id`}
+                          name={`ingredients.${index}`}
                           control={control}
-                          rules={{ required: "Ingredient is required" }}
-                          render={({ field }) => (
-                            <Select
-                              options={options}
-                              value={
-                                options.find((o) => o.value === field.value) ||
-                                null
-                              }
-                              onChange={(selected) =>
-                                field.onChange(selected.value)
-                              }
-                              placeholder="Select an ingredient"
-                              isLoading={ingredientsLoading}
-                            />
-                          )}
+                          rules={{
+                            validate: (value) =>
+                              value?.ingredient_name ||
+                              "Ingredient is required",
+                          }}
+                          render={({ field }) => {
+                            const value = field.value || {};
+                            const selectedOption = value.ingredient_id
+                              ? {
+                                  value: value.ingredient_id,
+                                  label: value.ingredient_name,
+                                }
+                              : value.ingredient_name
+                                ? {
+                                    value: value.ingredient_name,
+                                    label: value.ingredient_name,
+                                  }
+                                : null;
+
+                            return (
+                              <>
+                                <CreatableSelect
+                                  options={options}
+                                  value={selectedOption}
+                                  onChange={(selected) => {
+                                    if (!selected) {
+                                      field.onChange({
+                                        ingredient_id: undefined,
+                                        ingredient_name: "",
+                                      });
+                                      return;
+                                    }
+
+                                    const isNew = selected.__isNew__;
+                                    const selectedValue = selected.value;
+                                    field.onChange({
+                                      ingredient_id: isNew
+                                        ? undefined
+                                        : Number(selectedValue),
+                                      ingredient_name:
+                                        selected.label || selectedValue,
+                                    });
+                                  }}
+                                  formatCreateLabel={(inputValue) =>
+                                    `Add "${inputValue}"`
+                                  }
+                                  placeholder="Select or type ingredient"
+                                  isClearable
+                                  isLoading={ingredientsLoading}
+                                />
+                                {errors.ingredients?.[index]
+                                  ?.ingredient_name && (
+                                  <span className="error-message">
+                                    {
+                                      errors.ingredients[index].ingredient_name
+                                        .message
+                                    }
+                                  </span>
+                                )}
+                              </>
+                            );
+                          }}
                         />
                       </div>
                       <div className="form-group">
@@ -289,7 +343,12 @@ export const AddRecipePage = () => {
                 variant="secondary"
                 size="sm"
                 onClick={() =>
-                  appendIngredient({ ingredient_id: "", amount: "", unit: "g" })
+                  appendIngredient({
+                    ingredient_id: undefined,
+                    ingredient_name: "",
+                    amount: "",
+                    unit: "g",
+                  })
                 }
                 type="button"
               >

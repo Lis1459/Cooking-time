@@ -7,8 +7,8 @@ export class IngredientService {
     return ingredientRepo.findById(id);
   }
 
-  async getIngredients() {
-    return ingredientRepo.findAll();
+  async getIngredients(status = "Verified") {
+    return ingredientRepo.findAll(status);
   }
 
   async getAllIngredients(page, limit) {

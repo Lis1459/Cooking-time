@@ -20,6 +20,16 @@ export class RecipeRepository {
     }
   }
 
+  async findByIdWithIngredients(id) {
+    console.log("id: ", id);
+    return prisma.recipe.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        ingredients: { include: { ingredient: true } },
+      },
+    });
+  }
+
   async findAll(filters = {}, page = 1, limit = 10) {
     const skip = (page - 1) * limit;
     const where = {};
@@ -31,6 +41,7 @@ export class RecipeRepository {
     if (filters.cuisine) where.cuisines = { some: { name: filters.cuisine } };
     if (filters.difficulty) where.difficulty = filters.difficulty;
     if (filters.status) where.status = filters.status;
+    if (!filters.status) where.status = "PUBLISHED";
     if (filters.author_id) where.author_id = filters.author_id;
     if (filters.isFavorite) {
       where.favorite = {
@@ -49,6 +60,11 @@ export class RecipeRepository {
         categories: true,
         tags: true,
         cuisines: true,
+        ingredients: {
+          include: {
+            ingredient: true,
+          },
+        },
       },
       orderBy: { created_at: "desc" },
     });

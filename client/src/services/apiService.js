@@ -538,11 +538,11 @@ export const useDeleteCuisineMutation = () => {
 
 // ============= INGREDIENT HOOKS =============
 
-export const useIngredientsQuery = (options = {}) => {
+export const useIngredientsQuery = (params = {}, options = {}) => {
   return useQuery({
-    queryKey: ["ingredients"],
+    queryKey: ["ingredients", params],
     queryFn: async () => {
-      const response = await api.get("/ingredients");
+      const response = await api.get("/ingredients", { params });
       return response.data;
     },
     staleTime: 30 * 60 * 1000, // 30 minutes
@@ -583,6 +583,48 @@ export const useDeleteIngredientMutation = () => {
       return api.delete(`/ingredients/${id}`);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ingredients"] });
+    },
+  });
+};
+
+export const usePendingRecipesQuery = (options = {}) => {
+  return useQuery({
+    queryKey: ["pendingRecipes"],
+    queryFn: async () => {
+      const response = await api.get("/recipes/pending");
+      return response.data;
+    },
+    staleTime: 30 * 60 * 1000,
+    ...options,
+  });
+};
+
+export const useApproveRecipeMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id) => {
+      const response = await api.put(`/recipes/${id}/approve`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pendingRecipes"] });
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      queryClient.invalidateQueries({ queryKey: ["ingredients"] });
+    },
+  });
+};
+
+export const useRejectRecipeMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id) => {
+      const response = await api.delete(`/recipes/${id}/reject`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pendingRecipes"] });
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
       queryClient.invalidateQueries({ queryKey: ["ingredients"] });
     },
   });
@@ -857,6 +899,16 @@ export const recipeService = {
 
   removeFromFavorites: async (id) => {
     return api.delete(`/recipes/${id}/favorites`);
+  },
+
+  approveRecipe: async (id) => {
+    const response = await api.put(`/recipes/${id}/approve`);
+    return response.data;
+  },
+
+  rejectRecipe: async (id) => {
+    const response = await api.delete(`/recipes/${id}/reject`);
+    return response.data;
   },
 
   markAsCooked: async (id) => {

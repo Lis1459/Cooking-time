@@ -7,6 +7,9 @@ import {
   deleteRecipe,
   getPopularRecipes,
   getMyRecipes,
+  approveRecipe,
+  rejectRecipe,
+  getPendingRecipes,
   addToFavorites,
   removeFromFavorites,
   markRecipeStatus,
@@ -22,10 +25,14 @@ router.get("/popular", getPopularRecipes);
 router.get("/smart-search", smartSearch);
 router.get("/", getRecipes);
 router.get("/my", authenticate, getMyRecipes);
+router.get("/pending", authenticate, requireAdmin, getPendingRecipes);
 router.get("/:id", getRecipe);
 router.post("/", authenticate, uploadRecipeImage, createRecipe);
 router.put("/:id", authenticate, updateRecipe);
 router.delete("/:id", authenticate, deleteRecipe);
+
+router.put("/:id/approve", authenticate, requireAdmin, approveRecipe);
+router.delete("/:id/reject", authenticate, requireAdmin, rejectRecipe);
 
 router.post("/:id/favorite", authenticate, addToFavorites);
 router.delete("/:id/favorite", authenticate, removeFromFavorites);

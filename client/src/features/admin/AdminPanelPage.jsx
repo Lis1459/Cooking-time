@@ -18,6 +18,9 @@ import {
   useCreateIngredientMutation,
   useDeleteIngredientMutation,
   useIngredientsQuery,
+  usePendingRecipesQuery,
+  useApproveRecipeMutation,
+  useRejectRecipeMutation,
 } from "../../services/apiService";
 import {
   Card,
@@ -93,15 +96,16 @@ export const AdminPanelPage = () => {
     useCuisinesQuery();
   const { data: tags = [], isLoading: tagsLoading } = useTagsQuery();
   const { data: ingredients, isLoading: ingredientsLoading } =
-    useIngredientsQuery();
+    useIngredientsQuery({ status: "all" });
 
   const reports = reportsData ? reportsData.reports : [];
-  // const ingredients = ingredientsData ? ingredientsData.ingredients : [];
 
   const blockUserMutation = useBlockUserMutation();
   const unblockUserMutation = useUnblockUserMutation();
 
   const updateReportMutation = useUpdateReportMutation();
+  const approveRecipeMutation = useApproveRecipeMutation();
+  const rejectRecipeMutation = useRejectRecipeMutation();
 
   const createCategoryMutation = useCreateCategoryMutation();
   const deleteCategoryMutation = useDeleteCategoryMutation();
@@ -123,6 +127,11 @@ export const AdminPanelPage = () => {
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [reportModalOpen, setReportModalOpen] = useState(false);
 
+  const { data: pendingRecipesData, isLoading: pendingRecipesLoading } =
+    usePendingRecipesQuery();
+
+  const pendingRecipes = pendingRecipesData ? pendingRecipesData.recipes : [];
+  console.log("PendingPageRecipes: ", pendingRecipes);
   const { data: selectedReport } = useReportQuery(selectedReportId, {
     enabled: reportModalOpen && !!selectedReportId,
   });
@@ -241,6 +250,20 @@ export const AdminPanelPage = () => {
     }
   };
 
+  const handleApproveRecipe = (recipeId) => {
+    approveRecipeMutation.mutate(recipeId);
+  };
+
+  const handleRejectRecipe = (recipeId) => {
+    if (
+      window.confirm(
+        "Rejecting this recipe will remove its pending ingredient and all recipe data. Continue?",
+      )
+    ) {
+      rejectRecipeMutation.mutate(recipeId);
+    }
+  };
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -260,6 +283,12 @@ export const AdminPanelPage = () => {
           onClick={() => setActiveTab("users")}
         >
           👥 Users ({totalUsers})
+        </button>
+        <button
+          className={`tab-button ${activeTab === "pendingRecipes" ? "active" : ""}`}
+          onClick={() => setActiveTab("pendingRecipes")}
+        >
+          🧾 Pending Recipes ({pendingRecipesData?.total || 0})
         </button>
         <button
           className={`tab-button ${activeTab === "reports" ? "active" : ""}`}
@@ -367,6 +396,77 @@ export const AdminPanelPage = () => {
                 <div className="empty-state">
                   <p>No users found</p>
                 </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Pending Recipes Tab */}
+      {activeTab === "pendingRecipes" && (
+        <div className="tab-content">
+          <Card>
+            <CardHeader>Pending Recipes Moderation</CardHeader>
+            <CardContent>
+              {pendingRecipesLoading ? (
+                <div className="loading-container">
+                  <Loader size="lg" />
+                </div>
+              ) : pendingRecipes.length > 0 ? (
+                pendingRecipes.map((recipe) => (
+                  <Card
+                    key={recipe.id}
+                    style={{ marginBottom: "var(--spacing-lg)" }}
+                  >
+                    <div className="pending-recipe-item">
+                      <div>
+                        <h3>{recipe.title}</h3>
+                        <p>
+                          Author: <strong>{recipe.author?.name}</strong>
+                        </p>
+                        <p>
+                          Status:{" "}
+                          <Badge variant="warning">{recipe.status}</Badge>
+                        </p>
+                        <p>{recipe.description}</p>
+                        <div>
+                          <strong>Ingredients:</strong>
+                          <ul>
+                            {recipe.ingredients.map((ri) => (
+                              <li key={`${recipe.id}-${ri.ingredient_id}`}>
+                                {ri.amount} {ri.unit} {ri.ingredient?.name}{" "}
+                                {ri.ingredient?.status === "NotVerified"
+                                  ? "(New)"
+                                  : ""}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                      <div className="pending-recipe-actions">
+                        <Button
+                          variant="success"
+                          size="sm"
+                          onClick={() => handleApproveRecipe(recipe.id)}
+                          disabled={approveRecipeMutation.isLoading}
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleRejectRecipe(recipe.id)}
+                          disabled={rejectRecipeMutation.isLoading}
+                          style={{ marginLeft: "var(--spacing-sm)" }}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              ) : (
+                <p>No pending recipes</p>
               )}
             </CardContent>
           </Card>

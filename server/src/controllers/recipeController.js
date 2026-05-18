@@ -48,17 +48,14 @@ export const getMyRecipes = async (req, res) => {
 
 export const createRecipe = async (req, res) => {
   try {
-    console.log("Received recipe data", req.body);
-    let recipeData = { ...req.body, author_id: req.user.id };
+    const recipeData = { ...req.body, author_id: req.user.id };
 
-    // Process preview image
     if (req.file) {
       const filename = `recipe_${Date.now()}.jpg`;
       recipeData.preview_img_url = await processImage(
         req.file.buffer,
         filename,
       );
-      // Generate thumbnail
       const thumbnailFilename = `recipe_thumb_${Date.now()}.jpg`;
       recipeData.thumbnail = await processImage(
         req.file.buffer,
@@ -66,21 +63,6 @@ export const createRecipe = async (req, res) => {
         300,
         300,
       );
-    }
-
-    // Parse nested data
-    if (recipeData.ingredients) {
-      const ingredientsParsed = JSON.parse(recipeData.ingredients);
-
-      recipeData.ingredients = {
-        create: ingredientsParsed.map((i) => ({
-          ingredient: {
-            connect: { id: Number(i.ingredient_id) },
-          },
-          amount: Number(i.amount),
-          unit: i.unit,
-        })),
-      };
     }
 
     if (recipeData.steps) {
@@ -170,6 +152,40 @@ export const getPopularRecipes = async (req, res) => {
 //   }
 // };
 
+export const approveRecipe = async (req, res) => {
+  try {
+    await recipeService.approveRecipe(req.params.id);
+    res.json({ message: "Recipe approved" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const rejectRecipe = async (req, res) => {
+  try {
+    await recipeService.rejectRecipe(req.params.id);
+    res.json({ message: "Recipe rejected" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getPendingRecipes = async (req, res) => {
+  try {
+    console.log("get pending recipes");
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const result = await recipeService.getRecipes(
+      { status: "PENDING" },
+      page,
+      limit,
+    );
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const markRecipeStatus = async (req, res) => {
   try {
     const status = req.body.status || "COOKED";
@@ -182,8 +198,6 @@ export const markRecipeStatus = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// export const getRecipeById = async (req, res) => {
 //   try {
 //     const recipe = await recipeService.getRecipeById(req.params.id);
 //     if (!recipe) {

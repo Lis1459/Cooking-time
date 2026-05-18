@@ -1,8 +1,14 @@
 import prisma from "../config/database.js";
 
 export class IngredientRepository {
-  async findAll() {
+  async findAll(status = "Verified") {
+    const where = {};
+    if (status && status !== "all") {
+      where.status = status;
+    }
+
     return prisma.ingredient.findMany({
+      where,
       orderBy: { name: "asc" },
     });
   }

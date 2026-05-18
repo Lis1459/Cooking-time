@@ -4,10 +4,8 @@ const ingredientService = new IngredientService();
 
 export const getIngredients = async (req, res) => {
   try {
-    // const page = parseInt(req.query.page) || 1;
-    // const limit = parseInt(req.query.limit) || 10;
-    const ingredients = await ingredientService.getIngredients();
-    // const total = await ingredientService.getIngredientCount();
+    const status = req.query.status || "Verified";
+    const ingredients = await ingredientService.getIngredients(status);
     res.json(ingredients);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -16,7 +14,11 @@ export const getIngredients = async (req, res) => {
 
 export const createIngredient = async (req, res) => {
   try {
-    const ingredient = await ingredientService.createIngredient(req.body);
+    const ingredientData = {
+      ...req.body,
+      status: req.body.status || "Verified",
+    };
+    const ingredient = await ingredientService.createIngredient(ingredientData);
     res.status(201).json(ingredient);
   } catch (error) {
     res.status(500).json({ message: error.message });
