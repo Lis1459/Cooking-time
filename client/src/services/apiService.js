@@ -191,11 +191,7 @@ export const useCreateRecipeMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (formData) => {
-      const response = await api.post("/recipes", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await api.post("/recipes", formData);
       return response.data;
     },
     onSuccess: () => {
@@ -209,9 +205,7 @@ export const useUpdateRecipeMutation = (id) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (recipeData) => {
-      const response = await api.put(`/recipes/${id}`, recipeData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await api.put(`/recipes/${id}`, recipeData);
       return response.data;
     },
     onSuccess: () => {
@@ -892,9 +886,7 @@ export const recipeService = {
   },
 
   createRecipe: async (formData) => {
-    const response = await api.post("/recipes", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const response = await api.post("/recipes", formData);
     return response.data;
   },
 

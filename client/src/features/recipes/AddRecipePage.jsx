@@ -46,6 +46,9 @@ const recipeSchema = z.object({
       step_number: z.coerce.number(),
     }),
   ),
+  categories: z.array(z.number()).optional(),
+  tags: z.array(z.number()).optional(),
+  cuisines: z.array(z.number()).optional(),
 });
 
 export const AddRecipePage = () => {
