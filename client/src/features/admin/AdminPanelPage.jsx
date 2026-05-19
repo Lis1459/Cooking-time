@@ -34,6 +34,7 @@ import {
   Select,
   Textarea,
 } from "../../components/ui";
+import { SOCKET_URL } from "../../config/constants";
 import { ReportModal } from "../../components/common/ReportModal";
 import "./AdminPanel.css";
 
@@ -413,58 +414,98 @@ export const AdminPanelPage = () => {
                   <Loader size="lg" />
                 </div>
               ) : pendingRecipes.length > 0 ? (
-                pendingRecipes.map((recipe) => (
-                  <Card
-                    key={recipe.id}
-                    style={{ marginBottom: "var(--spacing-lg)" }}
-                  >
-                    <div className="pending-recipe-item">
-                      <div>
-                        <h3>{recipe.title}</h3>
-                        <p>
-                          Author: <strong>{recipe.author?.name}</strong>
-                        </p>
-                        <p>
-                          Status:{" "}
-                          <Badge variant="warning">{recipe.status}</Badge>
-                        </p>
-                        <p>{recipe.description}</p>
-                        <div>
-                          <strong>Ingredients:</strong>
-                          <ul>
-                            {recipe.ingredients.map((ri) => (
-                              <li key={`${recipe.id}-${ri.ingredient_id}`}>
-                                {ri.amount} {ri.unit} {ri.ingredient?.name}{" "}
-                                {ri.ingredient?.status === "NotVerified"
-                                  ? "(New)"
-                                  : ""}
-                              </li>
-                            ))}
-                          </ul>
+                pendingRecipes.map((recipe) => {
+                  const newIngredients = (recipe.ingredients || [])
+                    .filter((ri) => ri.ingredient?.status === "NotVerified")
+                    .map((ri) => ri.ingredient?.name)
+                    .filter(Boolean);
+
+                  const newTags = (recipe.tags || []).filter(
+                    (t) => t?.status === "NotVerified",
+                  );
+
+                  return (
+                    <Card
+                      key={recipe.id}
+                      style={{ marginBottom: "var(--spacing-lg)" }}
+                    >
+                      <div className="pending-recipe-preview">
+                        <img
+                          className="pending-recipe-image"
+                          src={`${SOCKET_URL}${recipe.preview_img_url}`}
+                          alt={recipe.title}
+                        />
+                        <div className="pending-recipe-main">
+                          <h3 className="pending-recipe-title">
+                            {recipe.title}
+                          </h3>
+                          <p className="pending-recipe-author">
+                            by {recipe.author?.name}
+                          </p>
+                          <div className="pending-recipe-meta">
+                            <span className="pending-recipe-time">
+                              ⏱ {recipe.cooking_time} min
+                            </span>
+                            <Badge
+                              variant="warning"
+                              style={{ marginLeft: "var(--spacing-sm)" }}
+                            >
+                              {recipe.status}
+                            </Badge>
+                          </div>
+
+                          {newIngredients.length > 0 && (
+                            <p className="pending-recipe-new">
+                              ⚠ New ingredients:{" "}
+                              <strong>{newIngredients.join(", ")}</strong>
+                            </p>
+                          )}
+
+                          {newTags.length > 0 && (
+                            <p className="pending-recipe-new">
+                              ⚠ New tags/categories:{" "}
+                              <strong>
+                                {newTags.map((t) => t.name).join(", ")}
+                              </strong>
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="pending-recipe-actions">
+                          <Button
+                            variant="success"
+                            size="sm"
+                            onClick={() => handleApproveRecipe(recipe.id)}
+                            disabled={approveRecipeMutation.isLoading}
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleRejectRecipe(recipe.id)}
+                            disabled={rejectRecipeMutation.isLoading}
+                            style={{ marginLeft: "var(--spacing-sm)" }}
+                          >
+                            Reject
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              window.location.assign(
+                                `/admin/recipes/${recipe.id}`,
+                              )
+                            }
+                            style={{ marginLeft: "var(--spacing-sm)" }}
+                          >
+                            Open
+                          </Button>
                         </div>
                       </div>
-                      <div className="pending-recipe-actions">
-                        <Button
-                          variant="success"
-                          size="sm"
-                          onClick={() => handleApproveRecipe(recipe.id)}
-                          disabled={approveRecipeMutation.isLoading}
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => handleRejectRecipe(recipe.id)}
-                          disabled={rejectRecipeMutation.isLoading}
-                          style={{ marginLeft: "var(--spacing-sm)" }}
-                        >
-                          Reject
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                ))
+                    </Card>
+                  );
+                })
               ) : (
                 <p>No pending recipes</p>
               )}

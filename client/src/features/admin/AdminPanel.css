@@ -150,6 +150,54 @@
   height: 400px;
 }
 
+.pending-recipe-preview {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.pending-recipe-image {
+  width: 140px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.pending-recipe-main {
+  flex: 1;
+}
+
+.pending-recipe-title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.pending-recipe-author {
+  margin: 4px 0;
+  color: var(--gray-600);
+  font-size: 0.95rem;
+}
+
+.pending-recipe-meta {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  margin-top: 6px;
+}
+
+.pending-recipe-new {
+  margin-top: 8px;
+  color: var(--warning);
+  font-size: 0.95rem;
+}
+
+.pending-recipe-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  justify-content: flex-start;
+}
+
 @media (max-width: 768px) {
   .tab-navigation {
     overflow-x: auto;
