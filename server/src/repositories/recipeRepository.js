@@ -81,6 +81,7 @@ export class RecipeRepository {
   }
 
   async update(id, data) {
+    console.log("update data: ", data.steps);
     return prisma.recipe.update({
       where: { id: parseInt(id) },
       data,

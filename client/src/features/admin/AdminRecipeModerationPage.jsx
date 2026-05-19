@@ -116,6 +116,36 @@ export const AdminRecipeModerationPage = () => {
       : recipe.steps || [],
   };
 
+  const draftIngredients = draftData.ingredients
+    ? JSON.parse(draftData.ingredients).map((ing) => ({
+        id: ing.ingredient_id ? Number(ing.ingredient_id) : null,
+        name: ing.ingredient_name,
+        amount: Number(ing.amount),
+        unit: ing.unit,
+      }))
+    : [];
+
+  const recipeIngredients = (recipe.ingredients || []).map((ing) => ({
+    id: ing.ingredient?.id ?? null,
+    name: ing.ingredient?.name,
+    amount: Number(ing.amount),
+    unit: ing.unit,
+  }));
+
+  const draftSteps = draftData.steps
+    ? draftData.steps.create.map((step) => ({
+        step_number: Number(step.step_number),
+        description: step.description,
+        image_url: step.image_url,
+      }))
+    : [];
+
+  const recipeSteps = (recipe.steps || []).map((step) => ({
+    step_number: Number(step.step_number),
+    description: step.description,
+    image_url: step.image_url,
+  }));
+
   const isChanged = {
     title: Boolean(draftData.title && draftData.title !== recipe.title),
     description: Boolean(
@@ -146,8 +176,12 @@ export const AdminRecipeModerationPage = () => {
       Boolean(draftData.cuisines) &&
       JSON.stringify(draftData.cuisines.map(Number).sort()) !==
         JSON.stringify((recipe.cuisines || []).map((c) => c.id).sort()),
-    ingredients: Boolean(draftData.ingredients),
-    steps: Boolean(draftData.steps),
+    ingredients:
+      draftIngredients.length > 0 &&
+      JSON.stringify(recipeIngredients) !== JSON.stringify(draftIngredients),
+    steps:
+      draftSteps.length > 0 &&
+      JSON.stringify(recipeSteps) !== JSON.stringify(draftSteps),
   };
 
   const heroImage = previewRecipe.preview_img_url

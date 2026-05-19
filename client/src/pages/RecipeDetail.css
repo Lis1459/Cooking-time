@@ -258,6 +258,36 @@
   padding: var(--spacing-lg) 0;
 }
 
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
+
+.confirm-card {
+  width: min(480px, 90%);
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius-xl);
+  background-color: var(--white);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+}
+
+.confirm-card h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-sm);
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
 .recipe-not-found {
   text-align: center;
   padding: var(--spacing-3xl);

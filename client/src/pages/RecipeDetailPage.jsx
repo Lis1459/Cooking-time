@@ -10,6 +10,8 @@ import {
   useCreateCommentMutation,
   useRateQuery,
   useRateRecipeMutation,
+  useUpdateRecipeMutation,
+  useDeleteRecipeMutation,
 } from "../services/apiService";
 import {
   Card,
@@ -68,6 +70,13 @@ export const RecipeDetailPage = () => {
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [reportCommentDialogOpen, setReportCommentDialogOpen] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [hideModalOpen, setHideModalOpen] = useState(false);
+
+  const updateRecipeMutation = useUpdateRecipeMutation(id);
+  const deleteRecipeMutation = useDeleteRecipeMutation(id);
+
+  const isAdmin = user?.role === "ADMIN";
 
   useEffect(() => {
     if (currentRecipe) {
@@ -110,6 +119,26 @@ export const RecipeDetailPage = () => {
       await upsertRatingMutation.mutateAsync(scoreData);
     } catch (err) {
       console.log("failed to update rating:", err);
+    }
+  };
+
+  const handleDeleteRecipe = async () => {
+    try {
+      await deleteRecipeMutation.mutateAsync();
+      navigate("/recipes");
+    } catch (error) {
+      console.error("Failed to delete recipe:", error);
+    }
+  };
+
+  const handleToggleHideRecipe = async () => {
+    const nextStatus = currentRecipe.status === "HIDDEN" ? "PUBLISHED" : "HIDDEN";
+
+    try {
+      await updateRecipeMutation.mutateAsync({ status: nextStatus });
+      setHideModalOpen(false);
+    } catch (error) {
+      console.error("Failed to update recipe status:", error);
     }
   };
 
@@ -183,13 +212,31 @@ export const RecipeDetailPage = () => {
           <p className="recipe-author">By {currentRecipe.author?.name}</p>
         </div>
         <div className="recipe-actions">
-          {user?.id === currentRecipe.author_id && (
+          {(user?.id === currentRecipe.author_id || isAdmin) && (
             <Button
               variant="outline"
               onClick={() => navigate(`/edit-recipe/${id}`)}
             >
               Edit
             </Button>
+          )}
+          {isAdmin && (
+            <>
+              <Button
+                variant="danger"
+                onClick={() => setDeleteModalOpen(true)}
+                disabled={deleteRecipeMutation.isLoading}
+              >
+                Delete
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setHideModalOpen(true)}
+                disabled={updateRecipeMutation.isLoading}
+              >
+                {currentRecipe.status === "HIDDEN" ? "Unhide" : "Hide"}
+              </Button>
+            </>
           )}
           {isAuthenticated && user?.id !== currentRecipe.author_id && (
             <Button
@@ -418,6 +465,52 @@ export const RecipeDetailPage = () => {
         targetType="COMMENT"
         targetId={selectedCommentId}
       />
+
+      {deleteModalOpen && (
+        <div className="confirm-overlay">
+          <div className="confirm-card">
+            <h3>Confirm deletion</h3>
+            <p>Are you sure you want to delete this recipe? This action cannot be undone.</p>
+            <div className="confirm-actions">
+              <Button variant="outline" onClick={() => setDeleteModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleDeleteRecipe}
+                disabled={deleteRecipeMutation.isLoading}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {hideModalOpen && (
+        <div className="confirm-overlay">
+          <div className="confirm-card">
+            <h3>{currentRecipe.status === "HIDDEN" ? "Unhide recipe" : "Hide recipe"}</h3>
+            <p>
+              {currentRecipe.status === "HIDDEN"
+                ? "This recipe will become visible again to users."
+                : "This recipe will be hidden from public listings."}
+            </p>
+            <div className="confirm-actions">
+              <Button variant="outline" onClick={() => setHideModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleToggleHideRecipe}
+                disabled={updateRecipeMutation.isLoading}
+              >
+                {currentRecipe.status === "HIDDEN" ? "Unhide" : "Hide"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

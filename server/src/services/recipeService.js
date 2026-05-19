@@ -23,6 +23,60 @@ const arraysAreEqual = (left = [], right = []) => {
   );
 };
 
+const parseRecipeIngredients = async (ingredientsData) => {
+  const parsedIngredients =
+    typeof ingredientsData === "string"
+      ? JSON.parse(ingredientsData)
+      : ingredientsData || [];
+
+  const recipeIngredients = [];
+
+  for (const ingredientEntry of parsedIngredients) {
+    let ingredientId = null;
+    if (
+      ingredientEntry.ingredient_id !== undefined &&
+      ingredientEntry.ingredient_id !== null &&
+      !Number.isNaN(Number(ingredientEntry.ingredient_id))
+    ) {
+      ingredientId = Number(ingredientEntry.ingredient_id);
+    }
+
+    if (!ingredientId && ingredientEntry.ingredient_name) {
+      const existingIngredient = await prisma.ingredient.findFirst({
+        where: {
+          name: {
+            equals: ingredientEntry.ingredient_name,
+            mode: "insensitive",
+          },
+        },
+      });
+      if (existingIngredient) {
+        ingredientId = existingIngredient.id;
+      } else {
+        const createdIngredient = await prisma.ingredient.create({
+          data: {
+            name: capitalizeFirst(ingredientEntry.ingredient_name),
+            status: "NotVerified",
+          },
+        });
+        ingredientId = createdIngredient.id;
+      }
+    }
+
+    if (!ingredientId) {
+      throw new Error("Ingredient is required");
+    }
+
+    recipeIngredients.push({
+      ingredient: { connect: { id: ingredientId } },
+      amount: Number(ingredientEntry.amount),
+      unit: ingredientEntry.unit,
+    });
+  }
+
+  return recipeIngredients;
+};
+
 const getDraftChanges = (recipe, draftData) => {
   const changes = [];
 
@@ -331,7 +385,90 @@ export class RecipeService {
   async updateRecipe(id, data, user) {
     // If admin - apply immediately
     if (user && user.role === "ADMIN") {
-      const recipe = await recipeRepo.update(id, data);
+      const updateData = { ...data };
+
+      if (data.ingredients) {
+        const recipeIngredients = await parseRecipeIngredients(
+          data.ingredients,
+        );
+        updateData.ingredients = {
+          deleteMany: {},
+          create: recipeIngredients,
+        };
+      }
+
+      if (data.steps) {
+        let stepsArray = [];
+
+        if (typeof data.steps === "string") {
+          stepsArray = JSON.parse(data.steps);
+        } else if (Array.isArray(data.steps)) {
+          stepsArray = data.steps;
+        } else if (data.steps.create) {
+          stepsArray = Array.isArray(data.steps.create)
+            ? data.steps.create
+            : JSON.parse(data.steps.create);
+        }
+
+        updateData.steps = {
+          deleteMany: {},
+          create: stepsArray.map((step, idx) => ({
+            description: step.description,
+            step_number: Number(step.step_number ?? idx + 1),
+            image_url: step.image_url,
+          })),
+        };
+      }
+
+      const normalizeRelation = (value) => {
+        if (typeof value === "string") {
+          return JSON.parse(value).map((id) => ({ id: Number(id) }));
+        }
+        if (Array.isArray(value)) {
+          return value.map((id) => ({ id: Number(id) }));
+        }
+        if (value && value.set) {
+          return value.set;
+        }
+        return null;
+      };
+
+      if (data.calories) {
+        const calories = Number(data.calories);
+        if (calories) {
+          updateData.calories = calories;
+        }
+      }
+
+      if (data.cooking_time) {
+        const cooking_time = Number(data.cooking_time);
+        if (cooking_time) {
+          updateData.cooking_time = cooking_time;
+        }
+      }
+
+      if (data.categories) {
+        const categories = normalizeRelation(data.categories);
+        if (categories) {
+          updateData.categories = { set: categories };
+        }
+      }
+
+      if (data.tags) {
+        const tags = normalizeRelation(data.tags);
+        if (tags) {
+          updateData.tags = { set: tags };
+        }
+      }
+
+      if (data.cuisines) {
+        const cuisines = normalizeRelation(data.cuisines);
+        if (cuisines) {
+          updateData.cuisines = { set: cuisines };
+        }
+      }
+
+      const recipe = await recipeRepo.update(id, updateData);
       await safeRedis.del(`recipe:${id}`);
       return recipe;
     }
