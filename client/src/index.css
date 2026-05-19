@@ -115,7 +115,7 @@ button {
 }
 button:hover {
   border-color: var(--primary-light);
-  background-color: var(--primary-light);
+  /* background-color: var(--primary-light); */
 }
 /* button:focus,
 button:focus-visible {

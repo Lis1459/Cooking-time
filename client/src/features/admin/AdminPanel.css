@@ -374,3 +374,49 @@
     width: 100%;
   }
 }
+
+.recipe-detail.admin-recipe-moderation .recipe-hero {
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--border-radius-lg);
+  background-color: var(--gray-100);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.recipe-detail.admin-recipe-moderation .recipe-hero img {
+  width: 100%;
+  max-height: 380px;
+  object-fit: cover;
+}
+
+.recipe-detail.admin-recipe-moderation .recipe-hero-placeholder {
+  color: var(--gray-500);
+  font-size: 1rem;
+  padding: var(--spacing-lg);
+}
+
+.recipe-detail.admin-recipe-moderation .changed-section {
+  border: 1px solid var(--primary);
+  background-color: rgba(59, 130, 246, 0.06);
+}
+
+.recipe-detail.admin-recipe-moderation .changed-text {
+  background-color: rgba(59, 130, 246, 0.08);
+  padding: 1rem;
+  border-radius: var(--border-radius-sm);
+}
+
+.recipe-detail.admin-recipe-moderation .changed-item {
+  background-color: rgba(59, 130, 246, 0.08);
+  border-left: 3px solid var(--primary);
+  padding: 0.75rem;
+  margin-bottom: var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+}
+
+.recipe-detail.admin-recipe-moderation .change-badge {
+  margin-left: var(--spacing-sm);
+}

@@ -107,7 +107,61 @@ export const createRecipe = async (req, res) => {
 
 export const updateRecipe = async (req, res) => {
   try {
-    const recipe = await recipeService.updateRecipe(req.params.id, req.body);
+    const recipeData = { ...req.body };
+
+    if (req.file) {
+      const filename = `recipe_${Date.now()}.jpg`;
+      recipeData.preview_img_url = await processImage(
+        req.file.buffer,
+        filename,
+      );
+      const thumbnailFilename = `recipe_thumb_${Date.now()}.jpg`;
+      recipeData.thumbnail = await processImage(
+        req.file.buffer,
+        thumbnailFilename,
+        300,
+        300,
+      );
+    }
+
+    if (recipeData.steps) {
+      const stepsParsed = JSON.parse(recipeData.steps);
+
+      recipeData.steps = {
+        create: stepsParsed.map((s) => ({
+          description: s.description,
+          step_number: Number(s.step_number),
+        })),
+      };
+    }
+
+    if (recipeData.categories) {
+      recipeData.categories = {
+        set: JSON.parse(recipeData.categories).map((id) => ({
+          id: parseInt(id),
+        })),
+      };
+    }
+    if (recipeData.tags) {
+      recipeData.tags = {
+        set: JSON.parse(recipeData.tags).map((id) => ({
+          id: parseInt(id),
+        })),
+      };
+    }
+    if (recipeData.cuisines) {
+      recipeData.cuisines = {
+        set: JSON.parse(recipeData.cuisines).map((id) => ({
+          id: parseInt(id),
+        })),
+      };
+    }
+
+    const recipe = await recipeService.updateRecipe(
+      req.params.id,
+      recipeData,
+      req.user,
+    );
     res.json(recipe);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -116,6 +170,14 @@ export const updateRecipe = async (req, res) => {
 
 export const deleteRecipe = async (req, res) => {
   try {
+    const recipe = await recipeService.getRecipeById(req.params.id);
+    if (!recipe) return res.status(404).json({ message: "Recipe not found" });
+
+    // allow admin or author
+    if (req.user.role !== "ADMIN" && recipe.author_id !== req.user.id) {
+      return res.status(403).json({ message: "Insufficient permissions" });
+    }
+
     await recipeService.deleteRecipe(req.params.id);
     res.json({ message: "Recipe deleted" });
   } catch (error) {
@@ -172,15 +234,19 @@ export const rejectRecipe = async (req, res) => {
 
 export const getPendingRecipes = async (req, res) => {
   try {
-    console.log("get pending recipes");
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
-    const result = await recipeService.getRecipes(
-      { status: "PENDING" },
-      page,
-      limit,
-    );
+    const result = await recipeService.getPendingRecipes(page, limit);
     res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getRecipeWithDraft = async (req, res) => {
+  try {
+    const recipe = await recipeService.getRecipeWithDraftById(req.params.id);
+    res.json(recipe);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

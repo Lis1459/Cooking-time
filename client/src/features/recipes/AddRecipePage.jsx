@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,6 +7,11 @@ import CreatableSelect from "react-select/creatable";
 import {
   useCreateRecipeMutation,
   useIngredientsQuery,
+  useRecipeQuery,
+  useUpdateRecipeMutation,
+  useCategoriesQuery,
+  useTagsQuery,
+  useCuisinesQuery,
 } from "../../services/apiService";
 import {
   Button,
@@ -50,6 +55,18 @@ export const AddRecipePage = () => {
   const [image, setImage] = useState(null);
   const [error, setError] = useState(null);
   const createRecipeMutation = useCreateRecipeMutation();
+  const { id } = useParams();
+  const updateRecipeMutation = useUpdateRecipeMutation(id);
+
+  const { data: recipeData, isLoading: recipeLoading } = useRecipeQuery(
+    id,
+    {},
+    { enabled: !!id },
+  );
+
+  const { data: categories } = useCategoriesQuery();
+  const { data: tags } = useTagsQuery();
+  const { data: cuisines } = useCuisinesQuery();
 
   console.log("image", image);
 
@@ -62,10 +79,17 @@ export const AddRecipePage = () => {
       label: i.name,
     })) || [];
 
+  const categoryOptions =
+    categories?.map((c) => ({ value: c.id, label: c.name })) || [];
+  const tagOptions = tags?.map((t) => ({ value: t.id, label: t.name })) || [];
+  const cuisineOptions =
+    cuisines?.map((c) => ({ value: c.id, label: c.name })) || [];
+
   const {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(recipeSchema),
@@ -82,6 +106,35 @@ export const AddRecipePage = () => {
       steps: [{ description: "", step_number: 1 }],
     },
   });
+
+  useEffect(() => {
+    if (recipeData) {
+      // map recipe data to form fields
+      const mapped = {
+        title: recipeData.title,
+        description: recipeData.description,
+        cooking_time: recipeData.cooking_time,
+        calories: recipeData.calories,
+        difficulty: recipeData.difficulty,
+        ingredients: (recipeData.ingredients || []).map((ing) => ({
+          ingredient_id: ing.ingredient?.id,
+          ingredient_name: ing.ingredient?.name,
+          amount: ing.amount,
+          unit: ing.unit,
+        })),
+        steps: (recipeData.steps || []).map((s, idx) => ({
+          description: s.description,
+          step_number: s.step_number ?? idx + 1,
+        })),
+        categories: (recipeData.categories || []).map((c) => c.id),
+        tags: (recipeData.tags || []).map((t) => t.id),
+        cuisines: (recipeData.cuisines || []).map((c) => c.id),
+      };
+
+      // reset form
+      reset(mapped);
+    }
+  }, [recipeData]);
   console.log(ingredients);
 
   const {
@@ -119,9 +172,23 @@ export const AddRecipePage = () => {
 
       formData.append("ingredients", JSON.stringify(data.ingredients));
       formData.append("steps", JSON.stringify(data.steps));
+      if (data.categories) {
+        formData.append("categories", JSON.stringify(data.categories));
+      }
+      if (data.tags) {
+        formData.append("tags", JSON.stringify(data.tags));
+      }
+      if (data.cuisines) {
+        formData.append("cuisines", JSON.stringify(data.cuisines));
+      }
 
-      const response = await createRecipeMutation.mutateAsync(formData);
-      navigate(`/recipes/${response.id}`);
+      let response;
+      if (id) {
+        response = await updateRecipeMutation.mutateAsync(formData);
+      } else {
+        response = await createRecipeMutation.mutateAsync(formData);
+      }
+      navigate(`/recipes/${response.id || (id ? id : response.id)}`);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create recipe");
     } finally {
@@ -132,7 +199,7 @@ export const AddRecipePage = () => {
   return (
     <div className="add-recipe-page">
       <Card>
-        <CardHeader>Add New Recipe</CardHeader>
+        <CardHeader>{id ? "Edit Recipe" : "Add New Recipe"}</CardHeader>
         <CardContent>
           {error && <Alert variant="error">{error}</Alert>}
 
@@ -223,6 +290,66 @@ export const AddRecipePage = () => {
                   accept="image/*"
                   onChange={(e) => setImage(e.target.files?.[0])}
                   className="file-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <Label>Categories</Label>
+                <Controller
+                  name="categories"
+                  control={control}
+                  render={({ field }) => (
+                    <CreatableSelect
+                      isMulti
+                      options={categoryOptions}
+                      value={categoryOptions.filter((o) =>
+                        (field.value || []).includes(o.value),
+                      )}
+                      onChange={(selected) =>
+                        field.onChange((selected || []).map((s) => s.value))
+                      }
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="form-group">
+                <Label>Tags</Label>
+                <Controller
+                  name="tags"
+                  control={control}
+                  render={({ field }) => (
+                    <CreatableSelect
+                      isMulti
+                      options={tagOptions}
+                      value={tagOptions.filter((o) =>
+                        (field.value || []).includes(o.value),
+                      )}
+                      onChange={(selected) =>
+                        field.onChange((selected || []).map((s) => s.value))
+                      }
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="form-group">
+                <Label>Cuisines</Label>
+                <Controller
+                  name="cuisines"
+                  control={control}
+                  render={({ field }) => (
+                    <CreatableSelect
+                      isMulti
+                      options={cuisineOptions}
+                      value={cuisineOptions.filter((o) =>
+                        (field.value || []).includes(o.value),
+                      )}
+                      onChange={(selected) =>
+                        field.onChange((selected || []).map((s) => s.value))
+                      }
+                    />
+                  )}
                 />
               </div>
             </div>
@@ -402,7 +529,13 @@ export const AddRecipePage = () => {
             {/* Submit Buttons */}
             <div className="form-actions">
               <Button variant="primary" type="submit" disabled={loading}>
-                {loading ? "Publishing..." : "Publish Recipe"}
+                {loading
+                  ? id
+                    ? "Saving..."
+                    : "Publishing..."
+                  : id
+                    ? "Save Changes"
+                    : "Publish Recipe"}
               </Button>
               <Button
                 variant="outline"

@@ -420,9 +420,12 @@ export const AdminPanelPage = () => {
                     .map((ri) => ri.ingredient?.name)
                     .filter(Boolean);
 
-                  const newTags = (recipe.tags || []).filter(
-                    (t) => t?.status === "NotVerified",
-                  );
+                  const isEditPending = recipe.draft?.pendingType === "edit";
+                  const pendingLabel = isEditPending
+                    ? "Update pending"
+                    : recipe.status;
+                  const draftChanges = recipe.draft?.changes || [];
+                  const draftEditor = recipe.draft?.editor?.name;
 
                   return (
                     <Card
@@ -447,12 +450,25 @@ export const AdminPanelPage = () => {
                               ⏱ {recipe.cooking_time} min
                             </span>
                             <Badge
-                              variant="warning"
+                              variant={isEditPending ? "secondary" : "warning"}
                               style={{ marginLeft: "var(--spacing-sm)" }}
                             >
-                              {recipe.status}
+                              {pendingLabel}
                             </Badge>
                           </div>
+
+                          {isEditPending && draftEditor && (
+                            <p className="pending-recipe-new">
+                              ✍ Edited by: <strong>{draftEditor}</strong>
+                            </p>
+                          )}
+
+                          {draftChanges.length > 0 && (
+                            <p className="pending-recipe-new">
+                              🔧 Changes:{" "}
+                              <strong>{draftChanges.join(", ")}</strong>
+                            </p>
+                          )}
 
                           {newIngredients.length > 0 && (
                             <p className="pending-recipe-new">
@@ -461,14 +477,14 @@ export const AdminPanelPage = () => {
                             </p>
                           )}
 
-                          {newTags.length > 0 && (
+                          {/* {newTags.length > 0 && (
                             <p className="pending-recipe-new">
                               ⚠ New tags/categories:{" "}
                               <strong>
                                 {newTags.map((t) => t.name).join(", ")}
                               </strong>
                             </p>
-                          )}
+                          )} */}
                         </div>
 
                         <div className="pending-recipe-actions">

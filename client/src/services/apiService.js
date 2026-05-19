@@ -209,7 +209,9 @@ export const useUpdateRecipeMutation = (id) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (recipeData) => {
-      const response = await api.put(`/recipes/${id}`, recipeData);
+      const response = await api.put(`/recipes/${id}`, recipeData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return response.data;
     },
     onSuccess: () => {
@@ -596,6 +598,19 @@ export const usePendingRecipesQuery = (options = {}) => {
       return response.data;
     },
     staleTime: 30 * 60 * 1000,
+    ...options,
+  });
+};
+
+export const useAdminRecipeQuery = (id, options = {}) => {
+  return useQuery({
+    queryKey: ["adminRecipe", id],
+    queryFn: async () => {
+      const response = await api.get(`/recipes/${id}/draft`);
+      return response.data;
+    },
+    enabled: !!id,
+    staleTime: 10 * 60 * 1000,
     ...options,
   });
 };

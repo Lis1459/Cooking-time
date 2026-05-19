@@ -51,6 +51,7 @@ model UserProfile{
   admin_reports     Report[]        @relation("admin")
   notific_recip     Notification[]  @relation("recipient")
   notific_init      Notification[]  @relation("initiator")
+  recipe_draft      RecipeDraft[]
 
   @@map("users_profiles")
 }
@@ -92,8 +93,23 @@ model Recipe{
   ratings           Rating[]
   comments          Comment[]
   favorite          Favorite[]
-  cook_history      CookHistory[]     
+  cook_history      CookHistory[]   
+  recipe_draft      RecipeDraft[]  
   @@map("recipes")
+}
+
+// Черновики изменений рецептов
+model RecipeDraft{
+  id            Int         @id @default(autoincrement())
+  recipe_id     Int
+  recipe        Recipe      @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
+  editor_id     String
+  editor        UserProfile @relation(fields: [editor_id], references: [id])
+  data          Json
+  created_at    DateTime    @default(now())
+
+  @@map("recipe_drafts")
+  @@unique([recipe_id])
 }
 
 enum IngredientStatus{

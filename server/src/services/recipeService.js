@@ -9,6 +9,113 @@ const recipeRepo = new RecipeRepository();
 const favoriteRepo = new FavoriteRepository();
 const CACHE_TTL = 3600; // 1 hour
 
+const normalizeIds = (values) =>
+  Array.isArray(values)
+    ? values.map((value) => Number(value)).filter((id) => !Number.isNaN(id))
+    : [];
+
+const arraysAreEqual = (left = [], right = []) => {
+  const normalizedLeft = normalizeIds(left).sort((a, b) => a - b);
+  const normalizedRight = normalizeIds(right).sort((a, b) => a - b);
+  if (normalizedLeft.length !== normalizedRight.length) return false;
+  return normalizedLeft.every(
+    (value, index) => value === normalizedRight[index],
+  );
+};
+
+const getDraftChanges = (recipe, draftData) => {
+  const changes = [];
+
+  if (draftData.title && draftData.title !== recipe.title) {
+    changes.push("Title");
+  }
+  if (draftData.description && draftData.description !== recipe.description) {
+    changes.push("Description");
+  }
+  if (
+    draftData.cooking_time &&
+    Number(draftData.cooking_time) !== recipe.cooking_time
+  ) {
+    changes.push("Cooking time");
+  }
+  if (draftData.calories && Number(draftData.calories) !== recipe.calories) {
+    changes.push("Calories");
+  }
+  if (draftData.difficulty && draftData.difficulty !== recipe.difficulty) {
+    changes.push("Difficulty");
+  }
+  if (
+    draftData.preview_img_url &&
+    draftData.preview_img_url !== recipe.preview_img_url
+  ) {
+    changes.push("Image");
+  }
+  if (
+    draftData.categories &&
+    !arraysAreEqual(
+      recipe.categories?.map((c) => c.id),
+      draftData.categories,
+    )
+  ) {
+    changes.push("Categories");
+  }
+  if (
+    draftData.tags &&
+    !arraysAreEqual(
+      recipe.tags?.map((t) => t.id),
+      draftData.tags,
+    )
+  ) {
+    changes.push("Tags");
+  }
+  if (
+    draftData.cuisines &&
+    !arraysAreEqual(
+      recipe.cuisines?.map((c) => c.id),
+      draftData.cuisines,
+    )
+  ) {
+    changes.push("Cuisines");
+  }
+
+  if (draftData.ingredients) {
+    const currentIngredients = (recipe.ingredients || []).map((ing) => ({
+      id: ing.ingredient?.id,
+      name: ing.ingredient?.name,
+      amount: Number(ing.amount),
+      unit: ing.unit,
+    }));
+    const draftIngredients = JSON.parse(draftData.ingredients).map((ing) => ({
+      id: ing.ingredient_id ? Number(ing.ingredient_id) : null,
+      name: ing.ingredient_name,
+      amount: Number(ing.amount),
+      unit: ing.unit,
+    }));
+    if (
+      JSON.stringify(currentIngredients) !== JSON.stringify(draftIngredients)
+    ) {
+      changes.push("Ingredients");
+    }
+  }
+
+  console.log(recipe.steps);
+  if (draftData.steps) {
+    const currentSteps = (recipe.steps || []).map((step) => ({
+      step_number: Number(step.step_number),
+      description: step.description,
+    }));
+    const draftSteps = draftData.steps.create.map((step) => ({
+      step_number: Number(step.step_number),
+      description: step.description,
+    }));
+    if (JSON.stringify(currentSteps) !== JSON.stringify(draftSteps)) {
+      changes.push("Steps");
+    }
+  }
+
+  return changes;
+};
+
 export class RecipeService {
   async getRecipeById(id, userId = null) {
     const cacheKey = `recipe:${id}`;
@@ -56,6 +163,104 @@ export class RecipeService {
     const result = { recipes, total, page, limit };
     await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
     return result;
+  }
+
+  async getPendingRecipes(page = 1, limit = 20) {
+    const skip = (page - 1) * limit;
+
+    const pendingRecipes = await prisma.recipe.findMany({
+      where: { status: "PENDING" },
+      include: {
+        author: true,
+        categories: true,
+        tags: true,
+        cuisines: true,
+        ingredients: {
+          include: { ingredient: true },
+        },
+        steps: true,
+      },
+      orderBy: { created_at: "desc" },
+    });
+
+    const draftEntries = await prisma.recipeDraft.findMany({
+      include: {
+        recipe: {
+          include: {
+            author: true,
+            categories: true,
+            tags: true,
+            cuisines: true,
+            ingredients: { include: { ingredient: true } },
+            steps: true,
+          },
+        },
+        editor: true,
+      },
+      orderBy: { created_at: "desc" },
+    });
+
+    const pendingEdits = draftEntries.map((draft) => {
+      const recipe = draft.recipe;
+      const changes = getDraftChanges(recipe, draft.data || {});
+      return {
+        ...recipe,
+        draft: {
+          id: draft.id,
+          editor: { id: draft.editor?.id, name: draft.editor?.name },
+          data: draft.data,
+          created_at: draft.created_at,
+          changes,
+          pendingType: "edit",
+        },
+      };
+    });
+
+    const combined = [
+      ...pendingRecipes.map((recipe) => ({
+        ...recipe,
+        draft: null,
+        pendingType: "new",
+      })),
+      ...pendingEdits,
+    ];
+
+    const resultRecipes = combined.slice(skip, skip + limit);
+    return {
+      recipes: resultRecipes,
+      total: combined.length,
+      page,
+      limit,
+    };
+  }
+
+  async getRecipeWithDraftById(id) {
+    const recipe = await recipeRepo.findById(id);
+    if (!recipe) {
+      throw new Error("Recipe not found");
+    }
+
+    const draft = await prisma.recipeDraft.findFirst({
+      where: { recipe_id: parseInt(id) },
+      include: { editor: true },
+    });
+
+    if (!draft) {
+      return recipe;
+    }
+
+    const changes = getDraftChanges(recipe, draft.data || {});
+    return {
+      ...recipe,
+      draft: {
+        id: draft.id,
+        editor: { id: draft.editor?.id, name: draft.editor?.name },
+        data: draft.data,
+        created_at: draft.created_at,
+        changes,
+        pendingType: "edit",
+      },
+    };
   }
 
   async createRecipe(recipeData) {
@@ -123,10 +328,38 @@ export class RecipeService {
     return recipe;
   }
 
-  async updateRecipe(id, data) {
-    const recipe = await recipeRepo.update(id, data);
+  async updateRecipe(id, data, user) {
+    // If admin - apply immediately
+    if (user && user.role === "ADMIN") {
+      const recipe = await recipeRepo.update(id, data);
+      await safeRedis.del(`recipe:${id}`);
+      return recipe;
+    }
+
+    // Non-admin: save draft
+    const recipeId = parseInt(id);
+
+    const existingDraft = await prisma.recipeDraft.findFirst({
+      where: { recipe_id: recipeId },
+    });
+
+    if (existingDraft) {
+      await prisma.recipeDraft.update({
+        where: { id: existingDraft.id },
+        data: { data },
+      });
+    } else {
+      await prisma.recipeDraft.create({
+        data: {
+          recipe: { connect: { id: recipeId } },
+          editor: { connect: { id: user.id } },
+          data,
+        },
+      });
+    }
+
     await safeRedis.del(`recipe:${id}`);
-    return recipe;
+    return { message: "Draft saved for approval" };
   }
 
   async deleteRecipe(id) {
@@ -146,22 +379,107 @@ export class RecipeService {
       .filter((ingredient) => ingredient.status === "NotVerified")
       .map((ingredient) => ingredient.id);
 
-    await prisma.$transaction([
-      prisma.recipe.update({
-        where: { id: parseInt(recipeId) },
-        data: { status: "PUBLISHED" },
-      }),
-      prisma.ingredient.updateMany({
-        where: { id: { in: ingredientIdsToVerify } },
-        data: { status: "Verified" },
-      }),
-    ]);
+    // If there is a draft for this recipe, apply its data
+    const draft = await prisma.recipeDraft.findFirst({
+      where: { recipe_id: parseInt(recipeId) },
+    });
+
+    if (draft) {
+      const draftData = draft.data || {};
+
+      const updateData = {};
+      if (draftData.title) updateData.title = draftData.title;
+      if (draftData.description) updateData.description = draftData.description;
+      if (draftData.preview_img_url)
+        updateData.preview_img_url = draftData.preview_img_url;
+      if (draftData.thumbnail) updateData.thumbnail = draftData.thumbnail;
+      if (draftData.cooking_time)
+        updateData.cooking_time = Number(draftData.cooking_time);
+      if (draftData.calories) updateData.calories = Number(draftData.calories);
+      if (draftData.difficulty) updateData.difficulty = draftData.difficulty;
+
+      // Relations: ingredients, steps, categories, tags, cuisines
+      console.log("draft data ingredients: ", draftData.ingredients);
+      if (draftData.ingredients) {
+        updateData.ingredients = {
+          deleteMany: {},
+          create: JSON.parse(draftData.ingredients).map((ing) => ({
+            ingredient: { connect: { id: Number(ing.ingredient_id) } },
+            amount: Number(ing.amount),
+            unit: ing.unit,
+          })),
+        };
+      }
+
+      if (draftData.steps) {
+        updateData.steps = {
+          deleteMany: {},
+          create: draftData.steps.map((s, idx) => ({
+            description: s.description,
+            step_number: Number(s.step_number ?? idx + 1),
+          })),
+        };
+      }
+
+      if (draftData.categories) {
+        updateData.categories = {
+          set: draftData.categories.map((id) => ({ id: Number(id) })),
+        };
+      }
+
+      if (draftData.tags) {
+        updateData.tags = {
+          set: draftData.tags.map((id) => ({ id: Number(id) })),
+        };
+      }
+
+      if (draftData.cuisines) {
+        updateData.cuisines = {
+          set: draftData.cuisines.map((id) => ({ id: Number(id) })),
+        };
+      }
+
+      await prisma.$transaction([
+        prisma.recipe.update({
+          where: { id: parseInt(recipeId) },
+          data: { ...updateData, status: "PUBLISHED" },
+        }),
+        prisma.ingredient.updateMany({
+          where: { id: { in: ingredientIdsToVerify } },
+          data: { status: "Verified" },
+        }),
+        prisma.recipeDraft.delete({ where: { id: draft.id } }),
+      ]);
+    } else {
+      await prisma.$transaction([
+        prisma.recipe.update({
+          where: { id: parseInt(recipeId) },
+          data: { status: "PUBLISHED" },
+        }),
+        prisma.ingredient.updateMany({
+          where: { id: { in: ingredientIdsToVerify } },
+          data: { status: "Verified" },
+        }),
+      ]);
+    }
 
     await safeRedis.del(`recipe:${recipeId}`);
     await safeRedis.del("popular_recipes");
   }
 
   async rejectRecipe(recipeId) {
+    // If there's a draft for this recipe, just delete the draft (reject edit)
+    const draft = await prisma.recipeDraft.findFirst({
+      where: { recipe_id: parseInt(recipeId) },
+    });
+
+    if (draft) {
+      await prisma.recipeDraft.delete({ where: { id: draft.id } });
+      await safeRedis.del(`recipe:${recipeId}`);
+      return;
+    }
+
+    // Otherwise treat as rejecting a pending recipe creation -> delete recipe
     const recipe = await recipeRepo.findByIdWithIngredients(recipeId);
     if (!recipe) {
       throw new Error("Recipe not found");

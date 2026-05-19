@@ -10,6 +10,7 @@ import {
   approveRecipe,
   rejectRecipe,
   getPendingRecipes,
+  getRecipeWithDraft,
   addToFavorites,
   removeFromFavorites,
   markRecipeStatus,
@@ -28,8 +29,9 @@ router.get("/my", authenticate, getMyRecipes);
 router.get("/pending", authenticate, requireAdmin, getPendingRecipes);
 router.get("/:id", getRecipe);
 router.post("/", authenticate, uploadRecipeImage, createRecipe);
-router.put("/:id", authenticate, updateRecipe);
+router.put("/:id", authenticate, uploadRecipeImage, updateRecipe);
 router.delete("/:id", authenticate, deleteRecipe);
+router.get("/:id/draft", authenticate, requireAdmin, getRecipeWithDraft);
 
 router.put("/:id/approve", authenticate, requireAdmin, approveRecipe);
 router.delete("/:id/reject", authenticate, requireAdmin, rejectRecipe);
