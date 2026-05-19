@@ -76,26 +76,44 @@ export const createRecipe = async (req, res) => {
       };
     }
 
+    const parseRelationValues = (value) => {
+      if (value === undefined || value === null) return undefined;
+      if (typeof value === "string") {
+        try {
+          return JSON.parse(value);
+        } catch {
+          return undefined;
+        }
+      }
+      return value;
+    };
+
+    const normalizeConnect = (value) => {
+      const ids = parseRelationValues(value);
+      if (!Array.isArray(ids)) return undefined;
+      return ids
+        .map((id) => Number(id))
+        .filter((id) => !Number.isNaN(id))
+        .map((id) => ({ id }));
+    };
+
     if (recipeData.categories) {
-      recipeData.categories = {
-        connect: JSON.parse(recipeData.categories).map((id) => ({
-          id: parseInt(id),
-        })),
-      };
+      const categories = normalizeConnect(recipeData.categories);
+      if (categories) {
+        recipeData.categories = { connect: categories };
+      }
     }
     if (recipeData.tags) {
-      recipeData.tags = {
-        connect: JSON.parse(recipeData.tags).map((id) => ({
-          id: parseInt(id),
-        })),
-      };
+      const tags = normalizeConnect(recipeData.tags);
+      if (tags) {
+        recipeData.tags = { connect: tags };
+      }
     }
     if (recipeData.cuisines) {
-      recipeData.cuisines = {
-        connect: JSON.parse(recipeData.cuisines).map((id) => ({
-          id: parseInt(id),
-        })),
-      };
+      const cuisines = normalizeConnect(recipeData.cuisines);
+      if (cuisines) {
+        recipeData.cuisines = { connect: cuisines };
+      }
     }
 
     const recipe = await recipeService.createRecipe(recipeData);
@@ -136,25 +154,17 @@ export const updateRecipe = async (req, res) => {
     }
 
     if (recipeData.categories) {
-      recipeData.categories = {
-        set: JSON.parse(recipeData.categories).map((id) => ({
-          id: parseInt(id),
-        })),
-      };
+      recipeData.categories = JSON.parse(recipeData.categories).map((id) =>
+        parseInt(id),
+      );
     }
     if (recipeData.tags) {
-      recipeData.tags = {
-        set: JSON.parse(recipeData.tags).map((id) => ({
-          id: parseInt(id),
-        })),
-      };
+      recipeData.tags = JSON.parse(recipeData.tags).map((id) => parseInt(id));
     }
     if (recipeData.cuisines) {
-      recipeData.cuisines = {
-        set: JSON.parse(recipeData.cuisines).map((id) => ({
-          id: parseInt(id),
-        })),
-      };
+      recipeData.cuisines = JSON.parse(recipeData.cuisines).map((id) =>
+        parseInt(id),
+      );
     }
 
     const recipe = await recipeService.updateRecipe(

@@ -23,6 +23,91 @@ const arraysAreEqual = (left = [], right = []) => {
   );
 };
 
+const normalizeDraftIds = (value) => {
+  if (!value) return [];
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value)
+        .map((id) => Number(id))
+        .filter((id) => !Number.isNaN(id));
+    } catch {
+      return [];
+    }
+  }
+  if (Array.isArray(value)) {
+    return value
+      .map((item) =>
+        item && typeof item === "object" && "id" in item
+          ? Number(item.id)
+          : Number(item),
+      )
+      .filter((id) => !Number.isNaN(id));
+  }
+  if (value.set) return normalizeDraftIds(value.set);
+  if (value.connect) return normalizeDraftIds(value.connect);
+  return [];
+};
+
+const normalizeDraftSteps = (stepsValue) => {
+  if (!stepsValue) return [];
+  let steps = [];
+
+  if (typeof stepsValue === "string") {
+    try {
+      steps = JSON.parse(stepsValue);
+    } catch {
+      steps = [];
+    }
+  } else if (Array.isArray(stepsValue)) {
+    steps = stepsValue;
+  } else if (stepsValue.create) {
+    steps = Array.isArray(stepsValue.create) ? stepsValue.create : [];
+  }
+
+  return steps
+    .map((step, idx) => ({
+      description: step.description,
+      step_number: Number(step.step_number ?? idx + 1),
+      image_url: step.image_url,
+    }))
+    .sort((a, b) => a.step_number - b.step_number);
+};
+
+const normalizeDraftIngredients = (value) => {
+  if (!value) return [];
+  const ingredients =
+    typeof value === "string" ? JSON.parse(value) : value || [];
+
+  return ingredients.map((ing) => ({
+    id: ing.ingredient_id ? Number(ing.ingredient_id) : null,
+    name: ing.ingredient_name,
+    amount: Number(ing.amount),
+    unit: ing.unit,
+  }));
+};
+
+const normalizeRelationForCreate = (value) => {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return normalizeRelationForCreate(parsed);
+    } catch {
+      return undefined;
+    }
+  }
+  if (Array.isArray(value)) {
+    const ids = value
+      .map((id) => (typeof id === "object" ? id?.id : id))
+      .map((id) => Number(id))
+      .filter((id) => !Number.isNaN(id));
+    return ids.map((id) => ({ id }));
+  }
+  if (value.connect) return normalizeRelationForCreate(value.connect);
+  if (value.set) return normalizeRelationForCreate(value.set);
+  return undefined;
+};
+
 const parseRecipeIngredients = async (ingredientsData) => {
   const parsedIngredients =
     typeof ingredientsData === "string"
@@ -104,47 +189,63 @@ const getDraftChanges = (recipe, draftData) => {
   ) {
     changes.push("Image");
   }
+  const draftCategoryIds = normalizeDraftIds(draftData.categories);
+  const draftTagIds = normalizeDraftIds(draftData.tags);
+  const draftCuisineIds = normalizeDraftIds(draftData.cuisines);
+
+  const hasDraftCategories =
+    draftData.categories !== undefined && draftData.categories !== null;
+  const hasDraftTags = draftData.tags !== undefined && draftData.tags !== null;
+  const hasDraftCuisines =
+    draftData.cuisines !== undefined && draftData.cuisines !== null;
+
   if (
-    draftData.categories &&
+    hasDraftCategories &&
     !arraysAreEqual(
       recipe.categories?.map((c) => c.id),
-      draftData.categories,
+      draftCategoryIds,
     )
   ) {
     changes.push("Categories");
   }
   if (
-    draftData.tags &&
+    hasDraftTags &&
     !arraysAreEqual(
       recipe.tags?.map((t) => t.id),
-      draftData.tags,
+      draftTagIds,
     )
   ) {
     changes.push("Tags");
   }
   if (
-    draftData.cuisines &&
+    hasDraftCuisines &&
     !arraysAreEqual(
       recipe.cuisines?.map((c) => c.id),
-      draftData.cuisines,
+      draftCuisineIds,
     )
   ) {
     changes.push("Cuisines");
   }
 
   if (draftData.ingredients) {
-    const currentIngredients = (recipe.ingredients || []).map((ing) => ({
-      id: ing.ingredient?.id,
-      name: ing.ingredient?.name,
-      amount: Number(ing.amount),
-      unit: ing.unit,
-    }));
-    const draftIngredients = JSON.parse(draftData.ingredients).map((ing) => ({
-      id: ing.ingredient_id ? Number(ing.ingredient_id) : null,
-      name: ing.ingredient_name,
-      amount: Number(ing.amount),
-      unit: ing.unit,
-    }));
+    const currentIngredients = normalizeDraftIngredients(
+      recipe.ingredients || [],
+    )
+      .slice()
+      .sort((a, b) => {
+        if (a.id !== b.id) return (a.id ?? 0) - (b.id ?? 0);
+        if (a.name !== b.name) return a.name.localeCompare(b.name);
+        if (a.amount !== b.amount) return a.amount - b.amount;
+        return a.unit.localeCompare(b.unit);
+      });
+    const draftIngredients = normalizeDraftIngredients(draftData.ingredients)
+      .slice()
+      .sort((a, b) => {
+        if (a.id !== b.id) return (a.id ?? 0) - (b.id ?? 0);
+        if (a.name !== b.name) return a.name.localeCompare(b.name);
+        if (a.amount !== b.amount) return a.amount - b.amount;
+        return a.unit.localeCompare(b.unit);
+      });
     if (
       JSON.stringify(currentIngredients) !== JSON.stringify(draftIngredients)
     ) {
@@ -152,16 +253,9 @@ const getDraftChanges = (recipe, draftData) => {
     }
   }
 
-  console.log(recipe.steps);
   if (draftData.steps) {
-    const currentSteps = (recipe.steps || []).map((step) => ({
-      step_number: Number(step.step_number),
-      description: step.description,
-    }));
-    const draftSteps = draftData.steps.create.map((step) => ({
-      step_number: Number(step.step_number),
-      description: step.description,
-    }));
+    const currentSteps = normalizeDraftSteps(recipe.steps || []);
+    const draftSteps = normalizeDraftSteps(draftData.steps);
     if (JSON.stringify(currentSteps) !== JSON.stringify(draftSteps)) {
       changes.push("Steps");
     }
@@ -370,6 +464,25 @@ export class RecipeService {
       });
     }
 
+    if (recipeData.categories && !recipeData.categories.connect) {
+      const categories = normalizeRelationForCreate(recipeData.categories);
+      if (categories) {
+        recipeData.categories = { connect: categories };
+      }
+    }
+    if (recipeData.tags && !recipeData.tags.connect) {
+      const tags = normalizeRelationForCreate(recipeData.tags);
+      if (tags) {
+        recipeData.tags = { connect: tags };
+      }
+    }
+    if (recipeData.cuisines && !recipeData.cuisines.connect) {
+      const cuisines = normalizeRelationForCreate(recipeData.cuisines);
+      if (cuisines) {
+        recipeData.cuisines = { connect: cuisines };
+      }
+    }
+
     const recipe = await recipeRepo.create({
       ...recipeData,
       status: "PENDING",
@@ -421,14 +534,27 @@ export class RecipeService {
       }
 
       const normalizeRelation = (value) => {
+        if (value === undefined || value === null) return null;
         if (typeof value === "string") {
-          return JSON.parse(value).map((id) => ({ id: Number(id) }));
+          try {
+            const parsed = JSON.parse(value);
+            return normalizeRelation(parsed);
+          } catch {
+            return null;
+          }
         }
         if (Array.isArray(value)) {
-          return value.map((id) => ({ id: Number(id) }));
+          return value
+            .map((id) => (typeof id === "object" ? id?.id : id))
+            .map((id) => Number(id))
+            .filter((id) => !Number.isNaN(id))
+            .map((id) => ({ id }));
         }
         if (value && value.set) {
-          return value.set;
+          return normalizeRelation(value.set);
+        }
+        if (value && value.connect) {
+          return normalizeRelation(value.connect);
         }
         return null;
       };
@@ -551,28 +677,32 @@ export class RecipeService {
       if (draftData.steps) {
         updateData.steps = {
           deleteMany: {},
-          create: draftData.steps.map((s, idx) => ({
+          create: draftData.steps.create.map((s, idx) => ({
             description: s.description,
             step_number: Number(s.step_number ?? idx + 1),
           })),
         };
       }
 
-      if (draftData.categories) {
+      const draftCategoryIds = normalizeDraftIds(draftData.categories);
+      const draftTagIds = normalizeDraftIds(draftData.tags);
+      const draftCuisineIds = normalizeDraftIds(draftData.cuisines);
+
+      if (draftData.categories !== undefined && draftData.categories !== null) {
         updateData.categories = {
-          set: draftData.categories.map((id) => ({ id: Number(id) })),
+          set: draftCategoryIds.map((id) => ({ id })),
         };
       }
 
-      if (draftData.tags) {
+      if (draftData.tags !== undefined && draftData.tags !== null) {
         updateData.tags = {
-          set: draftData.tags.map((id) => ({ id: Number(id) })),
+          set: draftTagIds.map((id) => ({ id })),
         };
       }
 
-      if (draftData.cuisines) {
+      if (draftData.cuisines !== undefined && draftData.cuisines !== null) {
         updateData.cuisines = {
-          set: draftData.cuisines.map((id) => ({ id: Number(id) })),
+          set: draftCuisineIds.map((id) => ({ id })),
         };
       }
 

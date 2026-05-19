@@ -132,7 +132,8 @@ export const RecipeDetailPage = () => {
   };
 
   const handleToggleHideRecipe = async () => {
-    const nextStatus = currentRecipe.status === "HIDDEN" ? "PUBLISHED" : "HIDDEN";
+    const nextStatus =
+      currentRecipe.status === "HIDDEN" ? "PUBLISHED" : "HIDDEN";
 
     try {
       await updateRecipeMutation.mutateAsync({ status: nextStatus });
@@ -470,9 +471,15 @@ export const RecipeDetailPage = () => {
         <div className="confirm-overlay">
           <div className="confirm-card">
             <h3>Confirm deletion</h3>
-            <p>Are you sure you want to delete this recipe? This action cannot be undone.</p>
+            <p>
+              Are you sure you want to delete this recipe? This action cannot be
+              undone.
+            </p>
             <div className="confirm-actions">
-              <Button variant="outline" onClick={() => setDeleteModalOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteModalOpen(false)}
+              >
                 Cancel
               </Button>
               <Button
@@ -490,7 +497,11 @@ export const RecipeDetailPage = () => {
       {hideModalOpen && (
         <div className="confirm-overlay">
           <div className="confirm-card">
-            <h3>{currentRecipe.status === "HIDDEN" ? "Unhide recipe" : "Hide recipe"}</h3>
+            <h3>
+              {currentRecipe.status === "HIDDEN"
+                ? "Unhide recipe"
+                : "Hide recipe"}
+            </h3>
             <p>
               {currentRecipe.status === "HIDDEN"
                 ? "This recipe will become visible again to users."

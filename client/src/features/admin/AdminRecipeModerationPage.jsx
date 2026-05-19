@@ -25,6 +25,56 @@ const createLookup = (items) =>
     return map;
   }, {});
 
+const normalizeDraftIds = (value) => {
+  if (!value) return [];
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value)
+        .map((id) => Number(id))
+        .filter((id) => !Number.isNaN(id));
+    } catch {
+      return [];
+    }
+  }
+  if (Array.isArray(value)) {
+    return value
+      .map((item) =>
+        item && typeof item === "object" && "id" in item
+          ? Number(item.id)
+          : Number(item),
+      )
+      .filter((id) => !Number.isNaN(id));
+  }
+  if (value.set) return normalizeDraftIds(value.set);
+  if (value.connect) return normalizeDraftIds(value.connect);
+  return [];
+};
+
+const normalizeDraftSteps = (stepsValue) => {
+  if (!stepsValue) return [];
+  let steps = [];
+
+  if (typeof stepsValue === "string") {
+    try {
+      steps = JSON.parse(stepsValue);
+    } catch {
+      steps = [];
+    }
+  } else if (Array.isArray(stepsValue)) {
+    steps = stepsValue;
+  } else if (stepsValue.create) {
+    steps = Array.isArray(stepsValue.create) ? stepsValue.create : [];
+  }
+
+  return steps
+    .map((step, idx) => ({
+      description: step.description,
+      step_number: Number(step.step_number ?? idx + 1),
+      image_url: step.image_url,
+    }))
+    .sort((a, b) => a.step_number - b.step_number);
+};
+
 export const AdminRecipeModerationPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -70,6 +120,11 @@ export const AdminRecipeModerationPage = () => {
   const isEditPending = Boolean(draft);
   const draftEditor = draft?.editor?.name;
 
+  const draftCategoryIds = normalizeDraftIds(draftData.categories);
+  const draftTagIds = normalizeDraftIds(draftData.tags);
+  const draftCuisineIds = normalizeDraftIds(draftData.cuisines);
+  const draftSteps = normalizeDraftSteps(draftData.steps);
+
   const previewRecipe = {
     ...recipe,
     title: draftData.title ?? recipe.title,
@@ -78,24 +133,27 @@ export const AdminRecipeModerationPage = () => {
     calories: draftData.calories ?? recipe.calories,
     difficulty: draftData.difficulty ?? recipe.difficulty,
     preview_img_url: draftData.preview_img_url ?? recipe.preview_img_url,
-    categories: draftData.categories
-      ? draftData.categories.map((id) => ({
-          id: Number(id),
-          name: categoryMap[Number(id)] || `#${id}`,
-        }))
-      : recipe.categories || [],
-    tags: draftData.tags
-      ? draftData.tags.map((id) => ({
-          id: Number(id),
-          name: tagMap[Number(id)] || `#${id}`,
-        }))
-      : recipe.tags || [],
-    cuisines: draftData.cuisines
-      ? draftData.cuisines.map((id) => ({
-          id: Number(id),
-          name: cuisineMap[Number(id)] || `#${id}`,
-        }))
-      : recipe.cuisines || [],
+    categories:
+      draftData.categories !== undefined
+        ? draftCategoryIds.map((id) => ({
+            id,
+            name: categoryMap[id] || `#${id}`,
+          }))
+        : recipe.categories || [],
+    tags:
+      draftData.tags !== undefined
+        ? draftTagIds.map((id) => ({
+            id,
+            name: tagMap[id] || `#${id}`,
+          }))
+        : recipe.tags || [],
+    cuisines:
+      draftData.cuisines !== undefined
+        ? draftCuisineIds.map((id) => ({
+            id,
+            name: cuisineMap[id] || `#${id}`,
+          }))
+        : recipe.cuisines || [],
     ingredients: draftData.ingredients
       ? JSON.parse(draftData.ingredients).map((ing) => ({
           ingredient: {
@@ -107,13 +165,7 @@ export const AdminRecipeModerationPage = () => {
           unit: ing.unit,
         }))
       : recipe.ingredients || [],
-    steps: draftData.steps
-      ? draftData.steps.create.map((step) => ({
-          description: step.description,
-          step_number: Number(step.step_number),
-          image_url: step.image_url,
-        }))
-      : recipe.steps || [],
+    steps: draftSteps.length > 0 ? draftSteps : recipe.steps || [],
   };
 
   const draftIngredients = draftData.ingredients
@@ -132,19 +184,27 @@ export const AdminRecipeModerationPage = () => {
     unit: ing.unit,
   }));
 
-  const draftSteps = draftData.steps
-    ? draftData.steps.create.map((step) => ({
-        step_number: Number(step.step_number),
-        description: step.description,
-        image_url: step.image_url,
-      }))
-    : [];
+  const recipeSteps = (recipe.steps || [])
+    .map((step) => ({
+      step_number: Number(step.step_number),
+      description: step.description,
+      image_url: step.image_url,
+    }))
+    .sort((a, b) => a.step_number - b.step_number);
 
-  const recipeSteps = (recipe.steps || []).map((step) => ({
-    step_number: Number(step.step_number),
-    description: step.description,
-    image_url: step.image_url,
-  }));
+  const sortIngredients = (items) =>
+    [...items].sort((a, b) => {
+      if (a.id !== b.id) return (a.id ?? 0) - (b.id ?? 0);
+      if (a.name !== b.name) return a.name.localeCompare(b.name);
+      if (a.amount !== b.amount) return a.amount - b.amount;
+      return (a.unit || "").localeCompare(b.unit || "");
+    });
+
+  const normalizedRecipeIngredients = sortIngredients(recipeIngredients);
+  const normalizedDraftIngredients = sortIngredients(draftIngredients);
+  const normalizedDraftSteps = [...draftSteps].sort(
+    (a, b) => Number(a.step_number) - Number(b.step_number),
+  );
 
   const isChanged = {
     title: Boolean(draftData.title && draftData.title !== recipe.title),
@@ -165,23 +225,24 @@ export const AdminRecipeModerationPage = () => {
       draftData.preview_img_url !== recipe.preview_img_url,
     ),
     categories:
-      Boolean(draftData.categories) &&
-      JSON.stringify(draftData.categories.map(Number).sort()) !==
+      draftData.categories !== undefined &&
+      JSON.stringify(draftCategoryIds.sort()) !==
         JSON.stringify((recipe.categories || []).map((c) => c.id).sort()),
     tags:
-      Boolean(draftData.tags) &&
-      JSON.stringify(draftData.tags.map(Number).sort()) !==
+      draftData.tags !== undefined &&
+      JSON.stringify(draftTagIds.sort()) !==
         JSON.stringify((recipe.tags || []).map((t) => t.id).sort()),
     cuisines:
-      Boolean(draftData.cuisines) &&
-      JSON.stringify(draftData.cuisines.map(Number).sort()) !==
+      draftData.cuisines !== undefined &&
+      JSON.stringify(draftCuisineIds.sort()) !==
         JSON.stringify((recipe.cuisines || []).map((c) => c.id).sort()),
     ingredients:
       draftIngredients.length > 0 &&
-      JSON.stringify(recipeIngredients) !== JSON.stringify(draftIngredients),
+      JSON.stringify(normalizedRecipeIngredients) !==
+        JSON.stringify(normalizedDraftIngredients),
     steps:
       draftSteps.length > 0 &&
-      JSON.stringify(recipeSteps) !== JSON.stringify(draftSteps),
+      JSON.stringify(recipeSteps) !== JSON.stringify(normalizedDraftSteps),
   };
 
   const heroImage = previewRecipe.preview_img_url
