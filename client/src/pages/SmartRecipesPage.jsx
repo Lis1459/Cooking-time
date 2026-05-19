@@ -190,10 +190,11 @@ export const SmartRecipesPage = () => {
   return (
     <div className="smart-recipes">
       <Card>
-        <CardHeader>Find Recipes by Ingredients</CardHeader>
+        <CardHeader>Поиск рецептов по ингредиентам</CardHeader>
         <CardContent>
           <p className="smart-recipes__subtitle">
-            Enter the ingredients you have, and find recipes you can make!
+            Введите ингредиенты, которые у вас есть, и найдите рецепты, которые
+            вы можете приготовитьоторые вы можете приготовить!
           </p>
 
           {/* Ingredient Input */}
@@ -202,7 +203,7 @@ export const SmartRecipesPage = () => {
               <Input
                 ref={searchInput}
                 type="text"
-                placeholder="Search ingredients..."
+                placeholder="Поиск ингредиентов..."
                 value={ingredientInput}
                 onChange={(e) => {
                   setIngredientInput(e.target.value);
@@ -256,8 +257,8 @@ export const SmartRecipesPage = () => {
             style={{ width: "100%", marginTop: "var(--spacing-lg)" }}
           >
             {loading
-              ? "Searching..."
-              : `Search Recipes (${ingredients.length} ingredients)`}
+              ? "Поиск..."
+              : `Найти рецепты (${ingredients.length} ингредиентов)`}
           </Button>
         </CardContent>
       </Card>
@@ -265,7 +266,7 @@ export const SmartRecipesPage = () => {
       {/* Results */}
       {matchedRecipes.length > 0 && (
         <div className="smart-recipes__results">
-          <h2>Found {totalRecipes || matchedRecipes.length} Recipes</h2>
+          <h2>Найдено {totalRecipes || matchedRecipes.length} рецептовтов</h2>
           <div className="smart-recipes__recipes-grid">
             {matchedRecipes.map((recipe) => (
               <Card key={recipe.id} className="smart-recipes__recipe-card">
@@ -326,7 +327,7 @@ export const SmartRecipesPage = () => {
                     style={{ width: "100%", marginTop: "var(--spacing-md)" }}
                     onClick={() => navigate(`/recipes/${recipe.id}`)}
                   >
-                    View Recipe
+                    Смотреть рецептцепт
                   </Button>
                 </CardContent>
               </Card>
@@ -351,9 +352,9 @@ export const SmartRecipesPage = () => {
 
       {!loading && matchedRecipes.length === 0 && ingredients.length > 0 && (
         <div className="smart-recipes__no-results">
-          <p>No recipes found with those ingredients. Try different ones!</p>
+          <p>Рецепты с этими ингредиентами не найдены. Попробуйте другие!</p>
           <Button variant="outline" onClick={() => navigate("/recipes")}>
-            Browse All Recipes
+            Просмотреть все рецептыцепты
           </Button>
         </div>
       )}

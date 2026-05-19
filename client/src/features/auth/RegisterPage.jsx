@@ -18,13 +18,15 @@ import "./Auth.css";
 
 const registerSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    name: z.string().min(2, "Имя должно содержать не менее 2 символов"),
+    email: z.string().email("Неверный адрес эл. почты"),
+    password: z
+      .string()
+      .min(6, "Пароль должен содержать не менее 6 символовволов"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: "Пароли не совпадаюn",
     path: ["confirmPassword"],
   });
 
@@ -54,13 +56,13 @@ export const RegisterPage = () => {
   return (
     <div className="auth-container">
       <Card className="auth-card">
-        <CardHeader>Create Account</CardHeader>
+        <CardHeader>Создать аккаунт</CardHeader>
         <CardContent>
           {error && (
             <Alert variant="error" onClose={() => {}}>
               {typeof error === "string"
                 ? error
-                : "Registration failed. Please try again."}
+                : "Регистрация не удалась. Пожалуйста, попробуйте сноваопробуйте снова."}
             </Alert>
           )}
           {localError && (
@@ -71,11 +73,11 @@ export const RegisterPage = () => {
 
           <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
             <div className="form-group">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">Имя и фамилия</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder="John Doe"
+                placeholder="Иван Ивановнов"
                 {...register("name")}
                 error={!!errors.name}
               />
@@ -85,7 +87,7 @@ export const RegisterPage = () => {
             </div>
 
             <div className="form-group">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Эл. почта</Label>
               <Input
                 id="email"
                 type="email"
@@ -99,7 +101,7 @@ export const RegisterPage = () => {
             </div>
 
             <div className="form-group">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Пароль</Label>
               <Input
                 id="password"
                 type="password"
@@ -113,7 +115,7 @@ export const RegisterPage = () => {
             </div>
 
             <div className="form-group">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">Подтвердите парольль</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -134,15 +136,15 @@ export const RegisterPage = () => {
               disabled={loading}
               style={{ width: "100%" }}
             >
-              {loading ? "Creating account..." : "Create Account"}
+              {loading ? "Создание аккаунта..." : "Создать аккаунтнт"}
             </Button>
           </form>
 
           <div className="auth-footer">
             <p>
-              Already have an account?{" "}
+              Уже есть аккаунт?{" "}
               <Link to="/login" className="auth-link">
-                Sign in
+                Войдите
               </Link>
             </p>
           </div>

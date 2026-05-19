@@ -47,13 +47,13 @@ export const LoginPage = () => {
   return (
     <div className="auth-container">
       <Card className="auth-card">
-        <CardHeader>Sign In</CardHeader>
+        <CardHeader>Войти</CardHeader>
         <CardContent>
           {error && (
             <Alert variant="error" onClose={() => {}}>
               {typeof error === "string"
                 ? error
-                : "Login failed. Please try again."}
+                : "Вход не удался. Пожалуйста, попробуйте сновапробуйте снова."}
             </Alert>
           )}
           {localError && (
@@ -64,11 +64,11 @@ export const LoginPage = () => {
 
           <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
             <div className="form-group">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Эл. почта</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="your@email.com"
+                placeholder="ваш@почта.ру
                 {...register("email")}
                 error={!!errors.email}
               />
@@ -78,7 +78,7 @@ export const LoginPage = () => {
             </div>
 
             <div className="form-group">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">ПарольLabel>
               <PasswordToggle
                 id="password"
                 placeholder="••••••••"
@@ -96,15 +96,15 @@ export const LoginPage = () => {
               disabled={loading}
               style={{ width: "100%" }}
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Входим..." : "Войти
             </Button>
           </form>
 
           <div className="auth-footer">
             <p>
-              Don't have an account?{" "}
+              Еще нет аккаунта?{" "}
               <Link to="/register" className="auth-link">
-                Sign up
+                Зарегистрируйтесьтрируйтесь
               </Link>
             </p>
           </div>

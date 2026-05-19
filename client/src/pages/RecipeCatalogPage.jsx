@@ -122,14 +122,14 @@ export const RecipeCatalogPage = () => {
 
   return (
     <div className="recipe-catalog">
-      <h1>Recipe Catalog</h1>
+      <h1>Каталог рецептов</h1>
 
       {/* Filters */}
       <div className="recipe-catalog__filters">
         <div className="recipe-catalog__filter-group">
           <Input
             type="text"
-            placeholder="Search recipes..."
+            placeholder="Поиск рецептов..."
             value={filters.search}
             onChange={handleSearch}
           />
@@ -143,33 +143,33 @@ export const RecipeCatalogPage = () => {
             }))}
             value={filters.category || ""}
             onChange={handleCategoryFilter}
-            placeholder="All Categories"
+            placeholder="Все категории"
           />
         </div>
 
         <div className="recipe-catalog__filter-group">
           <Select
             options={[
-              { value: "VERY_EASY", name: "Very Easy" },
-              { value: "EASY", name: "Easy" },
-              { value: "MEDIUM", name: "Medium" },
-              { value: "HARD", name: "Hard" },
-              { value: "VERY_HARD", name: "Very Hard" },
+              { value: "VERY_EASY", name: "Очень легко" },
+              { value: "EASY", name: "Легко" },
+              { value: "MEDIUM", name: "Средне" },
+              { value: "HARD", name: "Сложно" },
+              { value: "VERY_HARD", name: "Очень сложно" },
             ]}
             value={filters.difficulty || ""}
             onChange={handleDifficultyFilter}
-            placeholder="All Difficulties"
+            placeholder="Все уровни сложности"
           />
         </div>
 
         <Button variant="outline" onClick={handleClearFilters}>
-          Clear Filters
+          Сбросить фильтры
         </Button>
       </div>
 
       {/* Results Count */}
       <div className="recipe-catalog__results-info">
-        <p>Found {totalRecipes} recipes</p>
+        <p>Найдено {totalRecipes} рецептов</p>
       </div>
 
       {isLoading && (
@@ -206,7 +206,7 @@ export const RecipeCatalogPage = () => {
                   style={{ width: "100%", marginTop: "var(--spacing-md)" }}
                   onClick={() => navigate(`/recipes/${recipe.id}`)}
                 >
-                  View Recipe
+                  Смотреть рецепт
                 </Button>
               </CardContent>
             </Card>
@@ -222,9 +222,9 @@ export const RecipeCatalogPage = () => {
         </div>
       ) : (
         <div className="recipe-catalog__empty-state">
-          <p>No recipes found. Try adjusting your filters.</p>
+          <p>Рецепты не найдены. Попробуйте изменить фильтры.</p>
           <Button variant="primary" onClick={handleClearFilters}>
-            Clear All Filters
+            Сбросить фильтры
           </Button>
         </div>
       )}

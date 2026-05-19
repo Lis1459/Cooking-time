@@ -42,24 +42,24 @@ export const Header = () => {
 
         <nav className={`nav ${mobileMenuOpen ? "active" : ""}`}>
           <Link to="/" className="nav-link">
-            Home
+            Главная
           </Link>
           <Link to="/recipes" className="nav-link">
-            Catalog
+            Каталог
           </Link>
           {isAuthenticated && (
             <>
               <Link to="/smart-recipes" className="nav-link">
-                Smart Search
+                Умный поиск
               </Link>
               <Link to="/favorites" className="nav-link">
-                Favorites
+                Избранное
               </Link>
             </>
           )}
           {user?.role === "ADMIN" && (
             <Link to="/admin" className="nav-link">
-              Admin
+              Админ
             </Link>
           )}
         </nav>
@@ -109,25 +109,25 @@ export const Header = () => {
                     className="user-button"
                     onClick={() => setUserMobileMenuOpen(!userMobileMenuOpen)}
                   >
-                    {user?.name || "User"}
+                    {user?.name || "Пользователь"}
                   </button>
                 }
                 items={[
                   {
-                    label: "My Profile",
+                    label: "Мой профиль",
                     href: "/profile",
                   },
                   {
-                    label: "My Recipes",
+                    label: "Мои рецепты",
                     href: "/my-recipes",
                   },
                   {
-                    label: "Add Recipe",
+                    label: "Добавить рецепт",
                     href: "/add-recipe",
                   },
                   { separator: true },
                   {
-                    label: "Logout",
+                    label: "Выйти",
                     variant: "danger",
                     onClick: handleLogout,
                   },
@@ -141,14 +141,14 @@ export const Header = () => {
                 size="sm"
                 onClick={() => navigate("/login")}
               >
-                Login
+                Войти
               </Button>
               <Button
                 variant="primary"
                 size="sm"
                 onClick={() => navigate("/register")}
               >
-                Sign Up
+                Регистрация
               </Button>
             </div>
           )}

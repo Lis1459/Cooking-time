@@ -53,7 +53,6 @@ export const AdminPanelPage = () => {
     usersLimit,
   );
 
-  // Update users when data changes
   useEffect(() => {
     if (usersData.users) {
       setUsers((prev) =>
@@ -65,31 +64,6 @@ export const AdminPanelPage = () => {
     }
   }, [usersData, page]);
 
-  // Setup IntersectionObserver for infinite scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          hasMore &&
-          !usersLoading &&
-          !loadingMore
-        ) {
-          setPage((prev) => prev + 1);
-          setLoadingMore(true);
-        }
-      },
-      { rootMargin: "200px" },
-    );
-
-    const current = sentinelRef.current;
-    if (current) observer.observe(current);
-
-    return () => {
-      if (current) observer.unobserve(current);
-    };
-  }, [hasMore, usersLoading, loadingMore]);
-
   const { data: reportsData, isLoading: reportsLoading } = useReportsQuery();
   const { data: categories = [], isLoading: categoriesLoading } =
     useCategoriesQuery();
@@ -98,18 +72,7 @@ export const AdminPanelPage = () => {
   const { data: tags = [], isLoading: tagsLoading } = useTagsQuery();
   const { data: ingredients, isLoading: ingredientsLoading } =
     useIngredientsQuery({ status: "all" });
-
-  const reports = reportsData ? reportsData.reports : [];
-
-  const blockUserMutation = useBlockUserMutation();
-  const unblockUserMutation = useUnblockUserMutation();
-
-  const updateReportMutation = useUpdateReportMutation();
-  const approveRecipeMutation = useApproveRecipeMutation();
-  const rejectRecipeMutation = useRejectRecipeMutation();
-
-  const createCategoryMutation = useCreateCategoryMutation();
-  const deleteCategoryMutation = useDeleteCategoryMutation();
+*** End Patch  const deleteCategoryMutation = useDeleteCategoryMutation();
 
   const createTagMutation = useCreateTagMutation();
   const deleteTagMutation = useDeleteTagMutation();
@@ -148,11 +111,13 @@ export const AdminPanelPage = () => {
   const handleBlockUser = (userId) => {
     blockUserMutation.mutate(userId, {
       onSuccess: () => {
-        setUsers((prev) =>
-          prev.map((user) =>
-            user.id === userId ? { ...user, is_blocked: true } : user,
-          ),
-        );
+        setUserUpdates((prev) => ({
+          ...prev,
+          [userId]: {
+            ...prev[userId],
+            is_blocked: true,
+          },
+        }));
       },
     });
   };
@@ -160,11 +125,13 @@ export const AdminPanelPage = () => {
   const handleUnblockUser = (userId) => {
     unblockUserMutation.mutate(userId, {
       onSuccess: () => {
-        setUsers((prev) =>
-          prev.map((user) =>
-            user.id === userId ? { ...user, is_blocked: false } : user,
-          ),
-        );
+        setUserUpdates((prev) => ({
+          ...prev,
+          [userId]: {
+            ...prev[userId],
+            is_blocked: false,
+          },
+        }));
       },
     });
   };
@@ -186,7 +153,7 @@ export const AdminPanelPage = () => {
   };
 
   const handleDeleteCategory = (categoryId) => {
-    if (window.confirm("Delete this category?")) {
+    if (window.confirm("Удалить эту категорию?")) {
       deleteCategoryMutation.mutate(categoryId);
     }
   };
@@ -206,7 +173,7 @@ export const AdminPanelPage = () => {
   };
 
   const handleDeleteCuisine = (cuisineId) => {
-    if (window.confirm("Delete this cuisine?")) {
+    if (window.confirm("Удалить эту кухню?")) {
       deleteCuisineMutation.mutate(cuisineId);
     }
   };
@@ -226,7 +193,7 @@ export const AdminPanelPage = () => {
   };
 
   const handleDeleteTag = (tagId) => {
-    if (window.confirm("Delete this tag?")) {
+    if (window.confirm("Удалить этот тег?")) {
       deleteTagMutation.mutate(tagId);
     }
   };
@@ -246,7 +213,7 @@ export const AdminPanelPage = () => {
   };
 
   const handleDeleteIngredient = (ingredientId) => {
-    if (window.confirm("Delete this ingredient?")) {
+    if (window.confirm("Удалить этот ингредиент?")) {
       deleteIngredientMutation.mutate(ingredientId);
     }
   };
@@ -258,7 +225,7 @@ export const AdminPanelPage = () => {
   const handleRejectRecipe = (recipeId) => {
     if (
       window.confirm(
-        "Rejecting this recipe will remove its pending ingredient and all recipe data. Continue?",
+        "Отклонение этого рецепта удалит его ожидающие ингредиенты и все данные. Продолжить?",
       )
     ) {
       rejectRecipeMutation.mutate(recipeId);
@@ -275,7 +242,7 @@ export const AdminPanelPage = () => {
 
   return (
     <div className="admin-panel">
-      <h1>Admin Panel</h1>
+      <h1>Административная панель</h1>
 
       {/* Tab Navigation */}
       <div className="tab-navigation">
@@ -283,43 +250,43 @@ export const AdminPanelPage = () => {
           className={`tab-button ${activeTab === "users" ? "active" : ""}`}
           onClick={() => setActiveTab("users")}
         >
-          👥 Users ({totalUsers})
+          👥 Пользователи ({totalUsers})
         </button>
         <button
           className={`tab-button ${activeTab === "pendingRecipes" ? "active" : ""}`}
           onClick={() => setActiveTab("pendingRecipes")}
         >
-          🧾 Pending Recipes ({pendingRecipesData?.total || 0})
+          🧾 Ожидающие рецепты ({pendingRecipesData?.total || 0})
         </button>
         <button
           className={`tab-button ${activeTab === "reports" ? "active" : ""}`}
           onClick={() => setActiveTab("reports")}
         >
-          ⚠️ Reports ({reports.length})
+          ⚠️ Жалобы ({reports.length})
         </button>
         <button
           className={`tab-button ${activeTab === "categories" ? "active" : ""}`}
           onClick={() => setActiveTab("categories")}
         >
-          📂 Categories
+          📂 Категории
         </button>
         <button
           className={`tab-button ${activeTab === "cuisines" ? "active" : ""}`}
           onClick={() => setActiveTab("cuisines")}
         >
-          🍽️ Cuisines
+          🍽️ Кухни
         </button>
         <button
           className={`tab-button ${activeTab === "tags" ? "active" : ""}`}
           onClick={() => setActiveTab("tags")}
         >
-          🏷️ Tags
+          🏷️ Теги
         </button>
         <button
           className={`tab-button ${activeTab === "ingredients" ? "active" : ""}`}
           onClick={() => setActiveTab("ingredients")}
         >
-          🥕 Ingredients
+          🥕 Ингредиенты
         </button>
       </div>
 
@@ -327,7 +294,7 @@ export const AdminPanelPage = () => {
       {activeTab === "users" && (
         <div className="tab-content">
           <Card>
-            <CardHeader>User Management ({totalUsers} total)</CardHeader>
+            <CardHeader>Управление пользователями ({totalUsers} всего)</CardHeader>
             <CardContent>
               {usersLoading && page === 1 ? (
                 <div className="loading-container">
@@ -339,10 +306,10 @@ export const AdminPanelPage = () => {
                     <table>
                       <thead>
                         <tr>
-                          <th>Name</th>
+                          <th>Имя</th>
                           <th>Email</th>
-                          <th>Status</th>
-                          <th>Actions</th>
+                          <th>Статус</th>
+                          <th>Действия</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -354,7 +321,7 @@ export const AdminPanelPage = () => {
                               <Badge
                                 variant={user.is_blocked ? "error" : "success"}
                               >
-                                {user.is_blocked ? "Blocked" : "Active"}
+                                {user.is_blocked ? "Заблокирован" : "Активен"}
                               </Badge>
                             </td>
                             <td>
@@ -364,7 +331,7 @@ export const AdminPanelPage = () => {
                                   size="sm"
                                   onClick={() => handleUnblockUser(user.id)}
                                 >
-                                  Unblock
+                                  Разблокировать
                                 </Button>
                               ) : (
                                 <Button
@@ -372,7 +339,7 @@ export const AdminPanelPage = () => {
                                   size="sm"
                                   onClick={() => handleBlockUser(user.id)}
                                 >
-                                  Block
+                                  Заблокировать
                                 </Button>
                               )}
                             </td>
@@ -395,7 +362,7 @@ export const AdminPanelPage = () => {
                 </>
               ) : (
                 <div className="empty-state">
-                  <p>No users found</p>
+                  <p>Пользователи не найдены</p>
                 </div>
               )}
             </CardContent>
@@ -407,7 +374,7 @@ export const AdminPanelPage = () => {
       {activeTab === "pendingRecipes" && (
         <div className="tab-content">
           <Card>
-            <CardHeader>Pending Recipes Moderation</CardHeader>
+            <CardHeader>Модерация ожидающих рецептов</CardHeader>
             <CardContent>
               {pendingRecipesLoading ? (
                 <div className="loading-container">
@@ -422,7 +389,7 @@ export const AdminPanelPage = () => {
 
                   const isEditPending = recipe.draft?.pendingType === "edit";
                   const pendingLabel = isEditPending
-                    ? "Update pending"
+                    ? "Ожидает обновления"
                     : recipe.status;
                   const draftChanges = recipe.draft?.changes || [];
                   const draftEditor = recipe.draft?.editor?.name;
@@ -443,11 +410,11 @@ export const AdminPanelPage = () => {
                             {recipe.title}
                           </h3>
                           <p className="pending-recipe-author">
-                            by {recipe.author?.name}
+                            от {recipe.author?.name}
                           </p>
                           <div className="pending-recipe-meta">
                             <span className="pending-recipe-time">
-                              ⏱ {recipe.cooking_time} min
+                              ⏱ {recipe.cooking_time} мин
                             </span>
                             <Badge
                               variant={isEditPending ? "secondary" : "warning"}
@@ -459,20 +426,20 @@ export const AdminPanelPage = () => {
 
                           {isEditPending && draftEditor && (
                             <p className="pending-recipe-new">
-                              ✍ Edited by: <strong>{draftEditor}</strong>
+                              ✍ Отредактировано: <strong>{draftEditor}</strong>
                             </p>
                           )}
 
                           {draftChanges.length > 0 && (
                             <p className="pending-recipe-new">
-                              🔧 Changes:{" "}
+                              🔧 Изменения:{" "}
                               <strong>{draftChanges.join(", ")}</strong>
                             </p>
                           )}
 
                           {newIngredients.length > 0 && (
                             <p className="pending-recipe-new">
-                              ⚠ New ingredients:{" "}
+                              ⚠ Новые ингредиенты:{" "}
                               <strong>{newIngredients.join(", ")}</strong>
                             </p>
                           )}
@@ -494,7 +461,7 @@ export const AdminPanelPage = () => {
                             onClick={() => handleApproveRecipe(recipe.id)}
                             disabled={approveRecipeMutation.isLoading}
                           >
-                            Approve
+                            Одобрить
                           </Button>
                           <Button
                             variant="danger"
@@ -503,7 +470,7 @@ export const AdminPanelPage = () => {
                             disabled={rejectRecipeMutation.isLoading}
                             style={{ marginLeft: "var(--spacing-sm)" }}
                           >
-                            Reject
+                            Отклонить
                           </Button>
                           <Button
                             variant="outline"
@@ -515,7 +482,7 @@ export const AdminPanelPage = () => {
                             }
                             style={{ marginLeft: "var(--spacing-sm)" }}
                           >
-                            Open
+                            Открыть
                           </Button>
                         </div>
                       </div>
@@ -523,7 +490,7 @@ export const AdminPanelPage = () => {
                   );
                 })
               ) : (
-                <p>No pending recipes</p>
+                <p>Нет ожидающих рецептов</p>
               )}
             </CardContent>
           </Card>
@@ -534,7 +501,7 @@ export const AdminPanelPage = () => {
       {activeTab === "reports" && (
         <div className="tab-content">
           <Card>
-            <CardHeader>Report Management</CardHeader>
+            <CardHeader>Управление жалобами</CardHeader>
             <CardContent>
               <div className="reports-list">
                 {reports.length > 0 ? (
@@ -543,7 +510,7 @@ export const AdminPanelPage = () => {
                       <div className="report-info">
                         <p className="report-reason">{report.reason}</p>
                         <p className="report-meta">
-                          Reported by: <strong>{report.user?.name}</strong> |
+                          Сообщил: <strong>{report.user?.name}</strong> |
                           <Badge variant="warning">{report.status}</Badge>
                         </p>
                       </div>
@@ -556,13 +523,13 @@ export const AdminPanelPage = () => {
                             setReportModalOpen(true);
                           }}
                         >
-                          View
+                          Просмотр
                         </Button>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p>No reports</p>
+                  <p>Жалоб нет</p>
                 )}
               </div>
             </CardContent>
@@ -574,19 +541,19 @@ export const AdminPanelPage = () => {
       {activeTab === "categories" && (
         <div className="tab-content">
           <Card>
-            <CardHeader>Category Management</CardHeader>
+            <CardHeader>Управление категориями</CardHeader>
             <CardContent>
               <div className="manage-form">
                 <div className="form-group">
-                  <Label>Add New Category</Label>
+                  <Label>Добавить новую категорию</Label>
                   <div style={{ display: "flex", gap: "var(--spacing-md)" }}>
                     <Input
-                      placeholder="Category name"
+                      placeholder="Название категории"
                       value={newCategoryName}
                       onChange={(e) => setNewCategoryName(e.target.value)}
                     />
                     <Button onClick={handleAddCategory} variant="secondary">
-                      Add
+                      Добавить
                     </Button>
                   </div>
                 </div>
@@ -612,7 +579,7 @@ export const AdminPanelPage = () => {
                         size="sm"
                         onClick={() => handleDeleteCategory(category.id)}
                       >
-                        Delete
+                        Удалить
                       </Button>
                     </div>
                   </Card>
@@ -627,19 +594,19 @@ export const AdminPanelPage = () => {
       {activeTab === "cuisines" && (
         <div className="tab-content">
           <Card>
-            <CardHeader>Cuisine Management</CardHeader>
+            <CardHeader>Управление кухнями</CardHeader>
             <CardContent>
               <div className="manage-form">
                 <div className="form-group">
-                  <Label>Add New Cuisine</Label>
+                  <Label>Добавить новую кухню</Label>
                   <div style={{ display: "flex", gap: "var(--spacing-md)" }}>
                     <Input
-                      placeholder="Cuisine name"
+                      placeholder="Название кухни"
                       value={newCuisineName}
                       onChange={(e) => setNewCuisineName(e.target.value)}
                     />
                     <Button onClick={handleAddCuisine} variant="secondary">
-                      Add
+                      Добавить
                     </Button>
                   </div>
                 </div>
@@ -665,7 +632,7 @@ export const AdminPanelPage = () => {
                         size="sm"
                         onClick={() => handleDeleteCuisine(cuisine.id)}
                       >
-                        Delete
+                        Удалить
                       </Button>
                     </div>
                   </Card>
@@ -680,19 +647,19 @@ export const AdminPanelPage = () => {
       {activeTab === "tags" && (
         <div className="tab-content">
           <Card>
-            <CardHeader>Tag Management</CardHeader>
+            <CardHeader>Управление тегами</CardHeader>
             <CardContent>
               <div className="manage-form">
                 <div className="form-group">
-                  <Label>Add New Tag</Label>
+                  <Label>Добавить новый тег</Label>
                   <div style={{ display: "flex", gap: "var(--spacing-md)" }}>
                     <Input
-                      placeholder="Tag name"
+                      placeholder="Название тега"
                       value={newTagName}
                       onChange={(e) => setNewTagName(e.target.value)}
                     />
                     <Button onClick={handleAddTag} variant="secondary">
-                      Add
+                      Добавить
                     </Button>
                   </div>
                 </div>
@@ -715,7 +682,7 @@ export const AdminPanelPage = () => {
                         size="sm"
                         onClick={() => handleDeleteTag(tag.id)}
                       >
-                        Delete
+                        Удалить
                       </Button>
                     </div>
                   </Card>
@@ -730,19 +697,19 @@ export const AdminPanelPage = () => {
       {activeTab === "ingredients" && (
         <div className="tab-content">
           <Card>
-            <CardHeader>Ingredients Management</CardHeader>
+            <CardHeader>Управление ингредиентами</CardHeader>
             <CardContent>
               <div className="manage-form">
                 <div className="form-group">
-                  <Label>Add New Ingredient</Label>
+                  <Label>Добавить новый ингредиент</Label>
                   <div style={{ display: "flex", gap: "var(--spacing-md)" }}>
                     <Input
-                      placeholder="Ingredient name"
+                      placeholder="Название ингредиента"
                       value={newIngredientName}
                       onChange={(e) => setNewIngredientName(e.target.value)}
                     />
                     <Button onClick={handleAddIngredient} variant="secondary">
-                      Add
+                      Добавить
                     </Button>
                   </div>
                 </div>
@@ -768,7 +735,7 @@ export const AdminPanelPage = () => {
                         size="sm"
                         onClick={() => handleDeleteIngredient(ingredient.id)}
                       >
-                        Delete
+                        Удалить
                       </Button>
                     </div>
                   </Card>

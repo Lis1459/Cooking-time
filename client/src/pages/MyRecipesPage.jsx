@@ -32,12 +32,12 @@ export const MyRecipesPage = () => {
     <div className="my-recipes-page">
       <div className="my-recipes-page__header">
         <div>
-          <h1>My Recipes</h1>
-          <p className="my-recipes-page__subtitle">Recipes created by you</p>
+          <h1>Мои рецепты</h1>
+          <p className="my-recipes-page__subtitle">Рецепты, созданные вамии</p>
         </div>
         <div className="my-recipes-page__pagination-controls">
           <label>
-            Recipes per page
+            Рецептов на страниценице
             <select
               value={limit}
               onChange={(e) => {
@@ -81,13 +81,13 @@ export const MyRecipesPage = () => {
                     variant="primary"
                     onClick={() => navigate(`/recipes/${recipe.id}`)}
                   >
-                    View
+                    Просмотр
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => navigate(`/edit-recipe/${recipe.id}`)}
                   >
-                    Edit
+                    Редактироватьктировать
                   </Button>
                 </div>
               </CardContent>
@@ -96,9 +96,9 @@ export const MyRecipesPage = () => {
         </div>
       ) : (
         <div className="my-recipes-page__empty-state">
-          <p>You haven’t created any recipes yet.</p>
+          <p>Вы еще не создали ни одного рецепта.</p>
           <Button variant="primary" onClick={() => navigate("/add-recipe")}>
-            Add Recipe
+            Добавить рецептецепт
           </Button>
         </div>
       )}
@@ -110,17 +110,17 @@ export const MyRecipesPage = () => {
             disabled={page === 1}
             onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
           >
-            Previous
+            Назад
           </Button>
           <span>
-            Page {page} of {Math.ceil((data?.total || 0) / limit)}
+            Страница {page} из {Math.ceil((data?.total || 0) / limit)}
           </span>
           <Button
             variant="outline"
             disabled={page >= Math.ceil((data?.total || 0) / limit)}
             onClick={() => setPage((prev) => prev + 1)}
           >
-            Next
+            Далеее
           </Button>
         </div>
       )}

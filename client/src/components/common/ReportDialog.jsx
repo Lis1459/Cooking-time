@@ -12,7 +12,7 @@ export const ReportDialog = ({ isOpen, onClose, targetType, targetId }) => {
 
   const handleSubmit = async () => {
     if (!reason.trim()) {
-      toast.error("Please provide a reason for reporting");
+      toast.error("Пожалуйста, укажите причину жалобы");
       return;
     }
 
@@ -24,11 +24,11 @@ export const ReportDialog = ({ isOpen, onClose, targetType, targetId }) => {
         reason: reason.trim(),
       });
 
-      toast.success("Report submitted successfully");
+      toast.success("Жалоба успешно отправлена");
       setReason("");
       onClose();
     } catch (error) {
-      toast.error("Failed to submit report");
+      toast.error("Не удалось отправить жалобу");
       console.error("Report error:", error);
     } finally {
       setIsLoading(false);
@@ -40,15 +40,16 @@ export const ReportDialog = ({ isOpen, onClose, targetType, targetId }) => {
   return (
     <div className="report-dialog-overlay" onClick={onClose}>
       <Card className="report-dialog-card" onClick={(e) => e.stopPropagation()}>
-        <CardHeader>Report This {targetType}</CardHeader>
+        <CardHeader>Пожаловаться на {targetType}</CardHeader>
         <CardContent>
           <p className="report-dialog-description">
-            Please describe why you're reporting this {targetType.toLowerCase()}
-            . Your report helps us maintain a safe community.
+            Пожалуйста, опишите, почему вы жалуетесь на{" "}
+            {targetType.toLowerCase()}. Ваша жалоба помогает нам поддерживать
+            безопасное сообщество.
           </p>
 
           <Textarea
-            placeholder="Describe the issue..."
+            placeholder="Опишите проблему..."
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={4}
@@ -57,14 +58,14 @@ export const ReportDialog = ({ isOpen, onClose, targetType, targetId }) => {
 
           <div className="report-dialog-actions">
             <Button variant="secondary" onClick={onClose} disabled={isLoading}>
-              Cancel
+              Отмена
             </Button>
             <Button
               variant="danger"
               onClick={handleSubmit}
               disabled={isLoading}
             >
-              {isLoading ? "Submitting..." : "Submit Report"}
+              {isLoading ? "Отправка..." : "Отправить жалобу"}
             </Button>
           </div>
         </CardContent>

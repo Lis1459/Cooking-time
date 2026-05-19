@@ -37,17 +37,15 @@ export const HomePage = () => {
       {/* Hero Section */}
       <section className="home-page__hero">
         <div className="home-page__hero-content">
-          <h1>Welcome to Cooking Time</h1>
-          <p>
-            Discover, share, and master delicious recipes from around the world
-          </p>
+          <h1>Добро пожаловать в Cooking Time</h1>
+          <p>Открывайте, делитесь и готовьте вкусные рецепты со всего мира</p>
           <div className="home-page__hero-actions">
             <Button
               variant="primary"
               size="lg"
               onClick={() => navigate("/recipes")}
             >
-              Browse Recipes
+              Просмотреть рецепты
             </Button>
             {isAuthenticated && (
               <Button
@@ -55,7 +53,7 @@ export const HomePage = () => {
                 size="lg"
                 onClick={() => navigate("/add-recipe")}
               >
-                Create Recipe
+                Создать рецепт
               </Button>
             )}
           </div>
@@ -64,7 +62,7 @@ export const HomePage = () => {
 
       {/* Popular Recipes Section */}
       <section className="home-page__section">
-        <h2>Popular Recipes This Week</h2>
+        <h2>Популярные рецепты недели</h2>
         <div className="home-page__recipes-grid">
           {(popularRecipes || []).slice(0, 6).map((recipe) => (
             <Card key={recipe.id} className="home-page__recipe-card">
@@ -89,7 +87,7 @@ export const HomePage = () => {
                   style={{ width: "100%", marginTop: "var(--spacing-md)" }}
                   onClick={() => navigate(`/recipes/${recipe.id}`)}
                 >
-                  View Recipe
+                  Смотреть рецепт
                 </Button>
               </CardContent>
             </Card>
@@ -99,7 +97,7 @@ export const HomePage = () => {
 
       {/* Recent Recipes Section */}
       <section className="home-page__section">
-        <h2>Latest Recipes</h2>
+        <h2>Последние рецепты</h2>
         {/* <div className="home-page__recipes-grid">
           {(recipes || []).slice(0, 6).map((recipe) => (
             <Card key={recipe.id} className="home-page__recipe-card">
@@ -135,22 +133,24 @@ export const HomePage = () => {
       {/* CTA Section */}
       {!isAuthenticated && (
         <section className="home-page__cta-section">
-          <h2>Ready to share your favorite recipes?</h2>
-          <p>Join our community of food lovers and start cooking together</p>
+          <h2>Готовы поделиться любимыми рецептами?</h2>
+          <p>
+            Присоединяйтесь к сообществу любителей еды и начните готовить вместе
+          </p>
           <div className="home-page__cta-actions">
             <Button
               variant="primary"
               size="lg"
               onClick={() => navigate("/register")}
             >
-              Sign Up Free
+              Зарегистрироваться бесплатно
             </Button>
             <Button
               variant="outline"
               size="lg"
               onClick={() => navigate("/recipes")}
             >
-              Create Recipes
+              Просмотреть рецепты
             </Button>
           </div>
         </section>

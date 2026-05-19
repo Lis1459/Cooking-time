@@ -28,21 +28,25 @@ import "./RecipeForm.css";
 
 const recipeSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  cooking_time: z.coerce.number().min(1, "Cooking time must be positive"),
+  description: z
+    .string()
+    .min(10, "Описание должно содержать не менее 10 символов"),
+  cooking_time: z.coerce
+    .number()
+    .min(1, "Время приготовления должно быть положительным"),
   calories: z.coerce.number().min(0),
   difficulty: z.enum(["VERY_EASY", "EASY", "MEDIUM", "HARD", "VERY_HARD"]),
   ingredients: z.array(
     z.object({
       ingredient_id: z.number().optional(),
-      ingredient_name: z.string().min(1, "Ingredient name is required"),
-      amount: z.coerce.number().min(0.1, "Amount must be greater than zero"),
-      unit: z.string().min(1, "Unit is required"),
+      ingredient_name: z.string().min(1, "Название ингредиента обязательно"),
+      amount: z.coerce.number().min(0.1, "Количество должно быть больше нуля"),
+      unit: z.string().min(1, "Единица измерения обязательна"),
     }),
   ),
   steps: z.array(
     z.object({
-      description: z.string().min(1, "Step description is required"),
+      description: z.string().min(1, "Описание шага обязательно"),
       step_number: z.coerce.number(),
     }),
   ),
@@ -202,20 +206,22 @@ export const AddRecipePage = () => {
   return (
     <div className="add-recipe-page">
       <Card>
-        <CardHeader>{id ? "Edit Recipe" : "Add New Recipe"}</CardHeader>
+        <CardHeader>
+          {id ? "Редактировать рецепт" : "Добавить рецепт"}
+        </CardHeader>
         <CardContent>
           {error && <Alert variant="error">{error}</Alert>}
 
           <form onSubmit={handleSubmit(onSubmit)} className="recipe-form">
             {/* Basic Info */}
             <div className="form-section">
-              <h3>Recipe Information</h3>
+              <h3>Информация о рецепте</h3>
 
               <div className="form-group">
-                <Label htmlFor="title">Recipe Title *</Label>
+                <Label htmlFor="title">Название рецепта *</Label>
                 <Input
                   id="title"
-                  placeholder="Enter recipe title"
+                  placeholder="Введите название рецепта"
                   {...register("title")}
                   error={!!errors.title}
                 />
@@ -225,10 +231,10 @@ export const AddRecipePage = () => {
               </div>
 
               <div className="form-group">
-                <Label htmlFor="description">Description *</Label>
+                <Label htmlFor="description">Описание *</Label>
                 <Textarea
                   id="description"
-                  placeholder="Describe your delicious recipe..."
+                  placeholder="Опишите ваш вкусный рецепт..."
                   rows={4}
                   {...register("description")}
                   error={!!errors.description}
@@ -242,7 +248,9 @@ export const AddRecipePage = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <Label htmlFor="cooking_time">Cooking Time (minutes) *</Label>
+                  <Label htmlFor="cooking_time">
+                    Время приготовления (мин) *
+                  </Label>
                   <Input
                     id="cooking_time"
                     type="number"
@@ -274,19 +282,19 @@ export const AddRecipePage = () => {
                 </div>
 
                 <div className="form-group">
-                  <Label htmlFor="difficulty">Difficulty Level *</Label>
+                  <Label htmlFor="difficulty">Уровень сложности *</Label>
                   <select {...register("difficulty")} className="select">
-                    <option value="VERY_EASY">Very Easy</option>
-                    <option value="EASY">Easy</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="HARD">Hard</option>
-                    <option value="VERY_HARD">Very Hard</option>
+                    <option value="VERY_EASY">Очень легко</option>
+                    <option value="EASY">Легко</option>
+                    <option value="MEDIUM">Средне</option>
+                    <option value="HARD">Сложно</option>
+                    <option value="VERY_HARD">Очень сложно</option>
                   </select>
                 </div>
               </div>
 
               <div className="form-group">
-                <Label htmlFor="preview_image">Recipe Image</Label>
+                <Label htmlFor="preview_image">Фото рецепта</Label>
                 <input
                   id="preview_image"
                   type="file"
@@ -297,7 +305,7 @@ export const AddRecipePage = () => {
               </div>
 
               <div className="form-group">
-                <Label>Categories</Label>
+                <Label>Категории</Label>
                 <Controller
                   name="categories"
                   control={control}
@@ -317,7 +325,7 @@ export const AddRecipePage = () => {
               </div>
 
               <div className="form-group">
-                <Label>Tags</Label>
+                <Label>Теги</Label>
                 <Controller
                   name="tags"
                   control={control}
@@ -337,7 +345,7 @@ export const AddRecipePage = () => {
               </div>
 
               <div className="form-group">
-                <Label>Cuisines</Label>
+                <Label>Кухни</Label>
                 <Controller
                   name="cuisines"
                   control={control}
@@ -359,13 +367,13 @@ export const AddRecipePage = () => {
 
             {/* Ingredients */}
             <div className="form-section">
-              <h3>Ingredients</h3>
+              <h3>Ингредиенты</h3>
               <div className="array-section">
                 {ingredientFields.map((field, index) => (
                   <div key={field.id} className="array-item">
                     <div className="form-row">
                       <div className="form-group" style={{ flex: 2 }}>
-                        <Label>Ingredient Name</Label>
+                        <Label>Название ингредиента</Label>
                         {/* <Input
                           placeholder="e.g., Flour"
                           {...register(`ingredients.${index}.ingredient_id`)}
@@ -419,9 +427,9 @@ export const AddRecipePage = () => {
                                     });
                                   }}
                                   formatCreateLabel={(inputValue) =>
-                                    `Add "${inputValue}"`
+                                    `Добавить "${inputValue}"`
                                   }
-                                  placeholder="Select or type ingredient"
+                                  placeholder="Выберите или введите ингредиент"
                                   isClearable
                                   isLoading={ingredientsLoading}
                                 />
@@ -440,7 +448,7 @@ export const AddRecipePage = () => {
                         />
                       </div>
                       <div className="form-group">
-                        <Label>Amount</Label>
+                        <Label>Количество</Label>
                         <Input
                           type="number"
                           step="0.1"
@@ -449,9 +457,9 @@ export const AddRecipePage = () => {
                         />
                       </div>
                       <div className="form-group">
-                        <Label>Unit</Label>
+                        <Label>Единица измерения</Label>
                         <Input
-                          placeholder="g, ml, cup"
+                          placeholder="г, мл, шт"
                           {...register(`ingredients.${index}.unit`)}
                           error={!!errors.ingredients?.[index]?.unit}
                         />
@@ -463,7 +471,7 @@ export const AddRecipePage = () => {
                           onClick={() => removeIngredient(index)}
                           type="button"
                         >
-                          Remove
+                          Удалить
                         </Button>
                       </div>
                     </div>
@@ -483,19 +491,19 @@ export const AddRecipePage = () => {
                 }
                 type="button"
               >
-                + Add Ingredient
+                + Добавить ингредиент
               </Button>
             </div>
 
             {/* Cooking Steps */}
             <div className="form-section">
-              <h3>Cooking Steps</h3>
+              <h3>Этапы приготовления</h3>
               <div className="array-section">
                 {stepFields.map((field, index) => (
                   <div key={field.id} className="array-item">
                     <Label>Step {index + 1}</Label>
                     <Textarea
-                      placeholder="Describe this cooking step..."
+                      placeholder="Опишите этот шаг приготовления..."
                       rows={2}
                       {...register(`steps.${index}.description`)}
                       error={!!errors.steps?.[index]?.description}
@@ -508,7 +516,7 @@ export const AddRecipePage = () => {
                         type="button"
                         style={{ marginTop: "var(--spacing-md)" }}
                       >
-                        Remove Step
+                        Удалить шаг
                       </Button>
                     )}
                   </div>
@@ -525,7 +533,7 @@ export const AddRecipePage = () => {
                 }
                 type="button"
               >
-                + Add Step
+                + Добавить шаг
               </Button>
             </div>
 
@@ -534,18 +542,18 @@ export const AddRecipePage = () => {
               <Button variant="primary" type="submit" disabled={loading}>
                 {loading
                   ? id
-                    ? "Saving..."
-                    : "Publishing..."
+                    ? "Сохранение..."
+                    : "Публикация..."
                   : id
-                    ? "Save Changes"
-                    : "Publish Recipe"}
+                    ? "Сохранить изменения"
+                    : "Опубликовать рецепт"}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => navigate("/recipes")}
                 type="button"
               >
-                Cancel
+                Отмена
               </Button>
             </div>
           </form>

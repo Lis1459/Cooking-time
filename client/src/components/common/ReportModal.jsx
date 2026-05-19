@@ -38,19 +38,27 @@ export const ReportModal = ({ isOpen, onClose, report, onSubmit }) => {
   return (
     <div className="report-modal-overlay" onClick={onClose}>
       <Card className="report-modal-card" onClick={(e) => e.stopPropagation()}>
-        <CardHeader>Report Details</CardHeader>
+        <CardHeader>Детали жалобы</CardHeader>
         <CardContent>
           <div className="report-detail-grid">
             <div>
-              <strong>Reported by</strong>
-              <p>{report.user?.name || report.user?.email || "Unknown"}</p>
+              <strong>Сообщил</strong>
+              <p>{report.user?.name || report.user?.email || "Неизвестно"}</p>
             </div>
             <div>
-              <strong>Target</strong>
-              <p>{report.target_type}</p>
+              <strong>Объект</strong>
+              <p>
+                {report.target_type === "RECIPE"
+                  ? "Рецепт"
+                  : report.target_type === "USER"
+                    ? "Пользователь"
+                    : report.target_type === "COMMENT"
+                      ? "Комментарий"
+                      : report.target_type}
+              </p>
             </div>
             <div>
-              <strong>Status</strong>
+              <strong>Статус</strong>
               <Badge
                 variant={
                   report.status === "PENDING"
@@ -60,7 +68,13 @@ export const ReportModal = ({ isOpen, onClose, report, onSubmit }) => {
                       : "danger"
                 }
               >
-                {report.status}
+                {report.status === "PENDING"
+                  ? "Ожидает"
+                  : report.status === "APPROVED"
+                    ? "Одобрено"
+                    : report.status === "REJECTED"
+                      ? "Отклонено"
+                      : report.status}
               </Badge>
             </div>
             <div>
@@ -70,51 +84,53 @@ export const ReportModal = ({ isOpen, onClose, report, onSubmit }) => {
           </div>
 
           <div className="report-section">
-            <strong>Reason</strong>
+            <strong>Причина</strong>
             <p>{report.reason}</p>
           </div>
 
           {report.target_type === "RECIPE" && targetLink && (
             <div className="report-section">
-              <strong>Recipe</strong>
+              <strong>Рецепт</strong>
               <Link to={targetLink}>
-                {report.target.title || `Recipe #${report.target.id}`}
+                {report.target.title || `Рецепт #${report.target.id}`}
               </Link>
             </div>
           )}
 
           {report.target_type === "USER" && targetLink && (
             <div className="report-section">
-              <strong>User</strong>
+              <strong>Пользователь</strong>
               <Link to={targetLink}>
-                {report.target.email || `User #${report.target.id}`}
+                {report.target.email || `Пользователь #${report.target.id}`}
               </Link>
             </div>
           )}
 
           {report.target_type === "COMMENT" && (
             <div className="report-section">
-              <strong>Comment</strong>
+              <strong>Комментарий</strong>
               <div className="reported-comment">
-                <p>{report.target?.text || "Comment content unavailable"}</p>
-                <span>Recipe #{report.target?.recipe_id}</span>
+                <p>
+                  {report.target?.text || "Содержимое комментария недоступно"}
+                </p>
+                <span>Рецепт #{report.target?.recipe_id}</span>
               </div>
             </div>
           )}
 
           <div className="report-section">
-            <strong>Resolution Comment</strong>
+            <strong>Комментарий к решению</strong>
             <Textarea
               value={resolutionComment}
               onChange={(e) => setResolutionComment(e.target.value)}
-              placeholder="Enter your review note"
+              placeholder="Введите комментарий к проверке"
               rows={4}
             />
           </div>
 
           <div className="report-modal-actions">
             <Button variant="secondary" onClick={onClose}>
-              Close
+              Закрыть
             </Button>
             <Button
               variant="danger"
@@ -124,7 +140,7 @@ export const ReportModal = ({ isOpen, onClose, report, onSubmit }) => {
               }}
               disabled={!resolutionComment.trim()}
             >
-              Reject
+              Отклонить
             </Button>
             <Button
               variant="success"
@@ -134,7 +150,7 @@ export const ReportModal = ({ isOpen, onClose, report, onSubmit }) => {
               }}
               disabled={!resolutionComment.trim()}
             >
-              Approve
+              Одобрить
             </Button>
           </div>
         </CardContent>

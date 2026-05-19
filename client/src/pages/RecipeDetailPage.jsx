@@ -190,8 +190,8 @@ export const RecipeDetailPage = () => {
   if (!currentRecipe) {
     return (
       <div className="recipe-not-found">
-        <p>Recipe not found.</p>
-        <Button onClick={() => navigate("/recipes")}>Back to Recipes</Button>
+        <p>Рецепт не найден.</p>
+        <Button onClick={() => navigate("/recipes")}>Назад к рецептам</Button>
       </div>
     );
   }
@@ -210,7 +210,7 @@ export const RecipeDetailPage = () => {
       <div className="recipe-header">
         <div>
           <h1>{currentRecipe.title}</h1>
-          <p className="recipe-author">By {currentRecipe.author?.name}</p>
+          <p className="recipe-author">Автор: {currentRecipe.author?.name}</p>
         </div>
         <div className="recipe-actions">
           {(user?.id === currentRecipe.author_id || isAdmin) && (
@@ -218,7 +218,7 @@ export const RecipeDetailPage = () => {
               variant="outline"
               onClick={() => navigate(`/edit-recipe/${id}`)}
             >
-              Edit
+              Редактировать
             </Button>
           )}
           {isAdmin && (
@@ -228,14 +228,14 @@ export const RecipeDetailPage = () => {
                 onClick={() => setDeleteModalOpen(true)}
                 disabled={deleteRecipeMutation.isLoading}
               >
-                Delete
+                Удалить
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setHideModalOpen(true)}
                 disabled={updateRecipeMutation.isLoading}
               >
-                {currentRecipe.status === "HIDDEN" ? "Unhide" : "Hide"}
+                {currentRecipe.status === "HIDDEN" ? "Показать" : "Скрыть"}
               </Button>
             </>
           )}
@@ -243,25 +243,25 @@ export const RecipeDetailPage = () => {
             <Button
               variant="outline"
               onClick={() => setReportDialogOpen(true)}
-              title="Report this recipe"
+              title="Пожаловаться на этот рецепт"
             >
-              ⚠️ Report
+              ⚠️ Пожаловаться
             </Button>
           )}
           <Button
             variant={isFavorite ? "primary" : "outline"}
             onClick={handleAddToFavorites}
           >
-            {isFavorite ? "❤️ Saved" : "🤍 Save"}
+            {isFavorite ? "❤️ Сохранено" : "🤍 Сохранить"}
           </Button>
           {/* <Button variant="primary" onClick={() => handleMarkRecipe("COOKED")}>
-            ✓ Cooked
+            ✓ Приготовлено
           </Button> */}
           <SelectButton
             value={cookMark}
             options={[
-              { label: "Want to cook", value: "TO_COOK" },
-              { label: "Cooked", value: "COOKED" },
+              { label: "Хочу приготовить", value: "TO_COOK" },
+              { label: "Приготовлено", value: "COOKED" },
             ]}
             onChange={(value) => handleMarkRecipe(value)}
           />
@@ -306,7 +306,7 @@ export const RecipeDetailPage = () => {
         <div className="recipe-main">
           {/* Description */}
           <Card>
-            <CardHeader>Description</CardHeader>
+            <CardHeader>Описание</CardHeader>
             <CardContent>
               <p>{currentRecipe.description}</p>
             </CardContent>
@@ -314,7 +314,7 @@ export const RecipeDetailPage = () => {
 
           {/* Ingredients */}
           <Card>
-            <CardHeader>Ingredients</CardHeader>
+            <CardHeader>Ингредиенты</CardHeader>
             <CardContent>
               <ul className="ingredients-list">
                 {(currentRecipe.ingredients || []).map((ing, idx) => (
@@ -333,7 +333,7 @@ export const RecipeDetailPage = () => {
 
           {/* Steps */}
           <Card>
-            <CardHeader>Cooking Steps</CardHeader>
+            <CardHeader>Этапы приготовления</CardHeader>
             <CardContent>
               <ol className="steps-list">
                 {(currentRecipe.steps || []).map((step, idx) => (
@@ -353,7 +353,7 @@ export const RecipeDetailPage = () => {
         <div className="recipe-sidebar">
           {/* Rating */}
           <Card>
-            <CardHeader>Rate This Recipe</CardHeader>
+            <CardHeader>Оцените рецепт</CardHeader>
             <CardContent>
               <div className="rating-selector">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -367,7 +367,7 @@ export const RecipeDetailPage = () => {
                 ))}
               </div>
               {rating > 0 && (
-                <p className="rating-display">Your rating: {rating}/5</p>
+                <p className="rating-display">Ваша оценка: {rating}/5</p>
               )}
             </CardContent>
           </Card>
@@ -379,7 +379,7 @@ export const RecipeDetailPage = () => {
               {isAuthenticated && (
                 <div className="add-comment">
                   <Textarea
-                    placeholder="Share your thoughts..."
+                    placeholder="Поделитесь впечатлениями..."
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     rows={3}
@@ -388,7 +388,7 @@ export const RecipeDetailPage = () => {
                     style={{ marginTop: "var(--spacing-md)" }}
                     onClick={handleAddComment}
                   >
-                    Add Comment
+                    Добавить комментарий
                   </Button>
                 </div>
               )}
@@ -400,9 +400,9 @@ export const RecipeDetailPage = () => {
                     size="sm"
                     onClick={() => navigate("/login")}
                   >
-                    Sign in
+                    Войти
                   </Button>{" "}
-                  to add comments
+                  чтобы добавить комментарии
                 </p>
               )}
 
@@ -426,7 +426,7 @@ export const RecipeDetailPage = () => {
                               setSelectedCommentId(comment.id);
                               setReportCommentDialogOpen(true);
                             }}
-                            title="Report this comment"
+                            title="Пожаловаться на этот комментарий"
                           >
                             ⚠️
                           </button>
@@ -436,7 +436,9 @@ export const RecipeDetailPage = () => {
                     </div>
                   ))
                 ) : (
-                  <p className="no-comments">No comments yet. Be the first!</p>
+                  <p className="no-comments">
+                    Комментариев пока нет. Будьте первым!
+                  </p>
                 )}
               </div>
               <Pagination
@@ -470,24 +472,24 @@ export const RecipeDetailPage = () => {
       {deleteModalOpen && (
         <div className="confirm-overlay">
           <div className="confirm-card">
-            <h3>Confirm deletion</h3>
+            <h3>Подтвердите удаление</h3>
             <p>
-              Are you sure you want to delete this recipe? This action cannot be
-              undone.
+              Вы уверены, что хотите удалить этот рецепт? Это действие нельзя
+              отменить.
             </p>
             <div className="confirm-actions">
               <Button
                 variant="outline"
                 onClick={() => setDeleteModalOpen(false)}
               >
-                Cancel
+                Отмена
               </Button>
               <Button
                 variant="danger"
                 onClick={handleDeleteRecipe}
                 disabled={deleteRecipeMutation.isLoading}
               >
-                Delete
+                Удалить
               </Button>
             </div>
           </div>
@@ -499,24 +501,24 @@ export const RecipeDetailPage = () => {
           <div className="confirm-card">
             <h3>
               {currentRecipe.status === "HIDDEN"
-                ? "Unhide recipe"
-                : "Hide recipe"}
+                ? "Показать рецепт"
+                : "Скрыть рецепт"}
             </h3>
             <p>
               {currentRecipe.status === "HIDDEN"
-                ? "This recipe will become visible again to users."
-                : "This recipe will be hidden from public listings."}
+                ? "Этот рецепт снова станет видимым для пользователей."
+                : "Этот рецепт будет скрыт из публичного списка."}
             </p>
             <div className="confirm-actions">
               <Button variant="outline" onClick={() => setHideModalOpen(false)}>
-                Cancel
+                Отмена
               </Button>
               <Button
                 variant="primary"
                 onClick={handleToggleHideRecipe}
                 disabled={updateRecipeMutation.isLoading}
               >
-                {currentRecipe.status === "HIDDEN" ? "Unhide" : "Hide"}
+                {currentRecipe.status === "HIDDEN" ? "Показать" : "Скрыть"}
               </Button>
             </div>
           </div>

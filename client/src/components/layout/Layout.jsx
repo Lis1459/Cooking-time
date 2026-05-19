@@ -11,31 +11,31 @@ export const Layout = ({ children }) => {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-section">
-            <h4>About</h4>
-            <p>Cooking Time is your ultimate recipe sharing platform.</p>
+            <h4>О проекте</h4>
+            <p>Cooking Time — это лучшая платформа для обмена рецептами.</p>
           </div>
           <div className="footer-section">
-            <h4>Quick Links</h4>
+            <h4>Быстрые ссылки</h4>
             <ul>
               <li>
-                <a href="/recipes">Recipes</a>
+                <a href="/recipes">Рецепты</a>
               </li>
               <li>
-                <a href="/categories">Categories</a>
+                <a href="/categories">Категории</a>
               </li>
               <li>
-                <a href="/about">About Us</a>
+                <a href="/about">О нас</a>
               </li>
             </ul>
           </div>
           <div className="footer-section">
-            <h4>Contact</h4>
-            <p>Email: info@cookingtime.com</p>
-            <p>Phone: +1 234 567 8900</p>
+            <h4>Контакты</h4>
+            <p>Эл. почта: info@cookingtime.com</p>
+            <p>Телефон: +1 234 567 8900</p>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2026 Cooking Time. All rights reserved.</p>
+          <p>&copy; 2026 Cooking Time. Все права защищены</p>
         </div>
       </footer>
     </div>

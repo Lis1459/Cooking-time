@@ -10,7 +10,6 @@ import {
   Card,
   CardHeader,
   CardContent,
-  CardFooter,
   Button,
   Input,
   Label,
@@ -79,7 +78,6 @@ export const UserProfilePage = () => {
   }
 
   const isOwnProfile = !paramsUserId;
-  console.log("profile:", profile);
 
   return (
     <div className="user-profile">
@@ -96,7 +94,7 @@ export const UserProfilePage = () => {
                   variant={isEditing ? "secondary" : "primary"}
                   onClick={() => setIsEditing(!isEditing)}
                 >
-                  {isEditing ? "Cancel" : "Edit Profile"}
+                  {isEditing ? "Отмена" : "Редактировать профиль"}
                 </Button>
               ) : (
                 authUser?.id && (
@@ -104,7 +102,7 @@ export const UserProfilePage = () => {
                     variant="outline"
                     onClick={() => setReportDialogOpen(true)}
                   >
-                    ⚠️ Report User
+                    ⚠️ Пожаловаться на пользователя
                   </Button>
                 )
               )}
@@ -118,10 +116,10 @@ export const UserProfilePage = () => {
           {isEditing ? (
             <form onSubmit={handleSubmit(onSubmit)} className="profile-form">
               <div className="form-group">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">Имя</Label>
                 <Input
                   id="name"
-                  {...register("name", { required: "Name is required" })}
+                  {...register("name", { required: "Имя обязательно" })}
                   error={!!errors.name}
                 />
                 {errors.name && (
@@ -130,29 +128,29 @@ export const UserProfilePage = () => {
               </div>
 
               <div className="form-group">
-                <Label htmlFor="diet_type">Diet Type</Label>
+                <Label htmlFor="diet_type">Тип питания</Label>
                 <Input
                   id="diet_type"
-                  placeholder="e.g., Vegetarian, Vegan, Gluten-Free"
+                  placeholder="Например: вегетарианец, веган, безглютеновый"
                   {...register("diet_type")}
                 />
               </div>
 
               <div className="form-group">
-                <Label htmlFor="allergies">Allergies</Label>
+                <Label htmlFor="allergies">Аллергии</Label>
                 <Textarea
                   id="allergies"
-                  placeholder="List your allergies here..."
+                  placeholder="Перечислите аллергии..."
                   {...register("allergies")}
                   rows={3}
                 />
               </div>
 
               <div className="form-group">
-                <Label htmlFor="preferences">Preferences</Label>
+                <Label htmlFor="preferences">Предпочтения</Label>
                 <Textarea
                   id="preferences"
-                  placeholder="Any cooking preferences or notes..."
+                  placeholder="Любые кулинарные предпочтения или заметки..."
                   {...register("preferences")}
                   rows={3}
                 />
@@ -160,28 +158,28 @@ export const UserProfilePage = () => {
 
               <div className="form-footer">
                 <Button variant="primary" type="submit">
-                  Save Changes
+                  Сохранить изменения
                 </Button>
                 <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  Cancel
+                  Отмена
                 </Button>
               </div>
             </form>
           ) : (
             <div className="profile-info">
               <div className="info-group">
-                <label>Diet Type</label>
-                <p>{profile?.diet_type || "Not specified"}</p>
+                <label>Тип питания</label>
+                <p>{profile?.diet_type || "Не указано"}</p>
               </div>
 
               <div className="info-group">
-                <label>Allergies</label>
-                <p>{profile?.allergies || "None specified"}</p>
+                <label>Аллергии</label>
+                <p>{profile?.allergies || "Не указано"}</p>
               </div>
 
               <div className="info-group">
-                <label>Cooking Preferences</label>
-                <p>{profile?.preferences || "None specified"}</p>
+                <label>Кулинарные предпочтения</label>
+                <p>{profile?.preferences || "Не указано"}</p>
               </div>
             </div>
           )}

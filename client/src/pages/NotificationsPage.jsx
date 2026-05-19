@@ -16,14 +16,12 @@ import {
 import "./Notifications.css";
 
 const notificationTypeLabels = {
-  NEW_COMMENT: "💬 New Comment",
-  NEW_FOLLOWER: "👤 New Follower",
-  NEW_RECIPE_FROM_SUBSCRIPTION: "📖 New Recipe",
-  RECIPE_APPROVED: "✅ Recipe Approved",
-  RECIPE_REJECTED: "❌ Recipe Rejected",
-  REPORT_RESULT: "⚠️ Report Result",
-};
-
+  NEW_COMMENT: "💬 Новый комментарий",
+  NEW_FOLLOWER: "👤 Новый подписчик",
+  NEW_RECIPE_FROM_SUBSCRIPTION: "📖 Новый рецепт",
+  RECIPE_APPROVED: "✅ Рецепт одобрен",
+  RECIPE_REJECTED: "❌ Рецепт отклонен",
+  REPORT_RESULT: "⚠️ Результат жалобы",
 export const NotificationsPage = () => {
   const { data: notifications = [], isLoading } = useNotificationsQuery();
   const { data: unreadCountData } = useUnreadCountQuery();
@@ -50,11 +48,11 @@ export const NotificationsPage = () => {
   return (
     <div className="notifications-page">
       <div className="notifications-page__header">
-        <h1>Notifications</h1>
+        <h1>Уведомления</h1>
+        {unrУведомления</h1>
         {unreadCount > 0 && (
           <Button variant="outline" size="sm" onClick={handleMarkAllAsRead}>
-            Mark All as Read
-          </Button>
+            Отметить все как прочитанное
         )}
       </div>
 
@@ -92,8 +90,8 @@ export const NotificationsPage = () => {
                         size="sm"
                         onClick={() => handleMarkAsRead(notification.id)}
                       >
-                        Mark as read
-                      </Button>
+                        Отметить как прочитанное
+                      </Отметить как прочитанное
                     )}
                   </div>
                   {index < notifications.length - 1 && <Separator />}
@@ -106,9 +104,9 @@ export const NotificationsPage = () => {
         <Card>
           <CardContent>
             <div className="notifications-page__empty-state">
-              <p>🔔 No notifications yet</p>
-              <p>You're all caught up!</p>
-            </div>
+              <p>🔔 Уведомлений пока нет</p>
+              <p>Вы Уведомлений пока нет</p>
+              <p>Вы в курсе всех событий
           </CardContent>
         </Card>
       )}
@@ -118,13 +116,13 @@ export const NotificationsPage = () => {
 
 const getNotificationMessage = (type) => {
   const messages = {
-    NEW_COMMENT: "commented on your recipe",
-    NEW_FOLLOWER: "started following you",
-    NEW_RECIPE_FROM_SUBSCRIPTION: "published a new recipe",
-    RECIPE_APPROVED: "Your recipe has been approved",
-    RECIPE_REJECTED: "Your recipe was not approved",
-    REPORT_RESULT: "A report you submitted was reviewed",
-  };
+    NEW_COMMENT: "оставил комментарий к вашему рецепту",
+    NEW_FOLLOWER: оставил комментарий к вашему рецепту",
+    NEW_FOLLOWER: "оформил подписку на вас",
+    NEW_RECIPE_FROM_SUBSCRIPTION: "опубликовал новый рецепт",
+    RECIPE_APPROVED: "Ваш рецепт был одобрен",
+    RECIPE_REJECTED: "Ваш рецепт был отклонен",
+    REPORT_RESULT: "Жалоба, которую вы отправили, была рассмотрена
   return messages[type] || "sent you a notification";
 };
 
