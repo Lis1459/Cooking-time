@@ -27,12 +27,18 @@
 .recipe-header h1 {
   margin: 0 0 var(--spacing-md) 0;
   color: var(--gray-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .recipe-author {
   color: var(--gray-600);
   font-size: 14px;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .recipe-actions {
@@ -112,6 +118,8 @@
 .ingredient-name {
   font-weight: 500;
   color: var(--gray-900);
+  display: inline-flex;
+  gap: var(--spacing-sm);
 }
 
 .ingredient-amount {
@@ -276,14 +284,23 @@
 
   .recipe-header {
     flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .recipe-header h1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   .recipe-actions {
     width: 100%;
+    flex-direction: column;
   }
 
   .recipe-actions .btn {
-    flex: 1;
+    width: 100%;
   }
 
   .recipe-content-grid {
@@ -296,5 +313,74 @@
 
   .comments-pagination {
     min-width: 0px;
+  }
+}
+
+@media (max-width: 640px) {
+  .recipe-hero {
+    height: 200px;
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .recipe-header {
+    padding: 0 var(--spacing-md);
+  }
+
+  .recipe-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .recipe-info-cards {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .ingredients-list li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .ingredient-amount {
+    align-self: flex-start;
+  }
+
+  .steps-list {
+    padding-left: var(--spacing-md);
+  }
+
+  .steps-list li {
+    margin-bottom: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .recipe-hero {
+    height: 180px;
+  }
+
+  .recipe-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .recipe-author {
+    font-size: 0.9rem;
+  }
+
+  .info-label {
+    font-size: 11px;
+  }
+
+  .info-value {
+    font-size: 16px;
+  }
+
+  .recipe-actions {
+    gap: var(--spacing-sm);
+  }
+
+  .recipe-actions .btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem;
   }
 }

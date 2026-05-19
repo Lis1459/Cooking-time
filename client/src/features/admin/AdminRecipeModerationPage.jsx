@@ -85,15 +85,10 @@ export const AdminRecipeModerationPage = () => {
             variant="danger"
             onClick={() => rejectMutation.mutate(recipe.id)}
             disabled={rejectMutation.isLoading}
-            style={{ marginLeft: "var(--spacing-sm)" }}
           >
             Reject
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/admin")}
-            style={{ marginLeft: "var(--spacing-sm)" }}
-          >
+          <Button variant="outline" onClick={() => navigate("/admin")}>
             Back
           </Button>
         </div>
@@ -147,15 +142,15 @@ export const AdminRecipeModerationPage = () => {
                   <li key={idx}>
                     <span className="ingredient-name">
                       {ing.ingredient?.name}
+                      {ing.ingredient?.status === "NotVerified" && (
+                        <Badge variant="warning" style={{ marginLeft: 8 }}>
+                          New
+                        </Badge>
+                      )}
                     </span>
                     <span className="ingredient-amount">
                       {ing.amount} {ing.unit}
                     </span>
-                    {ing.ingredient?.status === "NotVerified" && (
-                      <Badge variant="warning" style={{ marginLeft: 8 }}>
-                        New
-                      </Badge>
-                    )}
                   </li>
                 ))}
               </ul>
