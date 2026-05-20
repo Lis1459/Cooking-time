@@ -22,6 +22,17 @@ export const getFollowers = async (req, res) => {
   }
 };
 
+export const getSubscriptionsByUser = async (req, res) => {
+  try {
+    const subscriptions = await subscriptionService.getUserSubscriptions(
+      req.params.userId,
+    );
+    res.json(subscriptions);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const subscribe = async (req, res) => {
   try {
     const subscription = await subscriptionService.subscribe(

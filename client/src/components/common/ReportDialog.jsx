@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCreateReportMutation } from "../../services/apiService";
-import { Button, Textarea, Card, CardHeader, CardContent } from "../ui";
+import { Button, Textarea } from "../ui";
+import Modal from "../ui/Modal";
 import "./ReportDialog.css";
 import { toast } from "sonner";
 
@@ -38,38 +39,33 @@ export const ReportDialog = ({ isOpen, onClose, targetType, targetId }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="report-dialog-overlay" onClick={onClose}>
-      <Card className="report-dialog-card" onClick={(e) => e.stopPropagation()}>
-        <CardHeader>Пожаловаться на {targetType}</CardHeader>
-        <CardContent>
-          <p className="report-dialog-description">
-            Пожалуйста, опишите, почему вы жалуетесь на{" "}
-            {targetType.toLowerCase()}. Ваша жалоба помогает нам поддерживать
-            безопасное сообщество.
-          </p>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`Пожаловаться на ${targetType}`}
+      footer={
+        <div className="report-dialog-actions">
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>
+            Отмена
+          </Button>
+          <Button variant="danger" onClick={handleSubmit} disabled={isLoading}>
+            {isLoading ? "Отправка..." : "Отправить жалобу"}
+          </Button>
+        </div>
+      }
+    >
+      <p className="report-dialog-description">
+        Пожалуйста, опишите, почему вы жалуетесь на {targetType.toLowerCase()}.
+        Ваша жалоба помогает нам поддерживать безопасное сообщество.
+      </p>
 
-          <Textarea
-            placeholder="Опишите проблему..."
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            rows={4}
-            className="report-dialog-textarea"
-          />
-
-          <div className="report-dialog-actions">
-            <Button variant="secondary" onClick={onClose} disabled={isLoading}>
-              Отмена
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleSubmit}
-              disabled={isLoading}
-            >
-              {isLoading ? "Отправка..." : "Отправить жалобу"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+      <Textarea
+        placeholder="Опишите проблему..."
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        rows={4}
+        className="report-dialog-textarea"
+      />
+    </Modal>
   );
 };

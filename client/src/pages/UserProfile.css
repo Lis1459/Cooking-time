@@ -1,34 +1,134 @@
 .user-profile {
-  max-width: 800px;
+  max-width: 1180px;
   margin: 0 auto;
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.profile-card {
+  overflow: hidden;
 }
 
 .profile-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--spacing-lg);
   align-items: center;
-  gap: var(--spacing-xl);
+}
+
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--gray-900);
+  color: #fff;
+  font-size: 2.4rem;
+  font-weight: 700;
+}
+
+.profile-main {
+  min-width: 0;
+}
+
+.profile-name-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.profile-name-row h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 2.2vw, 2.8rem);
+}
+
+.profile-handle,
+.profile-member-since {
+  margin: 0;
+  color: var(--gray-600);
+}
+
+.profile-member-since {
+  font-size: 0.95rem;
+}
+
+.profile-bio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.profile-bio-text {
+  color: var(--gray-700);
+  font-size: 0.95rem;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.profile-stat {
+  background: var(--gray-50);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  text-align: center;
+}
+
+.profile-stat span {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.profile-stat small {
+  color: var(--gray-500);
 }
 
 .profile-actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: var(--spacing-md);
 }
 
-.profile-name-section h1 {
-  margin: 0 0 var(--spacing-sm) 0;
-}
-
-.profile-email {
-  color: var(--gray-600);
-  margin: 0;
-}
-
 .profile-form,
-.profile-info {
-  display: flex;
-  flex-direction: column;
+.profile-details-grid {
+  display: grid;
   gap: var(--spacing-lg);
+}
+
+.profile-details-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: var(--spacing-lg);
+}
+
+.profile-detail-card {
+  padding: var(--spacing-lg);
+  background: var(--gray-50);
+  border-radius: var(--border-radius-md);
+  min-height: 140px;
+}
+
+.profile-detail-card h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: 1rem;
+  color: var(--gray-700);
+}
+
+.profile-detail-card p {
+  margin: 0;
+  color: var(--gray-600);
+  line-height: 1.7;
 }
 
 .form-group {
@@ -47,28 +147,70 @@
   flex: 1;
 }
 
-.info-group {
-  padding: var(--spacing-lg);
-  background-color: var(--gray-50);
-  border-radius: var(--border-radius-md);
-}
-
-.info-group label {
-  display: block;
-  font-weight: 600;
-  color: var(--gray-700);
-  margin-bottom: var(--spacing-sm);
-}
-
-.info-group p {
-  margin: 0;
-  color: var(--gray-600);
-  line-height: 1.6;
-}
-
 .error-message {
   color: var(--error);
   font-size: 12px;
+}
+
+.profile-recipes-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.profile-recipes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.profile-recipes-subtitle {
+  margin: 4px 0 0;
+  color: var(--gray-600);
+}
+
+.profile-recipes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.profile-recipe-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.profile-recipe-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.profile-recipe-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+}
+
+.profile-recipe-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.profile-recipe-time {
+  color: var(--gray-600);
+  font-size: 0.95rem;
+}
+
+.profile-empty {
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--gray-600);
 }
 
 .user-profile__loading {
@@ -78,24 +220,24 @@
   height: 400px;
 }
 
-.loading-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 400px;
+@media (max-width: 960px) {
+  .profile-header {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .profile-details-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-@media (max-width: 768px) {
-  .profile-header {
-    flex-direction: column;
-    align-items: flex-start;
+@media (max-width: 640px) {
+  .profile-actions {
+    justify-content: flex-start;
   }
 
-  .form-footer {
-    flex-direction: column;
-  }
-
-  .form-footer .btn {
+  .profile-form,
+  .profile-details-grid {
     width: 100%;
   }
 }

@@ -6,7 +6,7 @@ import "./selectButton.css";
 export function SelectButton({
   value,
   onChange,
-  placeholder = "Select...",
+  placeholder = "Выберите...",
   options = [],
   className = "",
 }) {

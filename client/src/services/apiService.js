@@ -771,8 +771,13 @@ export const useFollowUserMutation = () => {
       const response = await api.post(`/subscriptions/${userId}`);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (_, userId) => {
       queryClient.invalidateQueries({ queryKey: ["following"] });
+      queryClient.invalidateQueries({ queryKey: ["profileFollowing", userId] });
+      queryClient.invalidateQueries({
+        queryKey: ["subscriptionStatus", userId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["profileFollowers", userId] });
     },
   });
 };
@@ -783,31 +788,77 @@ export const useUnfollowUserMutation = () => {
     mutationFn: async (userId) => {
       return api.delete(`/subscriptions/${userId}`);
     },
-    onSuccess: () => {
+    onSuccess: (_, userId) => {
       queryClient.invalidateQueries({ queryKey: ["following"] });
+      queryClient.invalidateQueries({ queryKey: ["profileFollowing", userId] });
+      queryClient.invalidateQueries({
+        queryKey: ["subscriptionStatus", userId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["profileFollowers", userId] });
     },
   });
 };
 
-export const useFollowersQuery = (options = {}) => {
+export const useProfileFollowersQuery = (userId, options = {}) => {
   return useQuery({
-    queryKey: ["followers"],
+    queryKey: ["profileFollowers", userId],
     queryFn: async () => {
-      const response = await api.get("/subscriptions/followers");
+      const response = await api.get(`/subscriptions/followers/${userId}`);
       return response.data;
     },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+};
+
+export const useProfileFollowingQuery = (userId, options = {}) => {
+  return useQuery({
+    queryKey: ["profileFollowing", userId],
+    queryFn: async () => {
+      const response = await api.get(`/subscriptions/user/${userId}`);
+      return response.data;
+    },
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+};
+
+export const useSubscriptionStatusQuery = (userId, options = {}) => {
+  return useQuery({
+    queryKey: ["subscriptionStatus", userId],
+    queryFn: async () => {
+      const response = await api.get(`/subscriptions/${userId}/status`);
+      return response.data;
+    },
+    enabled: !!userId,
+    staleTime: 0,
+    ...options,
+  });
+};
+
+export const useFollowersQuery = (userId, options = {}) => {
+  return useQuery({
+    queryKey: ["followers", userId],
+    queryFn: async () => {
+      const response = await api.get(`/subscriptions/followers/${userId}`);
+      return response.data;
+    },
+    enabled: !!userId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     ...options,
   });
 };
 
-export const useFollowingQuery = (options = {}) => {
+export const useFollowingQuery = (userId, options = {}) => {
   return useQuery({
-    queryKey: ["following"],
+    queryKey: ["following", userId],
     queryFn: async () => {
-      const response = await api.get("/subscriptions/following");
+      const response = await api.get(`/subscriptions/user/${userId}`);
       return response.data;
     },
+    enabled: !!userId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     ...options,
   });
