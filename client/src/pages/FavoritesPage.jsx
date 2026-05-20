@@ -43,7 +43,7 @@ export const FavoritesPage = () => {
 
   return (
     <div className="favorites-page">
-      <h1>Избранные рецептыh1>
+      <h1>Избранные рецепты</h1>
 
       {displayRecipes.length > 0 ? (
         <div className="favorites-page__recipes-grid">
@@ -71,7 +71,7 @@ export const FavoritesPage = () => {
                     style={{ flex: 1 }}
                     onClick={() => navigate(`/recipes/${recipe.id}`)}
                   >
-                    Просмотрмотр
+                    Просмотр
                   </Button>
                   {/* <Button
                     variant="danger"

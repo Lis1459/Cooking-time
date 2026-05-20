@@ -68,7 +68,7 @@ export const LoginPage = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="ваш@почта.ру
+                placeholder="ваш@почта.ру"
                 {...register("email")}
                 error={!!errors.email}
               />
@@ -78,7 +78,7 @@ export const LoginPage = () => {
             </div>
 
             <div className="form-group">
-              <Label htmlFor="password">ПарольLabel>
+              <Label htmlFor="password">Пароль</Label>
               <PasswordToggle
                 id="password"
                 placeholder="••••••••"
@@ -96,7 +96,7 @@ export const LoginPage = () => {
               disabled={loading}
               style={{ width: "100%" }}
             >
-              {loading ? "Входим..." : "Войти
+              {loading ? "Входим..." : "Войти"}
             </Button>
           </form>
 

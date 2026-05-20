@@ -273,7 +273,7 @@ export const RecipeDetailPage = () => {
         <Card>
           <CardContent>
             <div className="info-item">
-              <span className="info-label">Difficulty</span>
+              <span className="info-label">Сложность</span>
               <Badge variant="primary">{currentRecipe.difficulty}</Badge>
             </div>
           </CardContent>
@@ -281,9 +281,9 @@ export const RecipeDetailPage = () => {
         <Card>
           <CardContent>
             <div className="info-item">
-              <span className="info-label">Cooking Time</span>
+              <span className="info-label">Время приготовления</span>
               <span className="info-value">
-                ⏱️ {currentRecipe.cooking_time} min
+                ⏱️ {currentRecipe.cooking_time} мин
               </span>
             </div>
           </CardContent>
@@ -291,7 +291,7 @@ export const RecipeDetailPage = () => {
         <Card>
           <CardContent>
             <div className="info-item">
-              <span className="info-label">Calories</span>
+              <span className="info-label">Калории</span>
               <span className="info-value">
                 🔥 {currentRecipe.calories} cal
               </span>

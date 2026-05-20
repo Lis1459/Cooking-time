@@ -105,8 +105,8 @@ export const AdminRecipeModerationPage = () => {
   if (!recipe) {
     return (
       <div className="recipe-not-found">
-        <p>Recipe not found.</p>
-        <Button onClick={() => navigate("/admin")}>Back</Button>
+        <p>Рецепт не найден.</p>
+        <Button onClick={() => navigate("/admin")}>Назад</Button>
       </div>
     );
   }
@@ -255,7 +255,7 @@ export const AdminRecipeModerationPage = () => {
         {heroImage ? (
           <img src={heroImage} alt={previewRecipe.title} />
         ) : (
-          <div className="recipe-hero-placeholder">No image</div>
+          <div className="recipe-hero-placeholder">Нет изображения</div>
         )}
       </div>
 
@@ -265,14 +265,14 @@ export const AdminRecipeModerationPage = () => {
             {previewRecipe.title}
             {isChanged.title && (
               <Badge variant="secondary" style={{ marginLeft: 8 }}>
-                Changed
+                Изменено
               </Badge>
             )}
           </h1>
-          <p className="recipe-author">By {recipe.author?.name}</p>
+          <p className="recipe-author">Автор: {recipe.author?.name}</p>
           {isEditPending && (
             <Badge variant="secondary" style={{ marginTop: 8 }}>
-              Update pending
+              Ожидает обновления
             </Badge>
           )}
         </div>
@@ -282,78 +282,34 @@ export const AdminRecipeModerationPage = () => {
             onClick={() => approveMutation.mutate(recipe.id)}
             disabled={approveMutation.isLoading}
           >
-            Approve
+            Одобрить
           </Button>
           <Button
             variant="danger"
             onClick={() => rejectMutation.mutate(recipe.id)}
             disabled={rejectMutation.isLoading}
           >
-            Reject
+            Отклонить
           </Button>
           <Button variant="outline" onClick={() => navigate("/admin")}>
-            Back
+            Назад
           </Button>
         </div>
-      </div>
-
-      <div className="recipe-info-cards">
-        <Card className={isChanged.difficulty ? "changed-section" : ""}>
-          <CardContent>
-            <div className="info-item">
-              <span className="info-label">Difficulty</span>
-              <Badge variant="primary">{previewRecipe.difficulty}</Badge>
-              {isChanged.difficulty && (
-                <Badge variant="secondary" className="change-badge">
-                  Changed
-                </Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className={isChanged.cooking_time ? "changed-section" : ""}>
-          <CardContent>
-            <div className="info-item">
-              <span className="info-label">Cooking Time</span>
-              <span className="info-value">
-                ⏱ {previewRecipe.cooking_time} min
-              </span>
-              {isChanged.cooking_time && (
-                <Badge variant="secondary" className="change-badge">
-                  Changed
-                </Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className={isChanged.calories ? "changed-section" : ""}>
-          <CardContent>
-            <div className="info-item">
-              <span className="info-label">Calories</span>
-              <span className="info-value">
-                🔥 {previewRecipe.calories ?? "—"} cal
-              </span>
-              {isChanged.calories && (
-                <Badge variant="secondary" className="change-badge">
-                  Changed
-                </Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {isEditPending && (
         <div className="recipe-pending-changes">
           <Card>
-            <CardHeader>Pending Change Preview</CardHeader>
+            <CardHeader>Предпросмотр изменений</CardHeader>
             <CardContent>
               <div className="info-item">
-                <span className="info-label">Edited by</span>
-                <span>{draftEditor || "Unknown"}</span>
+                <span className="info-label">Отредактировано</span>
+                <span>{draftEditor || "Неизвестно"}</span>
               </div>
               <div className="info-item">
-                <span className="info-label">Preview shows updated recipe</span>
+                <span className="info-label">
+                  Предпросмотр показывает обновленный рецепт
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -363,21 +319,21 @@ export const AdminRecipeModerationPage = () => {
       <div className="recipe-content-grid">
         <div className="recipe-main">
           <Card className={isChanged.description ? "changed-section" : ""}>
-            <CardHeader>Description</CardHeader>
+            <CardHeader>Описание</CardHeader>
             <CardContent>
               <p className={isChanged.description ? "changed-text" : ""}>
                 {previewRecipe.description}
               </p>
               {isChanged.description && (
                 <Badge variant="secondary" className="change-badge">
-                  Changed
+                  Изменено
                 </Badge>
               )}
             </CardContent>
           </Card>
 
           <Card className={isChanged.ingredients ? "changed-section" : ""}>
-            <CardHeader>Ingredients</CardHeader>
+            <CardHeader>Ингредиенты</CardHeader>
             <CardContent>
               <ul className="ingredients-list">
                 {(previewRecipe.ingredients || []).map((ing, idx) => (
@@ -389,7 +345,7 @@ export const AdminRecipeModerationPage = () => {
                       {ing.ingredient?.name}
                       {ing.ingredient?.status === "NotVerified" && (
                         <Badge variant="warning" style={{ marginLeft: 8 }}>
-                          New
+                          Новый
                         </Badge>
                       )}
                     </span>
@@ -401,14 +357,14 @@ export const AdminRecipeModerationPage = () => {
               </ul>
               {isChanged.ingredients && (
                 <Badge variant="secondary" className="change-badge">
-                  Ingredients changed
+                  Ингредиенты изменены
                 </Badge>
               )}
             </CardContent>
           </Card>
 
           <Card className={isChanged.steps ? "changed-section" : ""}>
-            <CardHeader>Cooking Steps</CardHeader>
+            <CardHeader>Шаги приготовления</CardHeader>
             <CardContent>
               <ol className="steps-list">
                 {(previewRecipe.steps || []).map((step, idx) => (
@@ -417,7 +373,7 @@ export const AdminRecipeModerationPage = () => {
                     className={isChanged.steps ? "changed-item" : ""}
                   >
                     {step.image_url && (
-                      <img src={step.image_url} alt={`Step ${idx + 1}`} />
+                      <img src={step.image_url} alt={`Шаг ${idx + 1}`} />
                     )}
                     <p>{step.description}</p>
                   </li>
@@ -425,7 +381,7 @@ export const AdminRecipeModerationPage = () => {
               </ol>
               {isChanged.steps && (
                 <Badge variant="secondary" className="change-badge">
-                  Updated steps
+                  Шаги обновлены
                 </Badge>
               )}
             </CardContent>
@@ -434,40 +390,40 @@ export const AdminRecipeModerationPage = () => {
 
         <div className="recipe-sidebar">
           <Card>
-            <CardHeader>Summary</CardHeader>
+            <CardHeader>Сводка</CardHeader>
             <CardContent>
               <div className="info-item">
-                <span className="info-label">Status</span>
+                <span className="info-label">Статус</span>
                 <Badge variant="warning">{recipe.status}</Badge>
               </div>
               <div style={{ marginTop: "var(--spacing-sm)" }}>
-                <strong>Categories:</strong>{" "}
+                <strong>Категории:</strong>{" "}
                 {(previewRecipe.categories || [])
                   .map((c) => c.name)
                   .join(", ") || "—"}
                 {isChanged.categories && (
                   <Badge variant="secondary" className="change-badge">
-                    Changed
+                    Изменено
                   </Badge>
                 )}
               </div>
               <div style={{ marginTop: "var(--spacing-sm)" }}>
-                <strong>Tags:</strong>{" "}
+                <strong>Теги:</strong>{" "}
                 {(previewRecipe.tags || []).map((t) => t.name).join(", ") ||
                   "—"}
                 {isChanged.tags && (
                   <Badge variant="secondary" className="change-badge">
-                    Changed
+                    Изменено
                   </Badge>
                 )}
               </div>
               <div style={{ marginTop: "var(--spacing-sm)" }}>
-                <strong>Cuisines:</strong>{" "}
+                <strong>Кухни:</strong>{" "}
                 {(previewRecipe.cuisines || []).map((c) => c.name).join(", ") ||
                   "—"}
                 {isChanged.cuisines && (
                   <Badge variant="secondary" className="change-badge">
-                    Changed
+                    Изменено
                   </Badge>
                 )}
               </div>

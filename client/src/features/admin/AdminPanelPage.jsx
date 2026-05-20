@@ -39,7 +39,6 @@ import { ReportModal } from "../../components/common/ReportModal";
 import "./AdminPanel.css";
 
 export const AdminPanelPage = () => {
-  // Users pagination state
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
   const [hasMore, setHasMore] = useState(false);
@@ -54,15 +53,43 @@ export const AdminPanelPage = () => {
   );
 
   useEffect(() => {
-    if (usersData.users) {
+    if (!usersData.users) return;
+
+    const timeout = setTimeout(() => {
       setUsers((prev) =>
         page === 1 ? usersData.users : [...prev, ...usersData.users],
       );
       setTotalUsers(usersData.total);
       setHasMore(page * usersLimit < (usersData.total || 0));
       setLoadingMore(false);
-    }
+    }, 0);
+
+    return () => clearTimeout(timeout);
   }, [usersData, page]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          hasMore &&
+          !usersLoading &&
+          !loadingMore
+        ) {
+          setPage((prev) => prev + 1);
+          setLoadingMore(true);
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    const current = sentinelRef.current;
+    if (current) observer.observe(current);
+
+    return () => {
+      if (current) observer.unobserve(current);
+    };
+  }, [hasMore, usersLoading, loadingMore]);
 
   const { data: reportsData, isLoading: reportsLoading } = useReportsQuery();
   const { data: categories = [], isLoading: categoriesLoading } =
@@ -72,7 +99,18 @@ export const AdminPanelPage = () => {
   const { data: tags = [], isLoading: tagsLoading } = useTagsQuery();
   const { data: ingredients, isLoading: ingredientsLoading } =
     useIngredientsQuery({ status: "all" });
-*** End Patch  const deleteCategoryMutation = useDeleteCategoryMutation();
+
+  const reports = reportsData ? reportsData.reports : [];
+
+  const blockUserMutation = useBlockUserMutation();
+  const unblockUserMutation = useUnblockUserMutation();
+
+  const updateReportMutation = useUpdateReportMutation();
+  const approveRecipeMutation = useApproveRecipeMutation();
+  const rejectRecipeMutation = useRejectRecipeMutation();
+
+  const createCategoryMutation = useCreateCategoryMutation();
+  const deleteCategoryMutation = useDeleteCategoryMutation();
 
   const createTagMutation = useCreateTagMutation();
   const deleteTagMutation = useDeleteTagMutation();
@@ -111,13 +149,11 @@ export const AdminPanelPage = () => {
   const handleBlockUser = (userId) => {
     blockUserMutation.mutate(userId, {
       onSuccess: () => {
-        setUserUpdates((prev) => ({
-          ...prev,
-          [userId]: {
-            ...prev[userId],
-            is_blocked: true,
-          },
-        }));
+        setUsers((prev) =>
+          prev.map((user) =>
+            user.id === userId ? { ...user, is_blocked: true } : user,
+          ),
+        );
       },
     });
   };
@@ -125,13 +161,11 @@ export const AdminPanelPage = () => {
   const handleUnblockUser = (userId) => {
     unblockUserMutation.mutate(userId, {
       onSuccess: () => {
-        setUserUpdates((prev) => ({
-          ...prev,
-          [userId]: {
-            ...prev[userId],
-            is_blocked: false,
-          },
-        }));
+        setUsers((prev) =>
+          prev.map((user) =>
+            user.id === userId ? { ...user, is_blocked: false } : user,
+          ),
+        );
       },
     });
   };
@@ -294,7 +328,9 @@ export const AdminPanelPage = () => {
       {activeTab === "users" && (
         <div className="tab-content">
           <Card>
-            <CardHeader>Управление пользователями ({totalUsers} всего)</CardHeader>
+            <CardHeader>
+              Управление пользователями ({totalUsers} всего)
+            </CardHeader>
             <CardContent>
               {usersLoading && page === 1 ? (
                 <div className="loading-container">

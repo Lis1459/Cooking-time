@@ -87,7 +87,7 @@ export const MyRecipesPage = () => {
                     variant="outline"
                     onClick={() => navigate(`/edit-recipe/${recipe.id}`)}
                   >
-                    Редактироватьктировать
+                    Редактировать
                   </Button>
                 </div>
               </CardContent>

@@ -22,6 +22,8 @@ const notificationTypeLabels = {
   RECIPE_APPROVED: "✅ Рецепт одобрен",
   RECIPE_REJECTED: "❌ Рецепт отклонен",
   REPORT_RESULT: "⚠️ Результат жалобы",
+};
+
 export const NotificationsPage = () => {
   const { data: notifications = [], isLoading } = useNotificationsQuery();
   const { data: unreadCountData } = useUnreadCountQuery();
@@ -49,10 +51,10 @@ export const NotificationsPage = () => {
     <div className="notifications-page">
       <div className="notifications-page__header">
         <h1>Уведомления</h1>
-        {unrУведомления</h1>
         {unreadCount > 0 && (
           <Button variant="outline" size="sm" onClick={handleMarkAllAsRead}>
             Отметить все как прочитанное
+          </Button>
         )}
       </div>
 
@@ -91,7 +93,7 @@ export const NotificationsPage = () => {
                         onClick={() => handleMarkAsRead(notification.id)}
                       >
                         Отметить как прочитанное
-                      </Отметить как прочитанное
+                      </Button>
                     )}
                   </div>
                   {index < notifications.length - 1 && <Separator />}
@@ -106,7 +108,8 @@ export const NotificationsPage = () => {
             <div className="notifications-page__empty-state">
               <p>🔔 Уведомлений пока нет</p>
               <p>Вы Уведомлений пока нет</p>
-              <p>Вы в курсе всех событий
+              <p>Вы в курсе всех событий</p>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -117,12 +120,12 @@ export const NotificationsPage = () => {
 const getNotificationMessage = (type) => {
   const messages = {
     NEW_COMMENT: "оставил комментарий к вашему рецепту",
-    NEW_FOLLOWER: оставил комментарий к вашему рецепту",
     NEW_FOLLOWER: "оформил подписку на вас",
     NEW_RECIPE_FROM_SUBSCRIPTION: "опубликовал новый рецепт",
     RECIPE_APPROVED: "Ваш рецепт был одобрен",
     RECIPE_REJECTED: "Ваш рецепт был отклонен",
-    REPORT_RESULT: "Жалоба, которую вы отправили, была рассмотрена
+    REPORT_RESULT: "Жалоба, которую вы отправили, была рассмотрена",
+  };
   return messages[type] || "sent you a notification";
 };
 

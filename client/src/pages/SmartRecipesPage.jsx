@@ -354,7 +354,7 @@ export const SmartRecipesPage = () => {
         <div className="smart-recipes__no-results">
           <p>Рецепты с этими ингредиентами не найдены. Попробуйте другие!</p>
           <Button variant="outline" onClick={() => navigate("/recipes")}>
-            Просмотреть все рецептыцепты
+            Просмотреть все рецепты
           </Button>
         </div>
       )}
