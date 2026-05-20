@@ -2,16 +2,16 @@ import express from "express";
 import { authenticate } from "../middleware/auth.js";
 import {
   createRecipeRating,
-  // getRecipeRating,
+  getRecipeRating,
   getUsersRating,
 } from "../controllers/ratingController.js";
 
 const router = express.Router({ mergeParams: true });
 
-// router.get("/", getRecipeRating);
+router.get("/", getRecipeRating);
 
 router.post("/", authenticate, createRecipeRating);
 
-router.get("/", authenticate, getUsersRating);
+router.get("/user", authenticate, getUsersRating);
 
 export default router;

@@ -5,24 +5,25 @@ const ratingRepo = new RatingRepository();
 const CACHE_TTL = 3600; // 1 hour
 
 export class RatingService {
-  // async getRecipeRating(recipeId) {
-  //   try {
-  //     const cacheKey = `recipe_rating_${recipeId}`;
-  //     const cachedRating = await redisClient.get(cacheKey);
-  //     if (cachedRating) {
-  //       return JSON.parse(cachedRating);
-  //     }
-  //     const result = await ratingRepo.get(recipeId);
-  //     const ratingData = {
-  //       averageRating: result._avg.rating ?? 0,
-  //       totalRatings: result._count.rating,
-  //     };
-  //     await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(ratingData));
-  //     return ratingData;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
+  async getRecipeRating(recipeId) {
+    try {
+      const cacheKey = `recipe_rating_${recipeId}`;
+      const cachedRating = await safeRedis.get(cacheKey);
+      if (cachedRating) {
+        return JSON.parse(cachedRating);
+      }
+
+      const result = await ratingRepo.getAggregate(recipeId);
+      const ratingData = {
+        average: result._avg.rating ?? 0,
+        total: result._count.rating,
+      };
+      await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(ratingData));
+      return ratingData;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async upsertRecipeRating(recipeId, userId, score) {
     try {

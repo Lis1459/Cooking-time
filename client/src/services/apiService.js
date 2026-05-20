@@ -350,11 +350,11 @@ export const useDeleteCommentMutation = (recipeId, commentId) => {
 // ============ RATE HOOKS ==================
 
 export const useRateQuery = (id, isAuthenticated, options = {}) => {
-  //for sertain user
+  // for a specific authenticated user rating
   return useQuery({
-    queryKey: ["rate", id],
+    queryKey: ["userRating", id],
     queryFn: async () => {
-      const response = await api.get(`/recipes/${id}/ratings`);
+      const response = await api.get(`/recipes/${id}/ratings/user`);
       return response.data;
     },
     staleTime: 10 * 60 * 1000,
@@ -371,7 +371,8 @@ export const useRateRecipeMutation = (id) => {
       return responce.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["rate", id] });
+      queryClient.invalidateQueries({ queryKey: ["userRating", id] });
+      queryClient.invalidateQueries({ queryKey: ["recipeAverage", id] });
     },
   });
 };

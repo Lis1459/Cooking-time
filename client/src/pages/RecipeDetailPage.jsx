@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   useRecipeQuery,
@@ -219,10 +219,19 @@ export const RecipeDetailPage = () => {
               {typeof avgRatingData.average === "number"
                 ? avgRatingData.average.toFixed(1)
                 : avgRatingData.average}
-              {avgRatingData.total ? `(${avgRatingData.total})` : ""}
+              {avgRatingData.total ? ` (${avgRatingData.total})` : ""}
             </div>
           )}
-          <p className="recipe-author">Автор: {currentRecipe.author?.name}</p>
+          <p className="recipe-author">
+            Автор:{" "}
+            {currentRecipe.author?.name ? (
+              <Link to={`/profile/${currentRecipe.author_id}`}>
+                {currentRecipe.author.name}
+              </Link>
+            ) : (
+              "Неизвестен"
+            )}
+          </p>
         </div>
         <div className="recipe-actions">
           {(user?.id === currentRecipe.author_id || isAdmin) && (
