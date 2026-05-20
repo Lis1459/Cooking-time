@@ -104,7 +104,7 @@ export const LoginPage = () => {
             <p>
               Еще нет аккаунта?{" "}
               <Link to="/register" className="auth-link">
-                Зарегистрируйтесьтрируйтесь
+                Зарегистрируйтесь
               </Link>
             </p>
           </div>

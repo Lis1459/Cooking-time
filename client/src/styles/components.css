@@ -577,3 +577,42 @@
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
 }
+
+/* Recipe card rating */
+.recipe-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Modal base styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+.modal-card {
+  width: min(680px, calc(100% - 32px));
+  background: white;
+  border-radius: var(--border-radius-xl);
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: var(--shadow-xl);
+}
+.modal-body {
+  padding: var(--spacing-lg);
+}
+.modal-footer {
+  padding: var(--spacing-lg);
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  border-top: 1px solid var(--gray-200);
+}

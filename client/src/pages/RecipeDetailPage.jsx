@@ -13,6 +13,7 @@ import {
   useUpdateRecipeMutation,
   useDeleteRecipeMutation,
 } from "../services/apiService";
+import { useRecipeAverageQuery } from "../services/apiService";
 import {
   Card,
   CardContent,
@@ -26,6 +27,7 @@ import {
   Pagination,
 } from "../components/ui";
 import { ReportDialog } from "../components/common/ReportDialog";
+import ConfirmDialog from "../components/common/ConfirmDialog";
 import "./RecipeDetail.css";
 import { SelectButton } from "../components/ui/selectButton/selectButton";
 import { SOCKET_URL } from "../config/constants";
@@ -51,6 +53,7 @@ export const RecipeDetailPage = () => {
     id,
     isAuthenticated,
   );
+  const { data: avgRatingData } = useRecipeAverageQuery(id);
 
   const comments = commentsData ? commentsData.comments : [];
   const totalComments = commentsData ? commentsData.total : 0;
@@ -210,6 +213,15 @@ export const RecipeDetailPage = () => {
       <div className="recipe-header">
         <div>
           <h1>{currentRecipe.title}</h1>
+          {avgRatingData && (
+            <div style={{ marginTop: "6px" }} className="recipe-card__rating">
+              ⭐{" "}
+              {typeof avgRatingData.average === "number"
+                ? avgRatingData.average.toFixed(1)
+                : avgRatingData.average}
+              {avgRatingData.total ? `(${avgRatingData.total})` : ""}
+            </div>
+          )}
           <p className="recipe-author">Автор: {currentRecipe.author?.name}</p>
         </div>
         <div className="recipe-actions">
@@ -469,61 +481,38 @@ export const RecipeDetailPage = () => {
         targetId={selectedCommentId}
       />
 
-      {deleteModalOpen && (
-        <div className="confirm-overlay">
-          <div className="confirm-card">
-            <h3>Подтвердите удаление</h3>
-            <p>
-              Вы уверены, что хотите удалить этот рецепт? Это действие нельзя
-              отменить.
-            </p>
-            <div className="confirm-actions">
-              <Button
-                variant="outline"
-                onClick={() => setDeleteModalOpen(false)}
-              >
-                Отмена
-              </Button>
-              <Button
-                variant="danger"
-                onClick={handleDeleteRecipe}
-                disabled={deleteRecipeMutation.isLoading}
-              >
-                Удалить
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        isOpen={deleteModalOpen}
+        title="Подтвердите удаление"
+        message="Вы уверены, что хотите удалить этот рецепт? Это действие нельзя отменить."
+        onCancel={() => setDeleteModalOpen(false)}
+        onConfirm={async () => {
+          await handleDeleteRecipe();
+          setDeleteModalOpen(false);
+        }}
+        loading={deleteRecipeMutation.isLoading}
+        confirmLabel="Удалить"
+      />
 
-      {hideModalOpen && (
-        <div className="confirm-overlay">
-          <div className="confirm-card">
-            <h3>
-              {currentRecipe.status === "HIDDEN"
-                ? "Показать рецепт"
-                : "Скрыть рецепт"}
-            </h3>
-            <p>
-              {currentRecipe.status === "HIDDEN"
-                ? "Этот рецепт снова станет видимым для пользователей."
-                : "Этот рецепт будет скрыт из публичного списка."}
-            </p>
-            <div className="confirm-actions">
-              <Button variant="outline" onClick={() => setHideModalOpen(false)}>
-                Отмена
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleToggleHideRecipe}
-                disabled={updateRecipeMutation.isLoading}
-              >
-                {currentRecipe.status === "HIDDEN" ? "Показать" : "Скрыть"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        isOpen={hideModalOpen}
+        title={
+          currentRecipe.status === "HIDDEN"
+            ? "Показать рецепт"
+            : "Скрыть рецепт"
+        }
+        message={
+          currentRecipe.status === "HIDDEN"
+            ? "Этот рецепт снова станет видимым для пользователей."
+            : "Этот рецепт будет скрыт из публичного списка."
+        }
+        onCancel={() => setHideModalOpen(false)}
+        onConfirm={async () => {
+          await handleToggleHideRecipe();
+        }}
+        loading={updateRecipeMutation.isLoading}
+        confirmLabel={currentRecipe.status === "HIDDEN" ? "Показать" : "Скрыть"}
+      />
     </div>
   );
 };

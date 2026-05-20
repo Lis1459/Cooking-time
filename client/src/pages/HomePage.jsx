@@ -73,9 +73,25 @@ export const HomePage = () => {
               />
               <CardContent>
                 <h3>{recipe.title}</h3>
-                <p className="home-page__recipe-description">
-                  {recipe.description.substring(0, 100)}...
+                <p className="home-page__recipe-description truncate-single-line">
+                  {recipe.description}
                 </p>
+                {(() => {
+                  const avg =
+                    recipe.rating?.average ??
+                    recipe.avgRating ??
+                    recipe.average_rating ??
+                    recipe.averageRating ??
+                    recipe.rating;
+                  return avg ? (
+                    <div
+                      className="recipe-card__rating"
+                      style={{ marginTop: 6 }}
+                    >
+                      ⭐ {typeof avg === "number" ? avg.toFixed(1) : avg}
+                    </div>
+                  ) : null;
+                })()}
                 <div className="home-page__recipe-info">
                   <Badge variant="primary">{recipe.difficulty}</Badge>
                   <span className="home-page__cooking-time">

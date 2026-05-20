@@ -162,6 +162,19 @@ export const useRecipeQuery = (id, params = {}, options = {}) => {
   });
 };
 
+export const useRecipeAverageQuery = (id, options = {}) => {
+  return useQuery({
+    queryKey: ["recipeAverage", id],
+    queryFn: async () => {
+      const response = await api.get(`/recipes/${id}/ratings`);
+      return response.data;
+    },
+    enabled: !!id,
+    staleTime: 10 * 60 * 1000,
+    ...options,
+  });
+};
+
 export const usePopularRecipesQuery = (options = {}) => {
   return useQuery({
     queryKey: ["popularRecipes"],

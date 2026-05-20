@@ -36,6 +36,7 @@ import {
 } from "../../components/ui";
 import { SOCKET_URL } from "../../config/constants";
 import { ReportModal } from "../../components/common/ReportModal";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 import "./AdminPanel.css";
 
 export const AdminPanelPage = () => {
@@ -128,6 +129,7 @@ export const AdminPanelPage = () => {
   const [newIngredientName, setNewIngredientName] = useState("");
   const [selectedReportId, setSelectedReportId] = useState(null);
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState(null);
 
   const { data: pendingRecipesData, isLoading: pendingRecipesLoading } =
     usePendingRecipesQuery();
@@ -187,9 +189,11 @@ export const AdminPanelPage = () => {
   };
 
   const handleDeleteCategory = (categoryId) => {
-    if (window.confirm("Удалить эту категорию?")) {
-      deleteCategoryMutation.mutate(categoryId);
-    }
+    setConfirmDialog({
+      title: "Удалить категорию",
+      message: "Удалить эту категорию?",
+      onConfirm: () => deleteCategoryMutation.mutate(categoryId),
+    });
   };
 
   //cuisine handlers
@@ -207,9 +211,11 @@ export const AdminPanelPage = () => {
   };
 
   const handleDeleteCuisine = (cuisineId) => {
-    if (window.confirm("Удалить эту кухню?")) {
-      deleteCuisineMutation.mutate(cuisineId);
-    }
+    setConfirmDialog({
+      title: "Удалить кухню",
+      message: "Удалить эту кухню?",
+      onConfirm: () => deleteCuisineMutation.mutate(cuisineId),
+    });
   };
 
   //tag handlers
@@ -227,9 +233,11 @@ export const AdminPanelPage = () => {
   };
 
   const handleDeleteTag = (tagId) => {
-    if (window.confirm("Удалить этот тег?")) {
-      deleteTagMutation.mutate(tagId);
-    }
+    setConfirmDialog({
+      title: "Удалить тег",
+      message: "Удалить этот тег?",
+      onConfirm: () => deleteTagMutation.mutate(tagId),
+    });
   };
 
   //ingredient handlers
@@ -247,9 +255,11 @@ export const AdminPanelPage = () => {
   };
 
   const handleDeleteIngredient = (ingredientId) => {
-    if (window.confirm("Удалить этот ингредиент?")) {
-      deleteIngredientMutation.mutate(ingredientId);
-    }
+    setConfirmDialog({
+      title: "Удалить ингредиент",
+      message: "Удалить этот ингредиент?",
+      onConfirm: () => deleteIngredientMutation.mutate(ingredientId),
+    });
   };
 
   const handleApproveRecipe = (recipeId) => {
@@ -257,13 +267,12 @@ export const AdminPanelPage = () => {
   };
 
   const handleRejectRecipe = (recipeId) => {
-    if (
-      window.confirm(
+    setConfirmDialog({
+      title: "Отклонить рецепт",
+      message:
         "Отклонение этого рецепта удалит его ожидающие ингредиенты и все данные. Продолжить?",
-      )
-    ) {
-      rejectRecipeMutation.mutate(recipeId);
-    }
+      onConfirm: () => rejectRecipeMutation.mutate(recipeId),
+    });
   };
 
   if (loading) {
@@ -798,6 +807,21 @@ export const AdminPanelPage = () => {
           setSelectedReportId(null);
         }}
       />
+      {confirmDialog && (
+        <ConfirmDialog
+          isOpen={!!confirmDialog}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          onCancel={() => setConfirmDialog(null)}
+          onConfirm={() => {
+            try {
+              confirmDialog.onConfirm && confirmDialog.onConfirm();
+            } finally {
+              setConfirmDialog(null);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
