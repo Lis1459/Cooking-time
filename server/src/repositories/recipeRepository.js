@@ -33,22 +33,91 @@ export class RecipeRepository {
   async findAll(filters = {}, page = 1, limit = 10) {
     const skip = (page - 1) * limit;
     const where = {};
-    if (filters.category)
-      where.categories = { some: { name: filters.category } };
+
+    // Search filter
     if (filters.search)
       where.title = { contains: filters.search, mode: "insensitive" };
-    if (filters.tag) where.tags = { some: { name: filters.tag } };
-    if (filters.cuisine) where.cuisines = { some: { name: filters.cuisine } };
-    if (filters.difficulty) where.difficulty = filters.difficulty;
+
+    // Status filter
     if (filters.status) where.status = filters.status;
     if (!filters.status) where.status = "PUBLISHED";
+
+    // Author filter
     if (filters.author_id) where.author_id = filters.author_id;
+
+    // Favorite filter
     if (filters.isFavorite) {
       where.favorite = {
         some: {
           user_id: filters.userId,
         },
       };
+    }
+
+    // Category filter - support both single string and array of IDs
+    if (filters.categories) {
+      if (Array.isArray(filters.categories) && filters.categories.length > 0) {
+        where.categories = {
+          some: {
+            id: { in: filters.categories },
+          },
+        };
+      }
+    }
+
+    // Tag filter - support both single string and array of IDs
+    if (filters.tags) {
+      if (Array.isArray(filters.tags) && filters.tags.length > 0) {
+        where.tags = {
+          some: {
+            id: { in: filters.tags },
+          },
+        };
+      }
+    }
+
+    // Cuisine filter - support both single string and array of IDs
+    if (filters.cuisines) {
+      if (Array.isArray(filters.cuisines) && filters.cuisines.length > 0) {
+        where.cuisines = {
+          some: {
+            id: { in: filters.cuisines },
+          },
+        };
+      }
+    }
+
+    // Difficulty filter
+    if (filters.difficulty) where.difficulty = filters.difficulty;
+
+    // Calories range filter
+    if (filters.caloriesMin !== undefined && filters.caloriesMin !== null) {
+      where.calories = { gte: parseInt(filters.caloriesMin) };
+    }
+    if (filters.caloriesMax !== undefined && filters.caloriesMax !== null) {
+      if (where.calories) {
+        where.calories.lte = parseInt(filters.caloriesMax);
+      } else {
+        where.calories = { lte: parseInt(filters.caloriesMax) };
+      }
+    }
+
+    // Cooking time range filter
+    if (
+      filters.cookingTimeMin !== undefined &&
+      filters.cookingTimeMin !== null
+    ) {
+      where.cooking_time = { gte: parseInt(filters.cookingTimeMin) };
+    }
+    if (
+      filters.cookingTimeMax !== undefined &&
+      filters.cookingTimeMax !== null
+    ) {
+      if (where.cooking_time) {
+        where.cooking_time.lte = parseInt(filters.cookingTimeMax);
+      } else {
+        where.cooking_time = { lte: parseInt(filters.cookingTimeMax) };
+      }
     }
 
     return prisma.recipe.findMany({
@@ -96,13 +165,83 @@ export class RecipeRepository {
 
   async count(filters = {}) {
     const where = {};
-    if (filters.category)
-      where.categories = { some: { name: filters.category } };
-    if (filters.tag) where.tags = { some: { name: filters.tag } };
-    if (filters.cuisine) where.cuisines = { some: { name: filters.cuisine } };
-    if (filters.difficulty) where.difficulty = filters.difficulty;
+
+    // Search filter
+    if (filters.search)
+      where.title = { contains: filters.search, mode: "insensitive" };
+
+    // Status filter
     if (filters.status) where.status = filters.status;
+    if (!filters.status) where.status = "PUBLISHED";
+
+    // Author filter
     if (filters.author_id) where.author_id = filters.author_id;
+
+    // Category filter - support both single string and array of IDs
+    if (filters.categories) {
+      if (Array.isArray(filters.categories) && filters.categories.length > 0) {
+        where.categories = {
+          some: {
+            id: { in: filters.categories },
+          },
+        };
+      }
+    }
+
+    // Tag filter - support both single string and array of IDs
+    if (filters.tags) {
+      if (Array.isArray(filters.tags) && filters.tags.length > 0) {
+        where.tags = {
+          some: {
+            id: { in: filters.tags },
+          },
+        };
+      }
+    }
+
+    // Cuisine filter - support both single string and array of IDs
+    if (filters.cuisines) {
+      if (Array.isArray(filters.cuisines) && filters.cuisines.length > 0) {
+        where.cuisines = {
+          some: {
+            id: { in: filters.cuisines },
+          },
+        };
+      }
+    }
+
+    // Difficulty filter
+    if (filters.difficulty) where.difficulty = filters.difficulty;
+
+    // Calories range filter
+    if (filters.caloriesMin !== undefined && filters.caloriesMin !== null) {
+      where.calories = { gte: parseInt(filters.caloriesMin) };
+    }
+    if (filters.caloriesMax !== undefined && filters.caloriesMax !== null) {
+      if (where.calories) {
+        where.calories.lte = parseInt(filters.caloriesMax);
+      } else {
+        where.calories = { lte: parseInt(filters.caloriesMax) };
+      }
+    }
+
+    // Cooking time range filter
+    if (
+      filters.cookingTimeMin !== undefined &&
+      filters.cookingTimeMin !== null
+    ) {
+      where.cooking_time = { gte: parseInt(filters.cookingTimeMin) };
+    }
+    if (
+      filters.cookingTimeMax !== undefined &&
+      filters.cookingTimeMax !== null
+    ) {
+      if (where.cooking_time) {
+        where.cooking_time.lte = parseInt(filters.cookingTimeMax);
+      } else {
+        where.cooking_time = { lte: parseInt(filters.cookingTimeMax) };
+      }
+    }
 
     return prisma.recipe.count({ where });
   }

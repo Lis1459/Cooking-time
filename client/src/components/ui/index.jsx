@@ -1,6 +1,7 @@
 import "../../styles/components.css";
 export { PasswordToggle } from "./PasswordToggle";
 export { default as Pagination } from "./Pagination";
+export { default as Modal } from "./Modal";
 
 export const Button = ({
   children,
