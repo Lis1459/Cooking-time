@@ -42,7 +42,9 @@
 }
 
 .recipe-catalog__active-filter-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   background-color: white;
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--border-radius-md);
@@ -50,6 +52,11 @@
   font-weight: 500;
   color: var(--gray-700);
   border: 1px solid var(--gray-200);
+  cursor: pointer;
+}
+
+.recipe-catalog__active-filter-badge:hover {
+  background-color: var(--gray-100);
 }
 
 .recipe-catalog__clear-button {

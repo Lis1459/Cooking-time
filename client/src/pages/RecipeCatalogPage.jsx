@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { recipeService, useCategoriesQuery } from "../services/apiService";
+import {
+  recipeService,
+  useCategoriesQuery,
+  useTagsQuery,
+  useCuisinesQuery,
+} from "../services/apiService";
 import {
   Card,
   CardContent,
   Button,
   Input,
-  Select,
   Badge,
   Loader,
 } from "../components/ui";
@@ -37,6 +41,8 @@ export const RecipeCatalogPage = () => {
   const limit = 20;
   const sentinelRef = useRef(null);
   const { data: categories } = useCategoriesQuery();
+  const { data: tags } = useTagsQuery();
+  const { data: cuisines } = useCuisinesQuery();
 
   const handleSearch = (e) => {
     const searchTerm = e.target.value;
@@ -108,6 +114,28 @@ export const RecipeCatalogPage = () => {
       caloriesMax: null,
       cookingTimeMin: null,
       cookingTimeMax: null,
+    });
+    setCurrentPage(1);
+  };
+
+  const handleRemoveFilter = (field, value) => {
+    setFilters((prev) => {
+      if (field === "difficulty") {
+        return { ...prev, difficulty: null };
+      }
+      if (field === "calories") {
+        return { ...prev, caloriesMin: null, caloriesMax: null };
+      }
+      if (field === "cookingTime") {
+        return { ...prev, cookingTimeMin: null, cookingTimeMax: null };
+      }
+      if (Array.isArray(prev[field])) {
+        return {
+          ...prev,
+          [field]: prev[field].filter((item) => item !== value),
+        };
+      }
+      return prev;
     });
     setCurrentPage(1);
   };
@@ -195,37 +223,70 @@ export const RecipeCatalogPage = () => {
         filters.cookingTimeMax) && (
         <div className="recipe-catalog__active-filters">
           <div className="recipe-catalog__active-filters-list">
-            {filters.categories.length > 0 && (
-              <span className="recipe-catalog__active-filter-badge">
-                Категории: {filters.categories.length}
-              </span>
-            )}
-            {filters.tags.length > 0 && (
-              <span className="recipe-catalog__active-filter-badge">
-                Теги: {filters.tags.length}
-              </span>
-            )}
-            {filters.cuisines.length > 0 && (
-              <span className="recipe-catalog__active-filter-badge">
-                Кухни: {filters.cuisines.length}
-              </span>
-            )}
+            {filters.categories.map((categoryId) => (
+              <button
+                key={`category-${categoryId}`}
+                type="button"
+                className="recipe-catalog__active-filter-badge"
+                onClick={() => handleRemoveFilter("categories", categoryId)}
+              >
+                Категория:{" "}
+                {categories?.find((item) => item.id === categoryId)?.name ||
+                  categoryId}{" "}
+                ×
+              </button>
+            ))}
+            {filters.tags.map((tagId) => (
+              <button
+                key={`tag-${tagId}`}
+                type="button"
+                className="recipe-catalog__active-filter-badge"
+                onClick={() => handleRemoveFilter("tags", tagId)}
+              >
+                Тег: {tags?.find((item) => item.id === tagId)?.name || tagId} ×
+              </button>
+            ))}
+            {filters.cuisines.map((cuisineId) => (
+              <button
+                key={`cuisine-${cuisineId}`}
+                type="button"
+                className="recipe-catalog__active-filter-badge"
+                onClick={() => handleRemoveFilter("cuisines", cuisineId)}
+              >
+                Кухня:{" "}
+                {cuisines?.find((item) => item.id === cuisineId)?.name ||
+                  cuisineId}{" "}
+                ×
+              </button>
+            ))}
             {filters.difficulty && (
-              <span className="recipe-catalog__active-filter-badge">
-                Сложность: {filters.difficulty}
-              </span>
+              <button
+                type="button"
+                className="recipe-catalog__active-filter-badge"
+                onClick={() => handleRemoveFilter("difficulty")}
+              >
+                Сложность: {filters.difficulty} ×
+              </button>
             )}
             {(filters.caloriesMin || filters.caloriesMax) && (
-              <span className="recipe-catalog__active-filter-badge">
+              <button
+                type="button"
+                className="recipe-catalog__active-filter-badge"
+                onClick={() => handleRemoveFilter("calories")}
+              >
                 Калории: {filters.caloriesMin || "0"}-
-                {filters.caloriesMax || "∞"}
-              </span>
+                {filters.caloriesMax || "∞"} ×
+              </button>
             )}
             {(filters.cookingTimeMin || filters.cookingTimeMax) && (
-              <span className="recipe-catalog__active-filter-badge">
+              <button
+                type="button"
+                className="recipe-catalog__active-filter-badge"
+                onClick={() => handleRemoveFilter("cookingTime")}
+              >
                 Время: {filters.cookingTimeMin || "0"}-
-                {filters.cookingTimeMax || "∞"} мин
-              </span>
+                {filters.cookingTimeMax || "∞"} мин ×
+              </button>
             )}
           </div>
           <Button
