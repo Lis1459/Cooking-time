@@ -924,7 +924,26 @@ export const commentService = {
 
 export const recipeService = {
   getRecipes: async (params = {}) => {
-    const response = await api.get("/recipes", { params });
+    // Convert array filters to comma-separated strings
+    const processedParams = {
+      ...params,
+      categories: Array.isArray(params.categories) && params.categories.length > 0
+        ? params.categories.join(",")
+        : undefined,
+      tags: Array.isArray(params.tags) && params.tags.length > 0
+        ? params.tags.join(",")
+        : undefined,
+      cuisines: Array.isArray(params.cuisines) && params.cuisines.length > 0
+        ? params.cuisines.join(",")
+        : undefined,
+    };
+    
+    // Remove undefined values
+    Object.keys(processedParams).forEach(
+      (key) => processedParams[key] === undefined && delete processedParams[key]
+    );
+    
+    const response = await api.get("/recipes", { params: processedParams });
     return response.data;
   },
 

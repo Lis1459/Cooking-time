@@ -54,34 +54,52 @@ export class RecipeRepository {
       };
     }
 
-    // Category filter - support both single string and array of IDs
+    // Category filter - parse comma-separated string to array of IDs
     if (filters.categories) {
-      if (Array.isArray(filters.categories) && filters.categories.length > 0) {
+      const categoryIds = typeof filters.categories === "string"
+        ? filters.categories.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
+        : Array.isArray(filters.categories)
+        ? filters.categories
+        : [];
+      
+      if (categoryIds.length > 0) {
         where.categories = {
           some: {
-            id: { in: filters.categories },
+            id: { in: categoryIds },
           },
         };
       }
     }
 
-    // Tag filter - support both single string and array of IDs
+    // Tag filter - parse comma-separated string to array of IDs
     if (filters.tags) {
-      if (Array.isArray(filters.tags) && filters.tags.length > 0) {
+      const tagIds = typeof filters.tags === "string"
+        ? filters.tags.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
+        : Array.isArray(filters.tags)
+        ? filters.tags
+        : [];
+      
+      if (tagIds.length > 0) {
         where.tags = {
           some: {
-            id: { in: filters.tags },
+            id: { in: tagIds },
           },
         };
       }
     }
 
-    // Cuisine filter - support both single string and array of IDs
+    // Cuisine filter - parse comma-separated string to array of IDs
     if (filters.cuisines) {
-      if (Array.isArray(filters.cuisines) && filters.cuisines.length > 0) {
+      const cuisineIds = typeof filters.cuisines === "string"
+        ? filters.cuisines.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
+        : Array.isArray(filters.cuisines)
+        ? filters.cuisines
+        : [];
+      
+      if (cuisineIds.length > 0) {
         where.cuisines = {
           some: {
-            id: { in: filters.cuisines },
+            id: { in: cuisineIds },
           },
         };
       }
@@ -177,34 +195,52 @@ export class RecipeRepository {
     // Author filter
     if (filters.author_id) where.author_id = filters.author_id;
 
-    // Category filter - support both single string and array of IDs
+    // Category filter - parse comma-separated string to array of IDs
     if (filters.categories) {
-      if (Array.isArray(filters.categories) && filters.categories.length > 0) {
+      const categoryIds = typeof filters.categories === "string"
+        ? filters.categories.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
+        : Array.isArray(filters.categories)
+        ? filters.categories
+        : [];
+
+      if (categoryIds.length > 0) {
         where.categories = {
           some: {
-            id: { in: filters.categories },
+            id: { in: categoryIds },
           },
         };
       }
     }
 
-    // Tag filter - support both single string and array of IDs
+    // Tag filter - parse comma-separated string to array of IDs
     if (filters.tags) {
-      if (Array.isArray(filters.tags) && filters.tags.length > 0) {
+      const tagIds = typeof filters.tags === "string"
+        ? filters.tags.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
+        : Array.isArray(filters.tags)
+        ? filters.tags
+        : [];
+
+      if (tagIds.length > 0) {
         where.tags = {
           some: {
-            id: { in: filters.tags },
+            id: { in: tagIds },
           },
         };
       }
     }
 
-    // Cuisine filter - support both single string and array of IDs
+    // Cuisine filter - parse comma-separated string to array of IDs
     if (filters.cuisines) {
-      if (Array.isArray(filters.cuisines) && filters.cuisines.length > 0) {
+      const cuisineIds = typeof filters.cuisines === "string"
+        ? filters.cuisines.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
+        : Array.isArray(filters.cuisines)
+        ? filters.cuisines
+        : [];
+
+      if (cuisineIds.length > 0) {
         where.cuisines = {
           some: {
-            id: { in: filters.cuisines },
+            id: { in: cuisineIds },
           },
         };
       }
