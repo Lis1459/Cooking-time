@@ -56,12 +56,16 @@ export class RecipeRepository {
 
     // Category filter - parse comma-separated string to array of IDs
     if (filters.categories) {
-      const categoryIds = typeof filters.categories === "string"
-        ? filters.categories.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
-        : Array.isArray(filters.categories)
-        ? filters.categories
-        : [];
-      
+      const categoryIds =
+        typeof filters.categories === "string"
+          ? filters.categories
+              .split(",")
+              .map((id) => parseInt(id))
+              .filter((id) => !isNaN(id))
+          : Array.isArray(filters.categories)
+            ? filters.categories
+            : [];
+
       if (categoryIds.length > 0) {
         where.categories = {
           some: {
@@ -73,12 +77,16 @@ export class RecipeRepository {
 
     // Tag filter - parse comma-separated string to array of IDs
     if (filters.tags) {
-      const tagIds = typeof filters.tags === "string"
-        ? filters.tags.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
-        : Array.isArray(filters.tags)
-        ? filters.tags
-        : [];
-      
+      const tagIds =
+        typeof filters.tags === "string"
+          ? filters.tags
+              .split(",")
+              .map((id) => parseInt(id))
+              .filter((id) => !isNaN(id))
+          : Array.isArray(filters.tags)
+            ? filters.tags
+            : [];
+
       if (tagIds.length > 0) {
         where.tags = {
           some: {
@@ -90,12 +98,16 @@ export class RecipeRepository {
 
     // Cuisine filter - parse comma-separated string to array of IDs
     if (filters.cuisines) {
-      const cuisineIds = typeof filters.cuisines === "string"
-        ? filters.cuisines.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
-        : Array.isArray(filters.cuisines)
-        ? filters.cuisines
-        : [];
-      
+      const cuisineIds =
+        typeof filters.cuisines === "string"
+          ? filters.cuisines
+              .split(",")
+              .map((id) => parseInt(id))
+              .filter((id) => !isNaN(id))
+          : Array.isArray(filters.cuisines)
+            ? filters.cuisines
+            : [];
+
       if (cuisineIds.length > 0) {
         where.cuisines = {
           some: {
@@ -197,11 +209,15 @@ export class RecipeRepository {
 
     // Category filter - parse comma-separated string to array of IDs
     if (filters.categories) {
-      const categoryIds = typeof filters.categories === "string"
-        ? filters.categories.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
-        : Array.isArray(filters.categories)
-        ? filters.categories
-        : [];
+      const categoryIds =
+        typeof filters.categories === "string"
+          ? filters.categories
+              .split(",")
+              .map((id) => parseInt(id))
+              .filter((id) => !isNaN(id))
+          : Array.isArray(filters.categories)
+            ? filters.categories
+            : [];
 
       if (categoryIds.length > 0) {
         where.categories = {
@@ -214,11 +230,15 @@ export class RecipeRepository {
 
     // Tag filter - parse comma-separated string to array of IDs
     if (filters.tags) {
-      const tagIds = typeof filters.tags === "string"
-        ? filters.tags.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
-        : Array.isArray(filters.tags)
-        ? filters.tags
-        : [];
+      const tagIds =
+        typeof filters.tags === "string"
+          ? filters.tags
+              .split(",")
+              .map((id) => parseInt(id))
+              .filter((id) => !isNaN(id))
+          : Array.isArray(filters.tags)
+            ? filters.tags
+            : [];
 
       if (tagIds.length > 0) {
         where.tags = {
@@ -231,11 +251,15 @@ export class RecipeRepository {
 
     // Cuisine filter - parse comma-separated string to array of IDs
     if (filters.cuisines) {
-      const cuisineIds = typeof filters.cuisines === "string"
-        ? filters.cuisines.split(",").map(id => parseInt(id)).filter(id => !isNaN(id))
-        : Array.isArray(filters.cuisines)
-        ? filters.cuisines
-        : [];
+      const cuisineIds =
+        typeof filters.cuisines === "string"
+          ? filters.cuisines
+              .split(",")
+              .map((id) => parseInt(id))
+              .filter((id) => !isNaN(id))
+          : Array.isArray(filters.cuisines)
+            ? filters.cuisines
+            : [];
 
       if (cuisineIds.length > 0) {
         where.cuisines = {
