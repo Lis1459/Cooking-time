@@ -106,8 +106,8 @@ export const NotificationsPage = () => {
         <Card>
           <CardContent>
             <div className="notifications-page__empty-state">
-              <p>🔔 Уведомлений пока нет</p>
-              <p>Вы Уведомлений пока нет</p>
+              {/* <p>🔔 Уведомлений пока нет</p> */}
+              {/* <p>Вы Уведомлений пока нет</p> */}
               <p>Вы в курсе всех событий</p>
             </div>
           </CardContent>

@@ -169,14 +169,14 @@ export const UserProfilePage = () => {
                     <p className="profile-handle">{profileHandle}</p>
                   )}
                 </div>
-                {createdDate && (
+                {/* {createdDate && (
                   <p className="profile-member-since">
                     На сайте с {createdDate}
                   </p>
-                )}
+                )} */}
               </div>
 
-              <div className="profile-bio">
+              {/* <div className="profile-bio">
                 {profile?.diet_type && (
                   <Badge variant="outline">{profile.diet_type}</Badge>
                 )}
@@ -190,7 +190,7 @@ export const UserProfilePage = () => {
                     Аллергии: {profile.allergies}
                   </span>
                 )}
-              </div>
+              </div> */}
 
               <div className="profile-stats">
                 <div className="profile-stat">
@@ -385,7 +385,7 @@ export const UserProfilePage = () => {
       <ReportDialog
         isOpen={reportDialogOpen}
         onClose={() => setReportDialogOpen(false)}
-        targetType="USER"
+        targetType="пользователя"
         targetId={finalUser}
       />
     </div>

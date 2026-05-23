@@ -88,6 +88,7 @@ export const Textarea = ({
 
   return (
     <textarea
+      style={{ resize: "none" }}
       placeholder={placeholder}
       value={value}
       onChange={onChange}

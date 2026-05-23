@@ -95,7 +95,7 @@ export const HomePage = () => {
                 <div className="home-page__recipe-info">
                   <Badge variant="primary">{recipe.difficulty}</Badge>
                   <span className="home-page__cooking-time">
-                    ⏱️ {recipe.cooking_time}min
+                    ⏱️ {recipe.cooking_time} мин
                   </span>
                 </div>
                 <Button

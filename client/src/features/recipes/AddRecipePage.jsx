@@ -107,7 +107,7 @@ export const AddRecipePage = () => {
           ingredient_id: undefined,
           ingredient_name: "",
           amount: "",
-          unit: "g",
+          unit: "г",
         },
       ],
       steps: [{ description: "", step_number: 1 }],
@@ -266,7 +266,7 @@ export const AddRecipePage = () => {
                 </div>
 
                 <div className="form-group">
-                  <Label htmlFor="calories">Calories (per serving) *</Label>
+                  <Label htmlFor="calories">Калории (на порцию) *</Label>
                   <Input
                     id="calories"
                     type="number"
@@ -429,7 +429,7 @@ export const AddRecipePage = () => {
                                   formatCreateLabel={(inputValue) =>
                                     `Добавить "${inputValue}"`
                                   }
-                                  placeholder="Выберите или введите ингредиент"
+                                  placeholder="Выберите ингредиент"
                                   isClearable
                                   isLoading={ingredientsLoading}
                                 />

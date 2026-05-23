@@ -200,7 +200,7 @@ export const RecipeCatalogPage = () => {
           onClick={() => setShowFiltersModal(true)}
           className="recipe-catalog__filters-button"
         >
-          ⚙️ Показать все фильтры
+          Показать все фильтры
         </Button>
       </div>
 
@@ -344,10 +344,10 @@ export const RecipeCatalogPage = () => {
                 <div className="recipe-catalog__recipe-meta">
                   <div className="recipe-catalog__recipe-tags">
                     <Badge variant="primary">{recipe.difficulty}</Badge>
-                    <Badge variant="success">{recipe.calories} cal</Badge>
+                    <Badge variant="success">{recipe.calories} ккал</Badge>
                   </div>
                   <span className="recipe-catalog__cooking-time">
-                    ⏱️ {recipe.cooking_time}min
+                    ⏱️ {recipe.cooking_time} мин
                   </span>
                 </div>
                 <Button

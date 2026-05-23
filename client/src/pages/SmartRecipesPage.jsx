@@ -233,7 +233,7 @@ export const SmartRecipesPage = () => {
           {ingredients.length > 0 && (
             <div className="smart-recipes__selected-ingredients">
               <p className="smart-recipes__selected-label">
-                Selected Ingredients ({ingredients.length})
+                Выбранные ингредиенты ({ingredients.length})
               </p>
               <div className="smart-recipes__ingredients-tags">
                 {ingredients.map((ing) => (
@@ -266,7 +266,7 @@ export const SmartRecipesPage = () => {
       {/* Results */}
       {matchedRecipes.length > 0 && (
         <div className="smart-recipes__results">
-          <h2>Найдено {totalRecipes || matchedRecipes.length} рецептовтов</h2>
+          <h2>Найдено {totalRecipes || matchedRecipes.length} рецептов</h2>
           <div className="smart-recipes__recipes-grid">
             {matchedRecipes.map((recipe) => (
               <Card key={recipe.id} className="smart-recipes__recipe-card">
@@ -299,7 +299,7 @@ export const SmartRecipesPage = () => {
                   <div className="smart-recipes__recipe-meta">
                     <Badge variant="primary">{recipe.difficulty}</Badge>
                     <span className="smart-recipes__cooking-time">
-                      ⏱️ {recipe.cooking_time}min
+                      ⏱️ {recipe.cooking_time} мин
                     </span>
                   </div>
                   <div style={{ marginBottom: "var(--spacing-md)" }}>
@@ -310,8 +310,8 @@ export const SmartRecipesPage = () => {
                         marginBottom: "4px",
                       }}
                     >
-                      Match: {recipe.availableIngredientsCount}/
-                      {recipe.totalIngredientsCount} ingredients (
+                      Совпадения: {recipe.availableIngredientsCount}/
+                      {recipe.totalIngredientsCount} ингредиентов (
                       {recipe.matchPercentage}%)
                     </div>
                     <div

@@ -78,7 +78,7 @@ export const FavoritesPage = () => {
                 <div className="favorites-page__recipe-meta">
                   <Badge variant="primary">{recipe.difficulty}</Badge>
                   <span className="favorites-page__cooking-time">
-                    ⏱️ {recipe.cooking_time}min
+                    ⏱️ {recipe.cooking_time} мин
                   </span>
                 </div>
                 <div className="favorites-page__actions">
