@@ -477,7 +477,7 @@ export const RecipeDetailPage = () => {
       <ReportDialog
         isOpen={reportDialogOpen}
         onClose={() => setReportDialogOpen(false)}
-        targetType="рецепт"
+        targetType="RECIPE"
         targetId={id}
       />
       <ReportDialog
@@ -486,7 +486,7 @@ export const RecipeDetailPage = () => {
           setReportCommentDialogOpen(false);
           setSelectedCommentId(null);
         }}
-        targetType="комментарий"
+        targetType="COMMENT"
         targetId={selectedCommentId}
       />
 

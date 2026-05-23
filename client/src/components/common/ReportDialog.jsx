@@ -5,6 +5,12 @@ import Modal from "../ui/Modal";
 import "./ReportDialog.css";
 import { toast } from "sonner";
 
+const TartgetTypeList = {
+  USER: "пользователя",
+  RECIPE: "рецепт",
+  COMMENT: "комментарий",
+};
+
 export const ReportDialog = ({ isOpen, onClose, targetType, targetId }) => {
   const [reason, setReason] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -55,8 +61,9 @@ export const ReportDialog = ({ isOpen, onClose, targetType, targetId }) => {
       }
     >
       <p className="report-dialog-description">
-        Пожалуйста, опишите, почему вы жалуетесь на {targetType.toLowerCase()}.
-        Ваша жалоба помогает нам поддерживать безопасное сообщество.
+        Пожалуйста, опишите, почему вы жалуетесь на{" "}
+        {TartgetTypeList[targetType]}. Ваша жалоба помогает нам поддерживать
+        безопасное сообщество.
       </p>
 
       <Textarea

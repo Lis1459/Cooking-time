@@ -385,7 +385,7 @@ export const UserProfilePage = () => {
       <ReportDialog
         isOpen={reportDialogOpen}
         onClose={() => setReportDialogOpen(false)}
-        targetType="пользователя"
+        targetType="USER"
         targetId={finalUser}
       />
     </div>

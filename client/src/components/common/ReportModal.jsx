@@ -31,7 +31,7 @@ export const ReportModal = ({ isOpen, onClose, report, onSubmit }) => {
     ? report.target_type === "RECIPE"
       ? `/recipes/${report.target.id}`
       : report.target_type === "USER"
-        ? `/users/${report.target.id}`
+        ? `/profile/${report.target.id}`
         : null
     : null;
 
