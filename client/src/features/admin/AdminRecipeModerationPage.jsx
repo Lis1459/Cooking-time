@@ -16,6 +16,7 @@ import {
   Loader,
   Badge,
   Textarea,
+  Modal,
 } from "../../components/ui";
 import { SOCKET_URL } from "../../config/constants";
 import "./AdminPanel.css";
@@ -87,6 +88,8 @@ export const AdminRecipeModerationPage = () => {
 
   const approveMutation = useApproveRecipeMutation();
   const rejectMutation = useRejectRecipeMutation();
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [localRejectReason, setLocalRejectReason] = useState("");
 
   useEffect(() => {
     if (approveMutation.isSuccess || rejectMutation.isSuccess) {
@@ -289,13 +292,8 @@ export const AdminRecipeModerationPage = () => {
           <Button
             variant="danger"
             onClick={() => {
-              const reason = window.prompt(
-                "Укажите причину отклонения рецепта:",
-                "",
-              );
-              if (reason !== null) {
-                rejectMutation.mutate({ id: recipe.id, reason });
-              }
+              setLocalRejectReason("");
+              setShowRejectModal(true);
             }}
             disabled={rejectMutation.isLoading}
           >
@@ -305,6 +303,50 @@ export const AdminRecipeModerationPage = () => {
             Назад
           </Button>
         </div>
+
+        <Modal
+          isOpen={showRejectModal}
+          onClose={() => setShowRejectModal(false)}
+          title="Причина отклонения"
+          footer={
+            <div
+              style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}
+            >
+              <Button
+                variant="secondary"
+                onClick={() => setShowRejectModal(false)}
+              >
+                Отмена
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => {
+                  setShowRejectModal(false);
+                  rejectMutation.mutate({
+                    id: recipe.id,
+                    reason: localRejectReason,
+                  });
+                }}
+                disabled={!localRejectReason.trim() || rejectMutation.isLoading}
+              >
+                Отклонить
+              </Button>
+            </div>
+          }
+        >
+          <div style={{ padding: "8px 0" }}>
+            <p>
+              Введите причину отклонения рецепта. Комментарий будет отправлен
+              автору.
+            </p>
+            <Textarea
+              value={localRejectReason}
+              onChange={(e) => setLocalRejectReason(e.target.value)}
+              placeholder="Причина отклонения"
+              rows={5}
+            />
+          </div>
+        </Modal>
       </div>
 
       {isEditPending && (
