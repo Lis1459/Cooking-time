@@ -236,6 +236,10 @@ export const useDeleteRecipeMutation = (id) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      queryClient.invalidateQueries({ queryKey: ["recipe", id] });
+      queryClient.invalidateQueries({ queryKey: ["myRecipes"] });
+      queryClient.invalidateQueries({ queryKey: ["popularRecipes"] });
+      queryClient.invalidateQueries({ queryKey: ["comments", id] });
     },
   });
 };

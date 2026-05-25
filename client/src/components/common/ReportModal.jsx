@@ -1,11 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../../context/AuthContext";
+import api from "../../config/api";
+import { toast } from "sonner";
 import { Button, Card, CardHeader, CardContent, Textarea, Badge } from "../ui";
 import "./ReportModal.css";
 
 export const ReportModal = ({ isOpen, onClose, report, onSubmit }) => {
   const [resolutionComment, setResolutionComment] = useState("");
   const [actionType, setActionType] = useState(null);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!isOpen) {
@@ -25,6 +32,69 @@ export const ReportModal = ({ isOpen, onClose, report, onSubmit }) => {
       status,
       resolution_comment: resolutionComment.trim(),
     });
+  };
+
+  const handleDeleteComment = async () => {
+    if (!report?.target) return;
+    try {
+      await api.delete(
+        `/recipes/${report.target.recipe_id}/comments/${report.target.id}`,
+      );
+      toast.success("Комментарий удалён");
+      queryClient.invalidateQueries({
+        queryKey: ["comments", report.target.recipe_id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+      // mark report approved
+      onSubmit({
+        id: report.id,
+        status: "APPROVED",
+        resolution_comment:
+          resolutionComment.trim() || "Комментарий удалён администратором",
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Не удалось удалить комментарий");
+    }
+  };
+
+  const handleBlockUser = async () => {
+    if (!report?.target) return;
+    try {
+      await api.put(`/users/${report.target.id}/block`);
+      toast.success("Пользователь заблокирован");
+      queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+      onSubmit({
+        id: report.id,
+        status: "APPROVED",
+        resolution_comment:
+          resolutionComment.trim() || "Пользователь заблокирован",
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Не удалось заблокировать пользователя");
+    }
+  };
+
+  const handleHideRecipe = async () => {
+    if (!report?.target) return;
+    try {
+      await api.put(`/recipes/${report.target.id}`, { status: "HIDDEN" });
+      toast.success("Рецепт скрыт");
+      queryClient.invalidateQueries({ queryKey: ["recipe", report.target.id] });
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+      onSubmit({
+        id: report.id,
+        status: "APPROVED",
+        resolution_comment:
+          resolutionComment.trim() || "Рецепт скрыт модератором",
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Не удалось скрыть рецепт");
+    }
   };
 
   const targetLink = report.target?.id
@@ -132,6 +202,21 @@ export const ReportModal = ({ isOpen, onClose, report, onSubmit }) => {
             <Button variant="secondary" onClick={onClose}>
               Закрыть
             </Button>
+            {isAdmin && report.target_type === "COMMENT" && (
+              <Button variant="danger" onClick={handleDeleteComment}>
+                Удалить комментарий
+              </Button>
+            )}
+            {isAdmin && report.target_type === "USER" && (
+              <Button variant="danger" onClick={handleBlockUser}>
+                Заблокировать пользователя
+              </Button>
+            )}
+            {isAdmin && report.target_type === "RECIPE" && (
+              <Button variant="danger" onClick={handleHideRecipe}>
+                Скрыть рецепт
+              </Button>
+            )}
             <Button
               variant="danger"
               onClick={() => {

@@ -100,11 +100,12 @@
 .my-recipes-page__actions {
   display: flex;
   gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .my-recipes-page__actions button {
-  flex: 1;
-  min-width: 0;
+  flex: 1 1 calc(50% - var(--spacing-md) / 2);
+  min-width: 100px;
   margin-top: var(--spacing-md);
 }
 

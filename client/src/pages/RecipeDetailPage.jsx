@@ -12,6 +12,7 @@ import {
   useRateRecipeMutation,
   useUpdateRecipeMutation,
   useDeleteRecipeMutation,
+  useDeleteCommentMutation,
 } from "../services/apiService";
 import { useRecipeAverageQuery } from "../services/apiService";
 import {
@@ -75,9 +76,15 @@ export const RecipeDetailPage = () => {
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [hideModalOpen, setHideModalOpen] = useState(false);
+  const [deleteCommentModalOpen, setDeleteCommentModalOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState(null);
 
   const updateRecipeMutation = useUpdateRecipeMutation(id);
   const deleteRecipeMutation = useDeleteRecipeMutation(id);
+  const deleteCommentMutation = useDeleteCommentMutation(
+    id,
+    commentToDelete?.id,
+  );
 
   const isAdmin = user?.role === "ADMIN";
 
@@ -131,6 +138,19 @@ export const RecipeDetailPage = () => {
       navigate("/recipes");
     } catch (error) {
       console.error("Failed to delete recipe:", error);
+    }
+  };
+
+  const handleDeleteComment = async () => {
+    if (!commentToDelete) return;
+
+    try {
+      await deleteCommentMutation.mutateAsync();
+      refetchComments();
+      setDeleteCommentModalOpen(false);
+      setCommentToDelete(null);
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
     }
   };
 
@@ -242,7 +262,7 @@ export const RecipeDetailPage = () => {
               Редактировать
             </Button>
           )}
-          {isAdmin && (
+          {(isAdmin || user?.id === currentRecipe.author_id) && (
             <>
               <Button
                 variant="danger"
@@ -440,18 +460,33 @@ export const RecipeDetailPage = () => {
                             {new Date(comment.created_at).toLocaleDateString()}
                           </span>
                         </div>
-                        {isAuthenticated && user?.id !== comment.user_id && (
-                          <button
-                            className="comment-report-btn"
-                            onClick={() => {
-                              setSelectedCommentId(comment.id);
-                              setReportCommentDialogOpen(true);
-                            }}
-                            title="Пожаловаться на этот комментарий"
-                          >
-                            ⚠️
-                          </button>
-                        )}
+                        <div className="comment-actions">
+                          {isAuthenticated &&
+                            (user?.id === comment.user_id || isAdmin) && (
+                              <button
+                                className="comment-delete-btn"
+                                onClick={() => {
+                                  setCommentToDelete(comment);
+                                  setDeleteCommentModalOpen(true);
+                                }}
+                                title="Удалить комментарий"
+                              >
+                                🗑️
+                              </button>
+                            )}
+                          {isAuthenticated && user?.id !== comment.user_id && (
+                            <button
+                              className="comment-report-btn"
+                              onClick={() => {
+                                setSelectedCommentId(comment.id);
+                                setReportCommentDialogOpen(true);
+                              }}
+                              title="Пожаловаться на этот комментарий"
+                            >
+                              ⚠️
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <p className="comment-text">{comment.text}</p>
                     </div>
@@ -521,6 +556,19 @@ export const RecipeDetailPage = () => {
         }}
         loading={updateRecipeMutation.isLoading}
         confirmLabel={currentRecipe.status === "HIDDEN" ? "Показать" : "Скрыть"}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteCommentModalOpen}
+        title="Подтвердите удаление комментария"
+        message="Вы уверены, что хотите удалить этот комментарий? Это действие нельзя отменить."
+        onCancel={() => {
+          setDeleteCommentModalOpen(false);
+          setCommentToDelete(null);
+        }}
+        onConfirm={handleDeleteComment}
+        loading={deleteCommentMutation.isLoading}
+        confirmLabel="Удалить"
       />
     </div>
   );

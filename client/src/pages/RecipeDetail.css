@@ -240,6 +240,24 @@
   opacity: 0.8;
 }
 
+.comment-delete-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--error);
+}
+
+.comment-delete-btn:hover {
+  opacity: 0.8;
+}
+
+.comment-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
 .comment-date {
   color: var(--gray-500);
   font-size: 12px;

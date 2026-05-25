@@ -498,6 +498,9 @@ export class RecipeService {
   }
 
   async updateRecipe(id, data, user) {
+    // Load existing recipe for permission checks
+    const recipe = await recipeRepo.findById(id);
+
     // If admin - apply immediately
     if (user && user.role === "ADMIN") {
       const updateData = { ...data };
@@ -596,13 +599,35 @@ export class RecipeService {
         }
       }
 
-      const recipe = await recipeRepo.update(id, updateData);
+      const updated = await recipeRepo.update(id, updateData);
       await safeRedis.del(`recipe:${id}`);
-      return recipe;
+
+      // notify author if admin hid the recipe
+      try {
+        if (updateData.status === "HIDDEN") {
+          await notificationService.createNotification({
+            user_id: updated.author_id,
+            initiator_id: user.id,
+            type: "RECIPE_HIDDEN",
+            entity_id: String(id),
+            message: `Ваш рецепт "${updated.title}" был скрыт модератором.`,
+          });
+        }
+      } catch (e) {
+        console.error("Failed to create hide notification:", e.message);
+      }
+
+      return updated;
     }
 
-    // Non-admin: save draft
+    // Non-admin: if owner requests only status change, allow immediate status update
     const recipeId = parseInt(id);
+    if (data && data.status && user && recipe && recipe.author_id === user.id) {
+      const updated = await recipeRepo.update(id, { status: data.status });
+      await safeRedis.del(`recipe:${id}`);
+      await safeRedis.del("popular_recipes");
+      return updated;
+    }
 
     const existingDraft = await prisma.recipeDraft.findFirst({
       where: { recipe_id: recipeId },

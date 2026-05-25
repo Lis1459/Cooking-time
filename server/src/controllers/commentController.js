@@ -70,6 +70,16 @@ export const updateComment = async (req, res) => {
 
 export const deleteComment = async (req, res) => {
   try {
+    const comment = await commentService.getCommentById(req.params.id);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    // Allow admin or comment author
+    if (req.user.role !== "ADMIN" && comment.user_id !== req.user.id) {
+      return res.status(403).json({ message: "Insufficient permissions" });
+    }
+
     await commentService.deleteComment(req.params.id);
     res.json({ message: "Comment deleted" });
   } catch (error) {

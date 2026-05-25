@@ -1,8 +1,13 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useMyRecipesQuery } from "../services/apiService";
+import {
+  useMyRecipesQuery,
+  useUpdateRecipeMutation,
+  useDeleteRecipeMutation,
+} from "../services/apiService";
 import { Card, CardContent, Button, Loader, Badge } from "../components/ui";
+import ConfirmDialog from "../components/common/ConfirmDialog";
 import "./MyRecipesPage.css";
 import { SOCKET_URL } from "../config/constants";
 
@@ -11,14 +16,49 @@ export const MyRecipesPage = () => {
   const { user } = useAuth();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(12);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [hideModalOpen, setHideModalOpen] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
 
   const queryParams = useMemo(() => ({ page, limit }), [page, limit]);
 
-  const { data, isLoading } = useMyRecipesQuery(user?.id, queryParams, {
-    enabled: !!user?.id,
-  });
+  const { data, isLoading, refetch } = useMyRecipesQuery(
+    user?.id,
+    queryParams,
+    {
+      enabled: !!user?.id,
+    },
+  );
 
   const recipes = data?.recipes ?? [];
+
+  const deleteRecipeMutation = useDeleteRecipeMutation(selectedRecipe?.id);
+  const updateRecipeMutation = useUpdateRecipeMutation(selectedRecipe?.id);
+
+  const handleDeleteRecipe = async () => {
+    try {
+      await deleteRecipeMutation.mutateAsync();
+      setDeleteModalOpen(false);
+      setSelectedRecipe(null);
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete recipe:", error);
+    }
+  };
+
+  const handleToggleHideRecipe = async () => {
+    const nextStatus =
+      selectedRecipe.status === "HIDDEN" ? "PUBLISHED" : "HIDDEN";
+
+    try {
+      await updateRecipeMutation.mutateAsync({ status: nextStatus });
+      setHideModalOpen(false);
+      setSelectedRecipe(null);
+      refetch();
+    } catch (error) {
+      console.error("Failed to update recipe status:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -105,6 +145,24 @@ export const MyRecipesPage = () => {
                   >
                     Редактировать
                   </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedRecipe(recipe);
+                      setHideModalOpen(true);
+                    }}
+                  >
+                    {recipe.status === "HIDDEN" ? "Показать" : "Скрыть"}
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={() => {
+                      setSelectedRecipe(recipe);
+                      setDeleteModalOpen(true);
+                    }}
+                  >
+                    Удалить
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -140,6 +198,42 @@ export const MyRecipesPage = () => {
           </Button>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={deleteModalOpen}
+        title="Подтвердите удаление"
+        message="Вы уверены, что хотите удалить этот рецепт? Это действие нельзя отменить."
+        onCancel={() => {
+          setDeleteModalOpen(false);
+          setSelectedRecipe(null);
+        }}
+        onConfirm={handleDeleteRecipe}
+        loading={deleteRecipeMutation.isLoading}
+        confirmLabel="Удалить"
+      />
+
+      <ConfirmDialog
+        isOpen={hideModalOpen}
+        title={
+          selectedRecipe?.status === "HIDDEN"
+            ? "Показать рецепт"
+            : "Скрыть рецепт"
+        }
+        message={
+          selectedRecipe?.status === "HIDDEN"
+            ? "Этот рецепт снова станет видимым для пользователей."
+            : "Этот рецепт будет скрыт из публичного списка."
+        }
+        onCancel={() => {
+          setHideModalOpen(false);
+          setSelectedRecipe(null);
+        }}
+        onConfirm={handleToggleHideRecipe}
+        loading={updateRecipeMutation.isLoading}
+        confirmLabel={
+          selectedRecipe?.status === "HIDDEN" ? "Показать" : "Скрыть"
+        }
+      />
     </div>
   );
 };
