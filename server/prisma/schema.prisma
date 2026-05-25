@@ -274,6 +274,7 @@ enum  NotificationType{
   NEW_COMMENT
   NEW_FOLLOWER
   NEW_RECIPE_FROM_SUBSCRIPTION
+  NEW_RATING
   RECIPE_APPROVED
   RECIPE_REJECTED
   REPORT_RESULT
@@ -287,6 +288,7 @@ model Notification{
   initiator         UserProfile   @relation("initiator",fields: [initiator_id], references: [id])
   type              NotificationType
   entity_id         String     ///ID того, к чему применяется уведомление
+  message           String?
   is_read           Boolean       @default(false)
   created_at        DateTime      @default(now())
   

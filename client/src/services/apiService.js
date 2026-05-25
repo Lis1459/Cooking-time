@@ -641,8 +641,10 @@ export const useApproveRecipeMutation = () => {
 export const useRejectRecipeMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id) => {
-      const response = await api.delete(`/recipes/${id}/reject`);
+    mutationFn: async ({ id, reason }) => {
+      const response = await api.delete(`/recipes/${id}/reject`, {
+        data: { reason },
+      });
       return response.data;
     },
     onSuccess: () => {
@@ -681,10 +683,10 @@ export const useUnreadCountQuery = (options = {}) => {
   });
 };
 
-export const useMarkAsReadMutation = (notificationId) => {
+export const useMarkAsReadMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (notificationId) => {
       const response = await api.put(`/notifications/${notificationId}/read`);
       return response.data;
     },
@@ -700,6 +702,20 @@ export const useMarkAllAsReadMutation = () => {
   return useMutation({
     mutationFn: async () => {
       const response = await api.put("/notifications/mark-all-read");
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+    },
+  });
+};
+
+export const useDeleteNotificationMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (notificationId) => {
+      const response = await api.delete(`/notifications/${notificationId}`);
       return response.data;
     },
     onSuccess: () => {

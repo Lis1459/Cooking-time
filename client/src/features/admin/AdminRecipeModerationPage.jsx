@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   useAdminRecipeQuery,
@@ -15,6 +15,7 @@ import {
   Button,
   Loader,
   Badge,
+  Textarea,
 } from "../../components/ui";
 import { SOCKET_URL } from "../../config/constants";
 import "./AdminPanel.css";
@@ -82,6 +83,7 @@ export const AdminRecipeModerationPage = () => {
   const { data: categories = [] } = useCategoriesQuery();
   const { data: tags = [] } = useTagsQuery();
   const { data: cuisines = [] } = useCuisinesQuery();
+  const [rejectReason, setRejectReason] = useState("");
 
   const approveMutation = useApproveRecipeMutation();
   const rejectMutation = useRejectRecipeMutation();
@@ -286,7 +288,15 @@ export const AdminRecipeModerationPage = () => {
           </Button>
           <Button
             variant="danger"
-            onClick={() => rejectMutation.mutate(recipe.id)}
+            onClick={() => {
+              const reason = window.prompt(
+                "Укажите причину отклонения рецепта:",
+                "",
+              );
+              if (reason !== null) {
+                rejectMutation.mutate({ id: recipe.id, reason });
+              }
+            }}
             disabled={rejectMutation.isLoading}
           >
             Отклонить

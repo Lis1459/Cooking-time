@@ -43,3 +43,12 @@ export const getUnreadCount = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const deleteNotification = async (req, res) => {
+  try {
+    await notificationService.deleteNotification(req.params.id);
+    res.json({ message: "Notification deleted" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

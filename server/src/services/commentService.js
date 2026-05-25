@@ -1,7 +1,10 @@
 import { CommentRepository } from "../repositories/commentRepository.js";
 import { safeRedis } from "../config/redis.js";
+import prisma from "../config/database.js";
+import { NotificationService } from "./notificationService.js";
 
 const commentRepo = new CommentRepository();
+const notificationService = new NotificationService();
 const CACHE_TTL = 3600;
 
 export class CommentService {
@@ -34,6 +37,23 @@ export class CommentService {
 
   async createComment(commentData) {
     const comment = await commentRepo.create(commentData);
+
+    if (comment) {
+      const recipe = await prisma.recipe.findUnique({
+        where: { id: commentData.recipe_id },
+        select: { author_id: true },
+      });
+      if (recipe && recipe.author_id !== commentData.user_id) {
+        await notificationService.createNotification({
+          user_id: recipe.author_id,
+          initiator_id: commentData.user_id,
+          type: "NEW_COMMENT",
+          entity_id: String(comment.id),
+          message: `Новый комментарий к вашему рецепту: "${comment.text.slice(0, 120)}"`,
+        });
+      }
+    }
+
     // Invalidate cache
     await safeRedis.del(`comments:${commentData.recipe_id}:*`);
     return comment;

@@ -18,6 +18,20 @@ export class NotificationRepository {
     });
   }
 
+  async findById(id) {
+    return prisma.notification.findUnique({
+      where: { id: parseInt(id) },
+      include: { initiator: true },
+    });
+  }
+
+  async update(id, data) {
+    return prisma.notification.update({
+      where: { id: parseInt(id) },
+      data,
+    });
+  }
+
   async markAsRead(id) {
     return prisma.notification.update({
       where: { id: parseInt(id) },
@@ -35,6 +49,11 @@ export class NotificationRepository {
   async countUnread(userId) {
     return prisma.notification.count({
       where: { user_id: userId, is_read: false },
+    });
+  }
+  async delete(id) {
+    return prisma.notification.delete({
+      where: { id: parseInt(id) },
     });
   }
 }

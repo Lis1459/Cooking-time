@@ -3,6 +3,7 @@ import {
   useUnreadCountQuery,
   useMarkAsReadMutation,
   useMarkAllAsReadMutation,
+  useDeleteNotificationMutation,
 } from "../services/apiService";
 import {
   Card,
@@ -19,6 +20,7 @@ const notificationTypeLabels = {
   NEW_COMMENT: "💬 Новый комментарий",
   NEW_FOLLOWER: "👤 Новый подписчик",
   NEW_RECIPE_FROM_SUBSCRIPTION: "📖 Новый рецепт",
+  NEW_RATING: "⭐ Новая оценка",
   RECIPE_APPROVED: "✅ Рецепт одобрен",
   RECIPE_REJECTED: "❌ Рецепт отклонен",
   REPORT_RESULT: "⚠️ Результат жалобы",
@@ -27,16 +29,23 @@ const notificationTypeLabels = {
 export const NotificationsPage = () => {
   const { data: notifications = [], isLoading } = useNotificationsQuery();
   const { data: unreadCountData } = useUnreadCountQuery();
-  const unreadCount = unreadCountData?.count || 0;
+  const unreadCount = unreadCountData?.unreadCount || 0;
   const markAsReadMutation = useMarkAsReadMutation();
   const markAllReadMutation = useMarkAllAsReadMutation();
+  const deleteNotificationMutation = useDeleteNotificationMutation();
 
   const handleMarkAsRead = (notificationId) => {
+    console.log("notification ID: ", notificationId);
+
     markAsReadMutation.mutate(notificationId);
   };
 
   const handleMarkAllAsRead = () => {
     markAllReadMutation.mutate();
+  };
+
+  const handleDelete = (notificationId) => {
+    deleteNotificationMutation.mutate(notificationId);
   };
 
   if (isLoading) {
@@ -76,8 +85,10 @@ export const NotificationsPage = () => {
                       </div>
                       <div className="notification-text">
                         <p className="notification-message">
-                          {notification.initiator?.name}{" "}
-                          {getNotificationMessage(notification.type)}
+                          {notification.message ||
+                            `${notification.initiator?.name} ${getNotificationMessage(
+                              notification.type,
+                            )}`}
                         </p>
                         <span className="notification-time">
                           {new Date(
@@ -95,6 +106,13 @@ export const NotificationsPage = () => {
                         Отметить как прочитанное
                       </Button>
                     )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(notification.id)}
+                    >
+                      Удалить
+                    </Button>
                   </div>
                   {index < notifications.length - 1 && <Separator />}
                 </div>
@@ -122,6 +140,7 @@ const getNotificationMessage = (type) => {
     NEW_COMMENT: "оставил комментарий к вашему рецепту",
     NEW_FOLLOWER: "оформил подписку на вас",
     NEW_RECIPE_FROM_SUBSCRIPTION: "опубликовал новый рецепт",
+    NEW_RATING: "оставил оценку к вашему рецепту",
     RECIPE_APPROVED: "Ваш рецепт был одобрен",
     RECIPE_REJECTED: "Ваш рецепт был отклонен",
     REPORT_RESULT: "Жалоба, которую вы отправили, была рассмотрена",

@@ -1,7 +1,9 @@
 import { ReportService } from "../services/reportService.js";
+import { NotificationService } from "../services/notificationService.js";
 import prisma from "../config/database.js";
 
 const reportService = new ReportService();
+const notificationService = new NotificationService();
 
 export const getReports = async (req, res) => {
   try {
@@ -144,6 +146,68 @@ export const updateReport = async (req, res) => {
       reviewed_by_id: req.user.id,
     };
     const report = await reportService.updateReport(req.params.id, updateData);
+
+    if (
+      report &&
+      (report.status === "APPROVED" || report.status === "REJECTED")
+    ) {
+      let targetUserId = null;
+      let targetLabel = "объект жалобы";
+
+      if (report.target_type === "RECIPE") {
+        const targetRecipe = await prisma.recipe.findUnique({
+          where: { id: parseInt(report.target_id) },
+          select: { author_id: true, title: true },
+        });
+        if (targetRecipe) {
+          targetUserId = targetRecipe.author_id;
+          targetLabel = `рецепт \"${targetRecipe.title}\"`;
+        }
+      } else if (report.target_type === "COMMENT") {
+        const targetComment = await prisma.comment.findUnique({
+          where: { id: parseInt(report.target_id) },
+          select: { user_id: true, text: true },
+        });
+        if (targetComment) {
+          targetUserId = targetComment.user_id;
+          targetLabel = `комментарий \"${targetComment.text.slice(0, 120)}\"`;
+        }
+      } else if (report.target_type === "USER") {
+        const targetUser = await prisma.user.findUnique({
+          where: { id: report.target_id },
+          select: { id: true, email: true },
+        });
+        if (targetUser) {
+          targetUserId = targetUser.id;
+          targetLabel = `профиль ${targetUser.email}`;
+        }
+      }
+
+      const reporterMessage =
+        report.status === "APPROVED"
+          ? `Жалоба на ${targetLabel} одобрена. ${report.resolution_comment || ""}`.trim()
+          : `Жалоба на ${targetLabel} отклонена. ${report.resolution_comment || ""}`.trim();
+
+      await notificationService.createNotification({
+        user_id: report.reporter_id,
+        initiator_id: req.user.id,
+        type: "REPORT_RESULT",
+        entity_id: String(report.id),
+        message: reporterMessage,
+      });
+
+      if (report.status === "APPROVED" && targetUserId) {
+        await notificationService.createNotification({
+          user_id: targetUserId,
+          initiator_id: req.user.id,
+          type: "REPORT_RESULT",
+          entity_id: String(report.id),
+          message:
+            `Ваш ${targetLabel} был рассмотрен администратором. ${report.resolution_comment || ""}`.trim(),
+        });
+      }
+    }
+
     res.json(report);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -34,6 +34,18 @@
   background-color: var(--primary);
   background-color: rgba(239, 68, 68, 0.05);
   border-left: 4px solid var(--primary);
+  position: relative;
+}
+
+.notification-item.unread::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: -12px;
+  width: 8px;
+  height: 8px;
+  background-color: var(--error);
+  border-radius: 50%;
 }
 
 .notification-content {

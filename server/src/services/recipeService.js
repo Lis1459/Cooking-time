@@ -4,9 +4,11 @@ import parseCookStatus from "../utils/recipeUtils.js";
 import { safeRedis } from "../config/redis.js";
 import prisma from "../config/database.js";
 import { capitalizeFirst } from "./../utils/formatter.js";
+import { NotificationService } from "./notificationService.js";
 
 const recipeRepo = new RecipeRepository();
 const favoriteRepo = new FavoriteRepository();
+const notificationService = new NotificationService();
 const CACHE_TTL = 3600; // 1 hour
 
 const normalizeIds = (values) =>
@@ -642,13 +644,19 @@ export class RecipeService {
       .filter((ingredient) => ingredient.status === "NotVerified")
       .map((ingredient) => ingredient.id);
 
+    const isNewPublication = recipe.status !== "PUBLISHED";
+    const authorId = recipe.author_id;
+
     // If there is a draft for this recipe, apply its data
     const draft = await prisma.recipeDraft.findFirst({
       where: { recipe_id: parseInt(recipeId) },
     });
 
+    let newTitle = recipe.title;
     if (draft) {
       const draftData = draft.data || {};
+
+      if (draftData.title) newTitle = draftData.title;
 
       const updateData = {};
       if (draftData.title) updateData.title = draftData.title;
@@ -732,17 +740,54 @@ export class RecipeService {
 
     await safeRedis.del(`recipe:${recipeId}`);
     await safeRedis.del("popular_recipes");
+
+    await notificationService.createNotification({
+      user_id: authorId,
+      initiator_id: authorId,
+      type: "RECIPE_APPROVED",
+      entity_id: String(recipeId),
+      message: `Ваш рецепт "${newTitle}" прошёл модерацию и опубликован.`,
+    });
+
+    if (isNewPublication) {
+      const followers = await prisma.subscription.findMany({
+        where: { author_id: authorId },
+        select: { follower_id: true },
+      });
+      await Promise.all(
+        followers.map((follow) =>
+          notificationService.createNotification({
+            user_id: follow.follower_id,
+            initiator_id: authorId,
+            type: "NEW_RECIPE_FROM_SUBSCRIPTION",
+            entity_id: String(recipeId),
+            message: `Пользователь опубликовал новый рецепт: "${newTitle}"`,
+          }),
+        ),
+      );
+    }
   }
 
-  async rejectRecipe(recipeId) {
+  async rejectRecipe(recipeId, reason = "Причина не указана") {
     // If there's a draft for this recipe, just delete the draft (reject edit)
     const draft = await prisma.recipeDraft.findFirst({
       where: { recipe_id: parseInt(recipeId) },
     });
 
     if (draft) {
+      const recipe = await recipeRepo.findByIdWithIngredients(recipeId);
       await prisma.recipeDraft.delete({ where: { id: draft.id } });
       await safeRedis.del(`recipe:${recipeId}`);
+
+      if (recipe) {
+        await notificationService.createNotification({
+          user_id: recipe.author_id,
+          initiator_id: recipe.author_id,
+          type: "RECIPE_REJECTED",
+          entity_id: String(recipeId),
+          message: `Ваш рецепт "${recipe.title}" был отклонён. Причина: ${reason}`,
+        });
+      }
       return;
     }
 
@@ -775,6 +820,14 @@ export class RecipeService {
 
     await safeRedis.del(`recipe:${recipeId}`);
     await safeRedis.del("popular_recipes");
+
+    await notificationService.createNotification({
+      user_id: recipe.author_id,
+      initiator_id: recipe.author_id,
+      type: "RECIPE_REJECTED",
+      entity_id: String(recipeId),
+      message: `Ваш рецепт "${recipe.title}" был отклонён. Причина: ${reason}`,
+    });
   }
 
   async getPopularRecipes(limit = 10) {

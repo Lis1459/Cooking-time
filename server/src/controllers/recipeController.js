@@ -235,7 +235,8 @@ export const approveRecipe = async (req, res) => {
 
 export const rejectRecipe = async (req, res) => {
   try {
-    await recipeService.rejectRecipe(req.params.id);
+    const reason = req.body.reason || "Причина не указана";
+    await recipeService.rejectRecipe(req.params.id, reason);
     res.json({ message: "Recipe rejected" });
   } catch (error) {
     res.status(500).json({ message: error.message });

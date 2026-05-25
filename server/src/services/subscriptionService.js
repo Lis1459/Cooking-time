@@ -1,6 +1,8 @@
 import { SubscriptionRepository } from "../repositories/subscriptionRepository.js";
+import { NotificationService } from "./notificationService.js";
 
 const subscriptionRepo = new SubscriptionRepository();
+const notificationService = new NotificationService();
 
 export class SubscriptionService {
   async getUserSubscriptions(userId) {
@@ -22,10 +24,20 @@ export class SubscriptionService {
     if (isSubscribed) {
       throw new Error("Already subscribed");
     }
-    return subscriptionRepo.create({
+    const subscription = await subscriptionRepo.create({
       follower_id: followerId,
       author_id: authorId,
     });
+
+    await notificationService.createNotification({
+      user_id: authorId,
+      initiator_id: followerId,
+      type: "NEW_FOLLOWER",
+      entity_id: followerId,
+      message: "Новый подписчик на ваш профиль",
+    });
+
+    return subscription;
   }
 
   async unsubscribe(followerId, authorId) {
