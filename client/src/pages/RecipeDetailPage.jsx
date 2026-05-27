@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import api from "../config/api";
 import {
   useRecipeQuery,
   useAddToFavoritesMutation,
@@ -96,6 +97,20 @@ export const RecipeDetailPage = () => {
       setRating(ratingData?.rating || 0);
     }
   }, [currentRecipe, ratingData]);
+
+  useEffect(() => {
+    const registerView = async () => {
+      try {
+        await api.post(`/recipes/${id}/view`);
+      } catch (err) {
+        console.error("Failed to register recipe view:", err);
+      }
+    };
+
+    if (id) {
+      registerView();
+    }
+  }, [id]);
 
   const handleAddComment = async () => {
     if (!isAuthenticated) {

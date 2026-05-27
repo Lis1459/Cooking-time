@@ -16,9 +16,12 @@ export const HomePage = () => {
   const { isAuthenticated } = useAuth();
   const { data: popularRecipes = [], isLoading: popularLoading } =
     usePopularRecipesQuery();
-  const { data: recipes = [], isLoading: recipesLoading } = useRecipesQuery({
-    limit: 6,
-  });
+  const { data: recipesData = {}, isLoading: recipesLoading } = useRecipesQuery(
+    {
+      limit: 20,
+    },
+  );
+  const recipes = recipesData.recipes || [];
 
   console.log(popularRecipes);
 
@@ -64,7 +67,7 @@ export const HomePage = () => {
       <section className="home-page__section">
         <h2>Популярные рецепты недели</h2>
         <div className="home-page__recipes-grid">
-          {(popularRecipes || []).slice(0, 6).map((recipe) => (
+          {(popularRecipes || []).map((recipe) => (
             <Card key={recipe.id} className="home-page__recipe-card">
               <img
                 src={`${SOCKET_URL}${recipe.preview_img_url}`}
@@ -114,23 +117,23 @@ export const HomePage = () => {
       {/* Recent Recipes Section */}
       <section className="home-page__section">
         <h2>Последние рецепты</h2>
-        {/* <div className="home-page__recipes-grid">
-          {(recipes || []).slice(0, 6).map((recipe) => (
+        <div className="home-page__recipes-grid">
+          {recipes.map((recipe) => (
             <Card key={recipe.id} className="home-page__recipe-card">
               <img
-                src={recipe.preview_img_url}
+                src={`${SOCKET_URL}${recipe.preview_img_url}`}
                 alt={recipe.title}
                 className="home-page__recipe-image"
               />
               <CardContent>
                 <h3>{recipe.title}</h3>
-                <p className="recipe-description">
-                  {recipe.description.substring(0, 100)}...
+                <p className="home-page__recipe-description truncate-single-line">
+                  {recipe.description}
                 </p>
-                <div className="recipe-info">
+                <div className="home-page__recipe-info">
                   <Badge variant="success">{recipe.calories} cal</Badge>
-                  <span className="cooking-time">
-                    ⏱️ {recipe.cooking_time}min
+                  <span className="home-page__cooking-time">
+                    ⏱️ {recipe.cooking_time} мин
                   </span>
                 </div>
                 <Button
@@ -138,12 +141,12 @@ export const HomePage = () => {
                   style={{ width: "100%", marginTop: "var(--spacing-md)" }}
                   onClick={() => navigate(`/recipes/${recipe.id}`)}
                 >
-                  View Recipe
+                  Смотреть рецепт
                 </Button>
               </CardContent>
             </Card>
           ))}
-        </div> */}
+        </div>
       </section>
 
       {/* CTA Section */}

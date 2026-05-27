@@ -14,6 +14,7 @@ import {
   addToFavorites,
   removeFromFavorites,
   markRecipeStatus,
+  registerRecipeView,
   smartSearch,
 } from "../controllers/recipeController.js";
 import { authenticate } from "../middleware/auth.js";
@@ -38,6 +39,7 @@ router.delete("/:id/reject", authenticate, requireAdmin, rejectRecipe);
 
 router.post("/:id/favorite", authenticate, addToFavorites);
 router.delete("/:id/favorite", authenticate, removeFromFavorites);
+router.post("/:id/view", registerRecipeView);
 router.post("/:id/cook", authenticate, markRecipeStatus);
 
 export default router;

@@ -84,6 +84,8 @@ model Recipe{
   difficulty        Difficulty    
   status            Status        @default(PENDING)
   created_at        DateTime      @default(now())
+  views             Int           @default(0)
+  popularity_score  Float         @default(0)
 
   ingredients        RecipeIngredients[]
   steps             RecipeSteps[]
@@ -95,7 +97,19 @@ model Recipe{
   favorite          Favorite[]
   cook_history      CookHistory[]   
   recipe_draft      RecipeDraft[]  
+  views_history     RecipeView[]
   @@map("recipes")
+}
+
+model RecipeView {
+  id              Int      @id @default(autoincrement())
+  recipe_id       Int
+  recipe          Recipe   @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
+  viewer_key      String
+  last_viewed_at  DateTime @default(now())
+
+  @@unique([recipe_id, viewer_key])
+  @@map("recipe_views")
 }
 
 // Черновики изменений рецептов

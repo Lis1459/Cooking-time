@@ -25,6 +25,19 @@ const arraysAreEqual = (left = [], right = []) => {
   );
 };
 
+const calculatePopularityScore = ({
+  favorites = 0,
+  comments = 0,
+  views = 0,
+  created_at,
+}) => {
+  const createdAt = new Date(created_at).getTime();
+  const now = Date.now();
+  const daysSinceCreated = Math.max((now - createdAt) / 86400000, 0);
+  const freshnessFactor = 1 / (1 + daysSinceCreated * 0.1);
+  return (favorites * 4 + comments * 6 + views * 1) * freshnessFactor;
+};
+
 const normalizeDraftIds = (value) => {
   if (!value) return [];
   if (typeof value === "string") {
@@ -856,6 +869,16 @@ export class RecipeService {
   }
 
   async getPopularRecipes(limit = 10) {
+    // Refresh dynamic popularity by time before returning top recipes
+    await prisma.$executeRaw`
+      UPDATE recipes
+      SET popularity_score = (
+        (COALESCE((SELECT COUNT(*) FROM favorites WHERE recipe_id = recipes.id), 0) * 4 + COALESCE((SELECT COUNT(*) FROM comments WHERE recipe_id = recipes.id AND is_hidden = false), 0) * 6 + views)
+        * (1 / (1 + EXTRACT(epoch FROM now() - created_at) / 86400 * 0.1))
+      )
+      WHERE status = 'PUBLISHED'
+    `;
+
     const cacheKey = "popular_recipes";
     const cached = await safeRedis.get(cacheKey);
     if (cached) {
@@ -919,11 +942,104 @@ export class RecipeService {
     await prisma.favorite.create({
       data: { user_id: userId, recipe_id: parseInt(recipeId) },
     });
+    await this.recalculatePopularity(recipeId);
+    await safeRedis.del("popular_recipes");
+    await safeRedis.del(`recipe:${recipeId}`);
   }
 
   async removeFromFavorites(userId, recipeId) {
     await prisma.favorite.deleteMany({
       where: { user_id: userId, recipe_id: parseInt(recipeId) },
+    });
+
+    await this.recalculatePopularity(recipeId);
+    await safeRedis.del("popular_recipes");
+    await safeRedis.del(`recipe:${recipeId}`);
+  }
+
+  async registerRecipeView(recipeId, viewerKey) {
+    const id = parseInt(recipeId);
+    if (!viewerKey) {
+      throw new Error("Viewer key is required");
+    }
+
+    const recipe = await prisma.recipe.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!recipe) {
+      throw new Error("Recipe not found");
+    }
+
+    const existingView = await prisma.recipeView.findUnique({
+      where: { recipe_id_viewer_key: { recipe_id: id, viewer_key: viewerKey } },
+    });
+
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    const shouldCountView =
+      !existingView || existingView.last_viewed_at < twelveHoursAgo;
+
+    if (!shouldCountView) {
+      return { counted: false };
+    }
+
+    await prisma.$transaction([
+      existingView
+        ? prisma.recipeView.update({
+            where: {
+              recipe_id_viewer_key: {
+                recipe_id: id,
+                viewer_key: viewerKey,
+              },
+            },
+            data: { last_viewed_at: new Date() },
+          })
+        : prisma.recipeView.create({
+            data: {
+              recipe: { connect: { id } },
+              viewer_key: viewerKey,
+            },
+          }),
+      prisma.recipe.update({
+        where: { id },
+        data: { views: { increment: 1 } },
+      }),
+    ]);
+
+    await this.recalculatePopularity(recipeId);
+    await safeRedis.del("popular_recipes");
+    await safeRedis.del(`recipe:${recipeId}`);
+    return { counted: true };
+  }
+
+  async recalculatePopularity(recipeId) {
+    const id = parseInt(recipeId);
+    const recipe = await prisma.recipe.findUnique({
+      where: { id },
+      select: { views: true, created_at: true },
+    });
+    if (!recipe) {
+      return null;
+    }
+
+    const commentsCount = await prisma.comment.count({
+      where: { recipe_id: id, is_hidden: false },
+    });
+
+    const favoritesCount = await prisma.favorite.count({
+      where: { recipe_id: id },
+    });
+
+    const popularity_score = calculatePopularityScore({
+      favorites: favoritesCount,
+      comments: commentsCount,
+      views: recipe.views,
+      created_at: recipe.created_at,
+    });
+
+    return prisma.recipe.update({
+      where: { id },
+      data: { popularity_score },
     });
   }
 

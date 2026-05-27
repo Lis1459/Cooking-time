@@ -2,9 +2,11 @@ import { CommentRepository } from "../repositories/commentRepository.js";
 import { safeRedis } from "../config/redis.js";
 import prisma from "../config/database.js";
 import { NotificationService } from "./notificationService.js";
+import { RecipeService } from "./recipeService.js";
 
 const commentRepo = new CommentRepository();
 const notificationService = new NotificationService();
+const recipeService = new RecipeService();
 const CACHE_TTL = 3600;
 
 export class CommentService {
@@ -54,8 +56,9 @@ export class CommentService {
       }
     }
 
-    // Invalidate cache
+    await recipeService.recalculatePopularity(commentData.recipe_id);
     await safeRedis.del(`comments:${commentData.recipe_id}:*`);
+    await safeRedis.del("popular_recipes");
     return comment;
   }
 
@@ -72,7 +75,9 @@ export class CommentService {
     const comment = await commentRepo.findById(id);
     if (comment) {
       await commentRepo.delete(id);
+      await recipeService.recalculatePopularity(comment.recipe_id);
       await safeRedis.del(`comments:${comment.recipe_id}:*`);
+      await safeRedis.del("popular_recipes");
       return { id };
     }
     throw new Error("Comment not found");

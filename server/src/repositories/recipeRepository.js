@@ -307,17 +307,16 @@ export class RecipeRepository {
   }
 
   async getPopular(limit = 10) {
-    // Популярные по количеству комментариев или просмотров, но просмотров нет, так что по комментариям
     return prisma.recipe.findMany({
+      where: { status: "PUBLISHED" },
       take: limit,
       include: {
         author: true,
         categories: true,
         tags: true,
         cuisines: true,
-        _count: { select: { comments: true, favorite: true } },
       },
-      orderBy: { comments: { _count: "desc" } },
+      orderBy: { popularity_score: "desc" },
     });
   }
 

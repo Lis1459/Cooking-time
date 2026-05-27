@@ -1,5 +1,6 @@
 import { RecipeService } from "../services/recipeService.js";
 import { processImage } from "../middleware/upload.js";
+import crypto from "crypto";
 
 const recipeService = new RecipeService();
 
@@ -198,9 +199,35 @@ export const deleteRecipe = async (req, res) => {
 //!!!!! надо переделать бд для вычисления популярности
 export const getPopularRecipes = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 20;
     const recipes = await recipeService.getPopularRecipes(limit);
     res.json(recipes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const registerRecipeView = async (req, res) => {
+  try {
+    const viewerCookie = req.cookies?.cooking_time_viewer_id;
+    const viewerKey = req.user
+      ? `user:${req.user.id}`
+      : viewerCookie || `guest:${crypto.randomUUID()}`;
+
+    const result = await recipeService.registerRecipeView(
+      req.params.id,
+      viewerKey,
+    );
+
+    if (!viewerCookie && !req.user) {
+      res.cookie("cooking_time_viewer_id", viewerKey.replace(/^guest:/, ""), {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 * 365,
+        sameSite: "lax",
+      });
+    }
+
+    res.json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
