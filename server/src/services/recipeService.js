@@ -38,6 +38,18 @@ const calculatePopularityScore = ({
   return (favorites * 4 + comments * 6 + views * 1) * freshnessFactor;
 };
 
+const getCookingTimeBucket = (cookingTime) => {
+  if (cookingTime <= 20) return "very_short";
+  if (cookingTime <= 40) return "short";
+  if (cookingTime <= 60) return "medium";
+  return "long";
+};
+
+const addWeightedCount = (map, key, weight) => {
+  if (!key) return;
+  map[key] = (map[key] || 0) + weight;
+};
+
 const normalizeDraftIds = (value) => {
   if (!value) return [];
   if (typeof value === "string") {
@@ -888,6 +900,182 @@ export class RecipeService {
     const recipes = await recipeRepo.getPopular(limit);
     await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(recipes));
     return recipes;
+  }
+
+  async getRecommendedRecipes(userId, limit = 10) {
+    const favoriteRecords = await prisma.favorite.findMany({
+      where: { user_id: userId },
+      select: { recipe_id: true },
+    });
+    const cookHistoryRecords = await prisma.cookHistory.findMany({
+      where: { user_id: userId },
+      select: { recipe_id: true, status: true },
+    });
+    const viewedRecords = await prisma.recipeView.findMany({
+      where: { viewer_key: `user:${userId}` },
+      select: { recipe_id: true },
+    });
+
+    const favoriteIds = favoriteRecords.map((record) => record.recipe_id);
+    const cookRecipeIds = cookHistoryRecords.map((record) => record.recipe_id);
+    const viewedIds = viewedRecords.map((record) => record.recipe_id);
+    const excludedRecipeIds = [...new Set([...favoriteIds, ...cookRecipeIds])];
+
+    if (
+      favoriteIds.length === 0 &&
+      cookRecipeIds.length === 0 &&
+      viewedIds.length === 0
+    ) {
+      return this.getPopularRecipes(limit);
+    }
+
+    const interestRecipeIds = [
+      ...new Set([...favoriteIds, ...cookRecipeIds, ...viewedIds]),
+    ];
+
+    const interestRecipes = await prisma.recipe.findMany({
+      where: {
+        id: { in: interestRecipeIds },
+      },
+      include: {
+        categories: true,
+        cuisines: true,
+        ingredients: { include: { ingredient: true } },
+      },
+    });
+
+    const ingredientScores = {};
+    const categoryScores = {};
+    const cuisineScores = {};
+    const difficultyScores = {};
+    const timeScores = {};
+
+    interestRecipes.forEach((recipe) => {
+      let weight = 0;
+      if (favoriteIds.includes(recipe.id)) weight += 5;
+      const cookRecord = cookHistoryRecords.find(
+        (item) => item.recipe_id === recipe.id,
+      );
+      if (cookRecord) {
+        if (cookRecord.status === "TO_COOK") weight += 3;
+        if (cookRecord.status === "COOKED") weight += 2;
+      }
+      if (viewedIds.includes(recipe.id)) weight += 1;
+
+      if (weight <= 0) return;
+
+      recipe.categories.forEach((category) => {
+        addWeightedCount(categoryScores, category.id, weight);
+      });
+      recipe.cuisines.forEach((cuisine) => {
+        addWeightedCount(cuisineScores, cuisine.id, weight);
+      });
+      recipe.ingredients.forEach((recipeIngredient) => {
+        const ingredientId = recipeIngredient.ingredient?.id;
+        addWeightedCount(ingredientScores, ingredientId, weight);
+      });
+      addWeightedCount(difficultyScores, recipe.difficulty, weight);
+      addWeightedCount(
+        timeScores,
+        getCookingTimeBucket(recipe.cooking_time),
+        weight,
+      );
+    });
+
+    const candidateRecipes = await prisma.recipe.findMany({
+      where: {
+        status: "PUBLISHED",
+        id: { notIn: excludedRecipeIds },
+      },
+      include: {
+        categories: true,
+        cuisines: true,
+        ingredients: { include: { ingredient: true } },
+      },
+      orderBy: { popularity_score: "desc" },
+      take: 200,
+    });
+
+    if (candidateRecipes.length === 0) {
+      return this.getPopularRecipes(limit);
+    }
+
+    const similarUserSignals = await prisma.favorite.findMany({
+      where: {
+        recipe_id: { in: favoriteIds },
+        user_id: { not: userId },
+      },
+      select: { user_id: true, recipe_id: true },
+    });
+
+    const userSimilarity = {};
+    similarUserSignals.forEach((signal) => {
+      userSimilarity[signal.user_id] =
+        (userSimilarity[signal.user_id] || 0) + 1;
+    });
+
+    const topSimilarUserIds = Object.entries(userSimilarity)
+      .sort(([, leftScore], [, rightScore]) => rightScore - leftScore)
+      .slice(0, 15)
+      .map(([userId]) => userId);
+
+    const collaborativeCounts = {};
+    if (topSimilarUserIds.length > 0) {
+      const similarFavorites = await prisma.favorite.findMany({
+        where: {
+          user_id: { in: topSimilarUserIds },
+          recipe_id: { notIn: excludedRecipeIds },
+        },
+        select: { recipe_id: true },
+      });
+      similarFavorites.forEach((favorite) => {
+        collaborativeCounts[favorite.recipe_id] =
+          (collaborativeCounts[favorite.recipe_id] || 0) + 1;
+      });
+    }
+
+    const getRecipeContentScore = (recipe) => {
+      let score = 0;
+      const ingredientScore = recipe.ingredients.reduce(
+        (sum, recipeIngredient) => {
+          const ingredientId = recipeIngredient.ingredient?.id;
+          return sum + (ingredientScores[ingredientId] || 0);
+        },
+        0,
+      );
+      score += ingredientScore * 2;
+
+      const categoryScore = recipe.categories.reduce(
+        (sum, category) => sum + (categoryScores[category.id] || 0),
+        0,
+      );
+      score += categoryScore * 3;
+
+      const cuisineScore = recipe.cuisines.reduce(
+        (sum, cuisine) => sum + (cuisineScores[cuisine.id] || 0),
+        0,
+      );
+      score += cuisineScore * 2;
+
+      score += difficultyScores[recipe.difficulty] ? 4 : 0;
+      score += timeScores[getCookingTimeBucket(recipe.cooking_time)] || 0;
+      return score;
+    };
+
+    const scoredCandidates = candidateRecipes
+      .map((recipe) => {
+        const contentScore = getRecipeContentScore(recipe);
+        const collaborativeScore = collaborativeCounts[recipe.id] || 0;
+        const finalScore = contentScore + collaborativeScore * 8;
+        return { recipe, finalScore };
+      })
+      .sort((a, b) => b.finalScore - a.finalScore)
+      .slice(0, limit)
+      .map(({ recipe }) => recipe);
+
+    return scoredCandidates.length > 0
+      ? scoredCandidates
+      : this.getPopularRecipes(limit);
   }
 
   async getAllRecipes(page, limit) {

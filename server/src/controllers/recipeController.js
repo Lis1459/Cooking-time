@@ -207,6 +207,19 @@ export const getPopularRecipes = async (req, res) => {
   }
 };
 
+export const getRecommendedRecipes = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 8;
+    const recipes = await recipeService.getRecommendedRecipes(
+      req.user.id,
+      limit,
+    );
+    res.json({ recipes, total: recipes.length, page: 1, limit });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const registerRecipeView = async (req, res) => {
   try {
     const viewerCookie = req.cookies?.cooking_time_viewer_id;

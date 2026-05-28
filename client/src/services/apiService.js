@@ -187,6 +187,18 @@ export const usePopularRecipesQuery = (options = {}) => {
   });
 };
 
+export const useRecommendedRecipesQuery = (options = {}) => {
+  return useQuery({
+    queryKey: ["recommendedRecipes"],
+    queryFn: async () => {
+      const response = await api.get("/recipes/recommendations");
+      return response.data;
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    ...options,
+  });
+};
+
 export const useMyRecipesQuery = (userId, params = {}, options = {}) => {
   return useQuery({
     queryKey: ["myRecipes", userId, params],

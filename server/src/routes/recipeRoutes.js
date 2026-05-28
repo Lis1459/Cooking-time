@@ -6,6 +6,7 @@ import {
   updateRecipe,
   deleteRecipe,
   getPopularRecipes,
+  getRecommendedRecipes,
   getMyRecipes,
   approveRecipe,
   rejectRecipe,
@@ -23,6 +24,7 @@ import { uploadRecipeImage } from "../middleware/upload.js";
 
 const router = express.Router();
 
+router.get("/recommendations", authenticate, getRecommendedRecipes);
 router.get("/popular", getPopularRecipes);
 router.get("/smart-search", smartSearch);
 router.get("/", getRecipes);

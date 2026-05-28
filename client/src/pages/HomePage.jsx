@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   usePopularRecipesQuery,
+  useRecommendedRecipesQuery,
   useRecipesQuery,
 } from "../services/apiService";
 import { Card, CardContent, Badge, Button, Loader } from "../components/ui";
@@ -16,16 +17,18 @@ export const HomePage = () => {
   const { isAuthenticated } = useAuth();
   const { data: popularRecipes = [], isLoading: popularLoading } =
     usePopularRecipesQuery();
+  const { data: recommendedData = {}, isLoading: recommendedLoading } =
+    useRecommendedRecipesQuery({ enabled: isAuthenticated });
   const { data: recipesData = {}, isLoading: recipesLoading } = useRecipesQuery(
     {
       limit: 20,
     },
   );
   const recipes = recipesData.recipes || [];
+  const recommendedRecipes = recommendedData.recipes || [];
+  console.log("Recomended: ", recommendedRecipes);
 
-  console.log(popularRecipes);
-
-  const loading = popularLoading || recipesLoading;
+  const loading = popularLoading || recipesLoading || recommendedLoading;
 
   if (loading) {
     return (
@@ -62,6 +65,43 @@ export const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Recommended Recipes Section */}
+      {isAuthenticated && recommendedRecipes.length > 0 && (
+        <section className="home-page__section">
+          <h2>Рекомендовано для вас</h2>
+          <div className="home-page__recipes-grid">
+            {recommendedRecipes.map((recipe) => (
+              <Card key={recipe.id} className="home-page__recipe-card">
+                <img
+                  src={`${SOCKET_URL}${recipe.preview_img_url}`}
+                  alt={recipe.title}
+                  className="home-page__recipe-image"
+                />
+                <CardContent>
+                  <h3>{recipe.title}</h3>
+                  <p className="home-page__recipe-description truncate-single-line">
+                    {recipe.description}
+                  </p>
+                  <div className="home-page__recipe-info">
+                    <Badge variant="primary">{recipe.difficulty}</Badge>
+                    <span className="home-page__cooking-time">
+                      ⏱️ {recipe.cooking_time} мин
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    style={{ width: "100%", marginTop: "var(--spacing-md)" }}
+                    onClick={() => navigate(`/recipes/${recipe.id}`)}
+                  >
+                    Смотреть рецепт
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Popular Recipes Section */}
       <section className="home-page__section">
