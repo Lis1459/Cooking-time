@@ -58,9 +58,14 @@ export const Header = () => {
             </>
           )}
           {user?.role === "ADMIN" && (
-            <Link to="/admin" className="nav-link">
-              Админ
-            </Link>
+            <>
+              <Link to="/admin" className="nav-link">
+                Админ
+              </Link>
+              <Link to="/admin/statistics" className="nav-link">
+                Статистика
+              </Link>
+            </>
           )}
         </nav>
         <button

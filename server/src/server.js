@@ -18,6 +18,7 @@ import tagRoutes from "./routes/tagRoutes.js";
 import cuisineRoutes from "./routes/cuisineRoutes.js";
 import subscriptionRoutes from "./routes/subscriptionRoutes.js";
 import ratingRoutes from "./routes/ratingRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -43,6 +44,7 @@ app.use("/api/recipes", recipeRoutes);
 app.use("/api/recipes/:recipeId/comments", commentRoutes);
 app.use("/api/recipes/:recipeId/ratings", ratingRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/ingredients", ingredientRoutes);
 app.use("/api/categories", categoryRoutes);
@@ -53,7 +55,12 @@ app.use("/api/subscriptions", subscriptionRoutes);
 // Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: "Something went wrong!" });
+  const status = err.status || 500;
+  const payload = { message: err.message || "Something went wrong!" };
+  if (process.env.NODE_ENV !== "production") {
+    payload.error = err.stack;
+  }
+  res.status(status).json(payload);
 });
 
 if (process.env.NODE_ENV !== "test") {

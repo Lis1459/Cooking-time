@@ -626,6 +626,20 @@ export const usePendingRecipesQuery = (options = {}) => {
   });
 };
 
+export const useAdminStatisticsQuery = (period = 7, options = {}) => {
+  return useQuery({
+    queryKey: ["adminStatistics", period],
+    queryFn: async () => {
+      const response = await api.get("/admin/statistics", {
+        params: { period },
+      });
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+};
+
 export const useAdminRecipeQuery = (id, options = {}) => {
   return useQuery({
     queryKey: ["adminRecipe", id],

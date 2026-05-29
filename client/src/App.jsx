@@ -26,6 +26,7 @@ import LoginPage from "./features/auth/LoginPage";
 import RegisterPage from "./features/auth/RegisterPage";
 import AddRecipePage from "./features/recipes/AddRecipePage";
 import AdminPanelPage from "./features/admin/AdminPanelPage";
+import AdminStatisticsPage from "./features/admin/AdminStatisticsPage";
 import AdminRecipeModerationPage from "./features/admin/AdminRecipeModerationPage";
 import MyRecipesPage from "./pages/MyRecipesPage";
 
@@ -123,6 +124,14 @@ function AppContent() {
           />
 
           {/* Admin Routes */}
+          <Route
+            path="/admin/statistics"
+            element={
+              <AdminRoute>
+                <AdminStatisticsPage />
+              </AdminRoute>
+            }
+          />
           <Route
             path="/admin"
             element={
