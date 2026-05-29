@@ -181,6 +181,7 @@ export const RecipeCatalogPage = () => {
       if (current) observer.unobserve(current);
     };
   }, [hasMore, isLoading, loadingMore]);
+  console.log("recipes: ", recipes);
 
   return (
     <div className="recipe-catalog">
@@ -315,11 +316,27 @@ export const RecipeCatalogPage = () => {
         <div className="recipe-catalog__recipes-grid">
           {recipes.map((recipe) => (
             <Card key={recipe.id} className="recipe-catalog__recipe-card">
-              <img
-                src={`${SOCKET_URL}${recipe.preview_img_url}`}
-                alt={recipe.title}
-                className="recipe-catalog__recipe-image"
-              />
+              <div className="recipe-image-wrapper">
+                <img
+                  src={`${SOCKET_URL}${recipe.preview_img_url}`}
+                  alt={recipe.title}
+                  className="recipe-catalog__recipe-image"
+                />
+                {/* Status Indicators */}
+                {recipe.isFavorite && (
+                  <div
+                    className="recipe-indicator favorite"
+                    title="В избранном"
+                  >
+                    ❤️
+                  </div>
+                )}
+                {recipe.cookMark === "COOKED" && (
+                  <div className="recipe-indicator cooked" title="Уже готовили">
+                    ✓
+                  </div>
+                )}
+              </div>
               <CardContent>
                 <h3>{recipe.title}</h3>
                 <p className="recipe-catalog__recipe-description truncate-single-line">

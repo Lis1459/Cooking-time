@@ -23,9 +23,15 @@ export const getRecipe = async (req, res) => {
 export const getRecipes = async (req, res) => {
   try {
     const { page, limit, ...filters } = req.query;
+    const userId = req.query.userId;
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 10;
-    const result = await recipeService.getRecipes(filters, pageNum, limitNum);
+    const result = await recipeService.getRecipes(
+      filters,
+      pageNum,
+      limitNum,
+      userId,
+    );
     res.json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });

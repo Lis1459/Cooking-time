@@ -324,7 +324,7 @@ export class RecipeService {
     };
   }
 
-  async getRecipes(filters, page, limit) {
+  async getRecipes(filters, page, limit, userId) {
     const cacheKey = `recipes:${JSON.stringify(filters)}:${page}:${limit}`;
     const cached = await safeRedis.get(cacheKey);
     if (cached) {
@@ -332,7 +332,7 @@ export class RecipeService {
       return JSON.parse(cached);
     }
     console.log("recipe filters: ", filters);
-    const recipes = await recipeRepo.findAll(filters, page, limit);
+    const recipes = await recipeRepo.findAll(filters, page, limit, userId);
     const total = await recipeRepo.count(filters);
 
     const result = { recipes, total, page, limit };

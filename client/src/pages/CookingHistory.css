@@ -1,0 +1,197 @@
+.cooking-history-page {
+  width: 100%;
+  padding: var(--spacing-lg);
+}
+
+.cooking-history-page h1 {
+  margin-bottom: var(--spacing-2xl);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-2xl);
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.3s ease;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Recipes Grid */
+.cooking-history__recipes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.cooking-history__recipe-card {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: var(--transition);
+  height: 100%;
+}
+
+.cooking-history__recipe-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.recipe-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+}
+
+.cooking-history__recipe-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.cooking-history__recipe-card:hover .cooking-history__recipe-image {
+  transform: scale(1.05);
+}
+
+.cooking-history__recipe-card h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cooking-history__recipe-description {
+  color: var(--gray-600);
+  font-size: 14px;
+  margin: 0 0 var(--spacing-md) 0;
+  line-height: 1.4;
+}
+
+.cooking-history__recipe-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: var(--spacing-md) 0;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.cooking-history__recipe-tags {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.cooking-history__cooking-time {
+  font-size: 13px;
+  color: var(--gray-600);
+  white-space: nowrap;
+}
+
+.recipe-card__rating {
+  font-size: 14px;
+  color: var(--gray-700);
+  font-weight: 500;
+}
+
+/* Actions */
+.cooking-history__actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+
+.cooking-history__actions button {
+  flex: 1;
+  min-width: 100px;
+}
+
+/* Loading */
+.cooking-history__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-3xl) var(--spacing-lg);
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+  margin-top: var(--spacing-2xl);
+}
+
+.empty-state p {
+  color: var(--gray-600);
+  margin-bottom: var(--spacing-lg);
+  font-size: 1.1rem;
+}
+
+.empty-state button {
+  margin-top: var(--spacing-md);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cooking-history-page {
+    padding: var(--spacing-md);
+  }
+
+  .cooking-history-page h1 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .cooking-history__recipes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  .cooking-history__actions {
+    flex-direction: column;
+  }
+
+  .cooking-history__actions button {
+    width: 100%;
+  }
+
+  .tabs {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .tab {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem;
+  }
+}

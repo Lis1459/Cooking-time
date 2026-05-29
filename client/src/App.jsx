@@ -20,6 +20,7 @@ import UserProfilePage from "./pages/UserProfilePage";
 import FavoritesPage from "./pages/FavoritesPage";
 import SmartRecipesPage from "./pages/SmartRecipesPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import CookingHistoryPage from "./pages/CookingHistoryPage";
 
 // Features
 import LoginPage from "./features/auth/LoginPage";
@@ -119,6 +120,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cooking-history"
+            element={
+              <ProtectedRoute>
+                <CookingHistoryPage />
               </ProtectedRoute>
             }
           />

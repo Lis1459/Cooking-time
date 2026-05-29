@@ -30,7 +30,7 @@ export class RecipeRepository {
     });
   }
 
-  async findAll(filters = {}, page = 1, limit = 10) {
+  async findAll(filters = {}, page = 1, limit = 10, userId) {
     const skip = (page - 1) * limit;
     const where = {};
 
@@ -149,6 +149,17 @@ export class RecipeRepository {
         where.cooking_time = { lte: parseInt(filters.cookingTimeMax) };
       }
     }
+
+    console.log(filters.cookStatus, " ", userId);
+    if (filters.cookStatus && userId) {
+      where.cook_history = {
+        some: {
+          user_id: userId,
+          status: filters.cookStatus,
+        },
+      };
+    }
+    console.log("where: ", where);
 
     return prisma.recipe.findMany({
       where,

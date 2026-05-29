@@ -127,6 +127,10 @@ export const Header = () => {
                     href: "/my-recipes",
                   },
                   {
+                    label: "История приготовлений",
+                    href: "/cooking-history",
+                  },
+                  {
                     label: "Добавить рецепт",
                     href: "/add-recipe",
                   },
