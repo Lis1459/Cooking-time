@@ -398,6 +398,15 @@ export class RecipeRepository {
     });
   }
 
+  async removeCookHistory(userId, recipeId) {
+    return prisma.cookHistory.deleteMany({
+      where: {
+        user_id: userId,
+        recipe_id: parseInt(recipeId),
+      },
+    });
+  }
+
   /**
    * Find recipes by ingredients with smart matching
    * Returns recipes that have at least one of the provided ingredients,

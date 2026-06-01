@@ -24,6 +24,7 @@ import {
   Alert,
   Badge,
 } from "../components/ui";
+import RecipeCard from "../components/common/RecipeCard";
 import { ReportDialog } from "../components/common/ReportDialog";
 import { SOCKET_URL } from "../config/constants";
 import "./UserProfile.css";
@@ -335,42 +336,12 @@ export const UserProfilePage = () => {
         ) : recipes.length ? (
           <div className="profile-recipes-grid">
             {recipes.map((recipe) => (
-              <Card key={recipe.id} className="profile-recipe-card">
-                {recipe.preview_img_url && (
-                  <img
-                    src={`${SOCKET_URL}${recipe.preview_img_url}`}
-                    alt={recipe.title}
-                    className="profile-recipe-image"
-                  />
-                )}
-                <CardContent>
-                  <h3>{recipe.title}</h3>
-                  <p className="truncate-2-lines">{recipe.description}</p>
-                  <div
-                    className="recipe-card__rating"
-                    style={{ marginTop: 10 }}
-                  >
-                    ⭐{" "}
-                    {recipe.rating ??
-                      recipe.averageRating ??
-                      recipe.avgRating ??
-                      "—"}
-                  </div>
-                  <div className="profile-recipe-footer">
-                    <Badge variant="primary">{recipe.difficulty}</Badge>
-                    <span className="profile-recipe-time">
-                      ⏱️ {recipe.cooking_time} мин
-                    </span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    style={{ width: "100%", marginTop: "var(--spacing-md)" }}
-                    onClick={() => navigate(`/recipes/${recipe.id}`)}
-                  >
-                    Смотреть рецепт
-                  </Button>
-                </CardContent>
-              </Card>
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                onView={() => navigate(`/recipes/${recipe.id}`)}
+                className="profile-recipe-card"
+              />
             ))}
           </div>
         ) : (

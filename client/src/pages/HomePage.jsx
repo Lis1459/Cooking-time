@@ -5,7 +5,8 @@ import {
   useRecommendedRecipesQuery,
   useRecipesQuery,
 } from "../services/apiService";
-import { Card, CardContent, Badge, Button, Loader } from "../components/ui";
+import { Badge, Button, Loader } from "../components/ui";
+import RecipeCard from "../components/common/RecipeCard";
 import "./HomePage.css";
 
 import { SOCKET_URL } from "../config/constants";
@@ -72,32 +73,12 @@ export const HomePage = () => {
           <h2>Рекомендовано для вас</h2>
           <div className="home-page__recipes-grid">
             {recommendedRecipes.map((recipe) => (
-              <Card key={recipe.id} className="home-page__recipe-card">
-                <img
-                  src={`${SOCKET_URL}${recipe.preview_img_url}`}
-                  alt={recipe.title}
-                  className="home-page__recipe-image"
-                />
-                <CardContent>
-                  <h3>{recipe.title}</h3>
-                  <p className="home-page__recipe-description truncate-single-line">
-                    {recipe.description}
-                  </p>
-                  <div className="home-page__recipe-info">
-                    <Badge variant="primary">{recipe.difficulty}</Badge>
-                    <span className="home-page__cooking-time">
-                      ⏱️ {recipe.cooking_time} мин
-                    </span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    style={{ width: "100%", marginTop: "var(--spacing-md)" }}
-                    onClick={() => navigate(`/recipes/${recipe.id}`)}
-                  >
-                    Смотреть рецепт
-                  </Button>
-                </CardContent>
-              </Card>
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                onView={() => navigate(`/recipes/${recipe.id}`)}
+                className="home-page__recipe-card"
+              />
             ))}
           </div>
         </section>
@@ -108,48 +89,12 @@ export const HomePage = () => {
         <h2>Популярные рецепты недели</h2>
         <div className="home-page__recipes-grid">
           {(popularRecipes || []).map((recipe) => (
-            <Card key={recipe.id} className="home-page__recipe-card">
-              <img
-                src={`${SOCKET_URL}${recipe.preview_img_url}`}
-                alt={recipe.title}
-                className="home-page__recipe-image"
-              />
-              <CardContent>
-                <h3>{recipe.title}</h3>
-                <p className="home-page__recipe-description truncate-single-line">
-                  {recipe.description}
-                </p>
-                {(() => {
-                  const avg =
-                    recipe.rating?.average ??
-                    recipe.avgRating ??
-                    recipe.average_rating ??
-                    recipe.averageRating ??
-                    recipe.rating;
-                  return avg ? (
-                    <div
-                      className="recipe-card__rating"
-                      style={{ marginTop: 6 }}
-                    >
-                      ⭐ {typeof avg === "number" ? avg.toFixed(1) : avg}
-                    </div>
-                  ) : null;
-                })()}
-                <div className="home-page__recipe-info">
-                  <Badge variant="primary">{recipe.difficulty}</Badge>
-                  <span className="home-page__cooking-time">
-                    ⏱️ {recipe.cooking_time} мин
-                  </span>
-                </div>
-                <Button
-                  variant="outline"
-                  style={{ width: "100%", marginTop: "var(--spacing-md)" }}
-                  onClick={() => navigate(`/recipes/${recipe.id}`)}
-                >
-                  Смотреть рецепт
-                </Button>
-              </CardContent>
-            </Card>
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              onView={() => navigate(`/recipes/${recipe.id}`)}
+              className="home-page__recipe-card"
+            />
           ))}
         </div>
       </section>
@@ -159,32 +104,12 @@ export const HomePage = () => {
         <h2>Последние рецепты</h2>
         <div className="home-page__recipes-grid">
           {recipes.map((recipe) => (
-            <Card key={recipe.id} className="home-page__recipe-card">
-              <img
-                src={`${SOCKET_URL}${recipe.preview_img_url}`}
-                alt={recipe.title}
-                className="home-page__recipe-image"
-              />
-              <CardContent>
-                <h3>{recipe.title}</h3>
-                <p className="home-page__recipe-description truncate-single-line">
-                  {recipe.description}
-                </p>
-                <div className="home-page__recipe-info">
-                  <Badge variant="success">{recipe.calories} cal</Badge>
-                  <span className="home-page__cooking-time">
-                    ⏱️ {recipe.cooking_time} мин
-                  </span>
-                </div>
-                <Button
-                  variant="outline"
-                  style={{ width: "100%", marginTop: "var(--spacing-md)" }}
-                  onClick={() => navigate(`/recipes/${recipe.id}`)}
-                >
-                  Смотреть рецепт
-                </Button>
-              </CardContent>
-            </Card>
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              onView={() => navigate(`/recipes/${recipe.id}`)}
+              className="home-page__recipe-card"
+            />
           ))}
         </div>
       </section>

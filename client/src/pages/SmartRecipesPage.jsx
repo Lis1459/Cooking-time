@@ -10,6 +10,7 @@ import {
   Loader,
   Badge,
 } from "../components/ui";
+import RecipeCard from "../components/common/RecipeCard";
 import "./SmartRecipes.css";
 import { SOCKET_URL } from "../config/constants";
 
@@ -269,84 +270,59 @@ export const SmartRecipesPage = () => {
           <h2>Найдено {totalRecipes || matchedRecipes.length} рецептов</h2>
           <div className="smart-recipes__recipes-grid">
             {matchedRecipes.map((recipe) => (
-              <Card key={recipe.id} className="smart-recipes__recipe-card">
-                <img
-                  src={`${SOCKET_URL}${recipe.preview_img_url}`}
-                  alt={recipe.title}
-                  className="smart-recipes__recipe-image"
-                />
-                <CardContent>
-                  <h3>{recipe.title}</h3>
-                  <p className="smart-recipes__recipe-description truncate-single-line">
-                    {recipe.description}
-                  </p>
-                  {(() => {
-                    const avg =
-                      recipe.rating?.average ??
-                      recipe.avgRating ??
-                      recipe.average_rating ??
-                      recipe.averageRating ??
-                      recipe.rating;
-                    return avg ? (
-                      <div
-                        className="recipe-card__rating"
-                        style={{ marginTop: 6 }}
-                      >
-                        ⭐ {typeof avg === "number" ? avg.toFixed(1) : avg}
-                      </div>
-                    ) : null;
-                  })()}
-                  <div className="smart-recipes__recipe-meta">
-                    <Badge variant="primary">{recipe.difficulty}</Badge>
-                    <span className="smart-recipes__cooking-time">
-                      ⏱️ {recipe.cooking_time} мин
-                    </span>
-                  </div>
-                  <div style={{ marginBottom: "var(--spacing-md)" }}>
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        color: "var(--gray-600)",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      Совпадения: {recipe.availableIngredientsCount}/
-                      {recipe.totalIngredientsCount} ингредиентов (
-                      {recipe.matchPercentage}%)
-                    </div>
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "4px",
-                        backgroundColor: "var(--gray-200)",
-                        borderRadius: "2px",
-                        overflow: "hidden",
-                      }}
-                    >
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                className="smart-recipes__recipe-card"
+                actions={
+                  <>
+                    <div style={{ marginBottom: "var(--spacing-md)" }}>
                       <div
                         style={{
-                          height: "100%",
-                          width: `${recipe.matchPercentage}%`,
-                          backgroundColor:
-                            recipe.matchPercentage === 100
-                              ? "#4CAF50"
-                              : recipe.matchPercentage >= 50
-                                ? "#FFC107"
-                                : "#FF9800",
-                          transition: "width 0.3s ease",
+                          fontSize: "12px",
+                          color: "var(--gray-600)",
+                          marginBottom: "4px",
                         }}
-                      />
+                      >
+                        Совпадения: {recipe.availableIngredientsCount}/
+                        {recipe.totalIngredientsCount} ингредиентов (
+                        {recipe.matchPercentage}%)
+                      </div>
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "4px",
+                          backgroundColor: "var(--gray-200)",
+                          borderRadius: "2px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <div
+                          style={{
+                            height: "100%",
+                            width: `${recipe.matchPercentage}%`,
+                            backgroundColor:
+                              recipe.matchPercentage === 100
+                                ? "#4CAF50"
+                                : recipe.matchPercentage >= 50
+                                  ? "#FFC107"
+                                  : "#FF9800",
+                            transition: "width 0.3s ease",
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <Button
-                    variant="primary"
-                    style={{ width: "100%", marginTop: "var(--spacing-md)" }}
-                    onClick={() => navigate(`/recipes/${recipe.id}`)}
-                  >
-                    Смотреть рецептцепт
-                  </Button>
-                </CardContent>
-              </Card>
+                    <Button
+                      variant="primary"
+                      style={{ width: "100%", marginTop: "var(--spacing-md)" }}
+                      onClick={() => navigate(`/recipes/${recipe.id}`)}
+                    >
+                      Смотреть рецепт
+                    </Button>
+                  </>
+                }
+                onView={() => navigate(`/recipes/${recipe.id}`)}
+              />
             ))}
           </div>
           {hasMore && (

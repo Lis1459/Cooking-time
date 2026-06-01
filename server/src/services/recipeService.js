@@ -38,6 +38,47 @@ const calculatePopularityScore = ({
   return (favorites * 4 + comments * 6 + views * 1) * freshnessFactor;
 };
 
+const enrichRecipesWithUserMetadata = async (recipes, userId) => {
+  console.log("enrich data: ", userId, " ", recipes.length);
+  if (!userId || !recipes || recipes.length === 0) {
+    return recipes;
+  }
+
+  const recipeIds = recipes.map((recipe) => recipe.id);
+
+  const favoriteRecords = await prisma.favorite.findMany({
+    where: {
+      user_id: userId,
+      recipe_id: { in: recipeIds },
+    },
+    select: { recipe_id: true },
+  });
+
+  const cookHistoryRecords = await prisma.cookHistory.findMany({
+    where: {
+      user_id: userId,
+      recipe_id: { in: recipeIds },
+    },
+    select: {
+      recipe_id: true,
+      status: true,
+    },
+  });
+
+  const favoriteMap = new Map(
+    favoriteRecords.map((record) => [record.recipe_id, true]),
+  );
+  const cookHistoryMap = new Map(
+    cookHistoryRecords.map((record) => [record.recipe_id, record.status]),
+  );
+
+  return recipes.map((recipe) => ({
+    ...recipe,
+    isFavorite: favoriteMap.has(recipe.id),
+    cookMark: cookHistoryMap.get(recipe.id) || null,
+  }));
+};
+
 const getCookingTimeBucket = (cookingTime) => {
   if (cookingTime <= 20) return "very_short";
   if (cookingTime <= 40) return "short";
@@ -325,17 +366,21 @@ export class RecipeService {
   }
 
   async getRecipes(filters, page, limit, userId) {
-    const cacheKey = `recipes:${JSON.stringify(filters)}:${page}:${limit}`;
+    const cacheKey = `recipes:${JSON.stringify(filters)}:${page}:${limit}:${userId || "anon"}`;
     const cached = await safeRedis.get(cacheKey);
     if (cached) {
       console.log("redis detached");
       return JSON.parse(cached);
     }
-    console.log("recipe filters: ", filters);
+    console.log("userId: ", userId);
     const recipes = await recipeRepo.findAll(filters, page, limit, userId);
     const total = await recipeRepo.count(filters);
+    const enrichedRecipes = await enrichRecipesWithUserMetadata(
+      recipes,
+      userId,
+    );
 
-    const result = { recipes, total, page, limit };
+    const result = { recipes: enrichedRecipes, total, page, limit };
     await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
     return result;
   }
@@ -880,7 +925,7 @@ export class RecipeService {
     });
   }
 
-  async getPopularRecipes(limit = 10) {
+  async getPopularRecipes(limit = 10, userId = null) {
     // Refresh dynamic popularity by time before returning top recipes
     await prisma.$executeRaw`
       UPDATE recipes
@@ -891,15 +936,19 @@ export class RecipeService {
       WHERE status = 'PUBLISHED'
     `;
 
-    const cacheKey = "popular_recipes";
+    const cacheKey = `popular_recipes:${userId || "anon"}`;
     const cached = await safeRedis.get(cacheKey);
     if (cached) {
       return JSON.parse(cached);
     }
 
     const recipes = await recipeRepo.getPopular(limit);
-    await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(recipes));
-    return recipes;
+    const enrichedRecipes = await enrichRecipesWithUserMetadata(
+      recipes,
+      userId,
+    );
+    await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(enrichedRecipes));
+    return enrichedRecipes;
   }
 
   async getRecommendedRecipes(userId, limit = 10) {
@@ -1074,8 +1123,8 @@ export class RecipeService {
       .map(({ recipe }) => recipe);
 
     return scoredCandidates.length > 0
-      ? scoredCandidates
-      : this.getPopularRecipes(limit);
+      ? await enrichRecipesWithUserMetadata(scoredCandidates, userId)
+      : await this.getPopularRecipes(limit, userId);
   }
 
   async getAllRecipes(page, limit) {
@@ -1096,6 +1145,17 @@ export class RecipeService {
       return result;
     } catch (err) {
       console.log("Error marking recipe status:", err.message);
+      throw err;
+    }
+  }
+
+  async removeCookStatus(userId, recipeId) {
+    try {
+      const result = await recipeRepo.removeCookHistory(userId, recipeId);
+      await safeRedis.del(`recipe:${recipeId}`);
+      return result;
+    } catch (err) {
+      console.log("Error removing cook status:", err.message);
       throw err;
     }
   }
@@ -1251,8 +1311,13 @@ export class RecipeService {
     return { average: 0, count: 0 };
   }
 
-  async searchByIngredients(ingredientIds, page = 1, limit = 10) {
-    const cacheKey = `recipes:ingredients:${ingredientIds.sort().join(",")}:${page}:${limit}`;
+  async searchByIngredients(
+    ingredientIds,
+    page = 1,
+    limit = 10,
+    userId = null,
+  ) {
+    const cacheKey = `recipes:ingredients:${ingredientIds.sort().join(",")}:${page}:${limit}:${userId || "anon"}`;
     const cached = await safeRedis.get(cacheKey);
     // if (cached) {
     //   return JSON.parse(cached);
@@ -1264,8 +1329,12 @@ export class RecipeService {
       limit,
     );
     const total = await recipeRepo.countByIngredients(ingredientIds);
+    const enrichedRecipes = await enrichRecipesWithUserMetadata(
+      recipes,
+      userId,
+    );
 
-    const result = { recipes, total, page, limit };
+    const result = { recipes: enrichedRecipes, total, page, limit };
     await safeRedis.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
     return result;
   }

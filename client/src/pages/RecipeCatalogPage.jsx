@@ -6,17 +6,10 @@ import {
   useTagsQuery,
   useCuisinesQuery,
 } from "../services/apiService";
-import {
-  Card,
-  CardContent,
-  Button,
-  Input,
-  Badge,
-  Loader,
-} from "../components/ui";
+import { Button, Input, Badge, Loader } from "../components/ui";
 import { FilterModal } from "../components/common/FilterModal";
+import RecipeCard from "../components/common/RecipeCard";
 import "./RecipeCatalog.css";
-import { SOCKET_URL } from "../config/constants";
 
 export const RecipeCatalogPage = () => {
   const navigate = useNavigate();
@@ -315,67 +308,12 @@ export const RecipeCatalogPage = () => {
       {recipes.length > 0 ? (
         <div className="recipe-catalog__recipes-grid">
           {recipes.map((recipe) => (
-            <Card key={recipe.id} className="recipe-catalog__recipe-card">
-              <div className="recipe-image-wrapper">
-                <img
-                  src={`${SOCKET_URL}${recipe.preview_img_url}`}
-                  alt={recipe.title}
-                  className="recipe-catalog__recipe-image"
-                />
-                {/* Status Indicators */}
-                {recipe.isFavorite && (
-                  <div
-                    className="recipe-indicator favorite"
-                    title="В избранном"
-                  >
-                    ❤️
-                  </div>
-                )}
-                {recipe.cookMark === "COOKED" && (
-                  <div className="recipe-indicator cooked" title="Уже готовили">
-                    ✓
-                  </div>
-                )}
-              </div>
-              <CardContent>
-                <h3>{recipe.title}</h3>
-                <p className="recipe-catalog__recipe-description truncate-single-line">
-                  {recipe.description}
-                </p>
-                {(() => {
-                  const avg =
-                    recipe.rating?.average ??
-                    recipe.avgRating ??
-                    recipe.average_rating ??
-                    recipe.averageRating ??
-                    recipe.rating;
-                  return avg ? (
-                    <div
-                      className="recipe-card__rating"
-                      style={{ marginTop: 6 }}
-                    >
-                      ⭐ {typeof avg === "number" ? avg.toFixed(1) : avg}
-                    </div>
-                  ) : null;
-                })()}
-                <div className="recipe-catalog__recipe-meta">
-                  <div className="recipe-catalog__recipe-tags">
-                    <Badge variant="primary">{recipe.difficulty}</Badge>
-                    <Badge variant="success">{recipe.calories} ккал</Badge>
-                  </div>
-                  <span className="recipe-catalog__cooking-time">
-                    ⏱️ {recipe.cooking_time} мин
-                  </span>
-                </div>
-                <Button
-                  variant="primary"
-                  style={{ width: "100%", marginTop: "var(--spacing-md)" }}
-                  onClick={() => navigate(`/recipes/${recipe.id}`)}
-                >
-                  Смотреть рецепт
-                </Button>
-              </CardContent>
-            </Card>
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              onView={() => navigate(`/recipes/${recipe.id}`)}
+              className="recipe-catalog__recipe-card"
+            />
           ))}
           {hasMore && (
             <div ref={sentinelRef} style={{ width: "100%", height: "1px" }} />

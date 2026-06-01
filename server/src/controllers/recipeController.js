@@ -23,7 +23,7 @@ export const getRecipe = async (req, res) => {
 export const getRecipes = async (req, res) => {
   try {
     const { page, limit, ...filters } = req.query;
-    const userId = req.query.userId;
+    const userId = req.query.userId || req.user.id;
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 10;
     const result = await recipeService.getRecipes(
@@ -206,7 +206,7 @@ export const deleteRecipe = async (req, res) => {
 export const getPopularRecipes = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 20;
-    const recipes = await recipeService.getPopularRecipes(limit);
+    const recipes = await recipeService.getPopularRecipes(limit, req.user?.id);
     res.json(recipes);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -478,6 +478,15 @@ export const addToCookHistory = async (req, res) => {
   }
 };
 
+export const removeCookStatus = async (req, res) => {
+  try {
+    await recipeService.removeCookStatus(req.user.id, req.params.id);
+    res.json({ message: "Cook status removed" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const smartSearch = async (req, res) => {
   try {
     const { ingredientIds } = req.query;
@@ -507,7 +516,12 @@ export const smartSearch = async (req, res) => {
         .json({ message: "At least one valid ingredientId is required" });
     }
 
-    const result = await recipeService.searchByIngredients(ids, page, limit);
+    const result = await recipeService.searchByIngredients(
+      ids,
+      page,
+      limit,
+      req.user?.id,
+    );
     res.json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });

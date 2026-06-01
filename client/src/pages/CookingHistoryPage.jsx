@@ -1,19 +1,22 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useRecipesQuery, useMarkRecipeMutation } from "../services/apiService";
-import { Card, CardContent, Button, Loader, Badge } from "../components/ui";
+import {
+  useRecipesQuery,
+  useMarkRecipeMutation,
+  useRemoveCookStatusMutation,
+} from "../services/apiService";
+import { Button, Loader } from "../components/ui";
+import RecipeCard from "../components/common/RecipeCard";
 import "./CookingHistory.css";
-import { SOCKET_URL } from "../config/constants";
 
 export const CookingHistoryPage = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState("cooked");
-  const [recipes, setRecipes] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   const markRecipeMutation = useMarkRecipeMutation();
+  const removeCookStatusMutation = useRemoveCookStatusMutation();
 
   // Fetch recipes with different statuses
   const { data: cookedData, isLoading: cookedLoading } = useRecipesQuery(
@@ -33,15 +36,11 @@ export const CookingHistoryPage = () => {
       { enabled: isAuthenticated && activeTab === "want-to-cook" },
     );
 
-  useEffect(() => {
-    if (activeTab === "cooked") {
-      setRecipes(cookedData?.recipes || []);
-      setIsLoading(cookedLoading);
-    } else {
-      setRecipes(wantToCookData?.recipes || []);
-      setIsLoading(wantToCookLoading);
-    }
-  }, [activeTab, cookedData, cookedLoading, wantToCookData, wantToCookLoading]);
+  const recipes =
+    activeTab === "cooked"
+      ? cookedData?.recipes || []
+      : wantToCookData?.recipes || [];
+  const isLoading = activeTab === "cooked" ? cookedLoading : wantToCookLoading;
 
   const handleMarkAsCooked = async (recipeId) => {
     try {
@@ -49,8 +48,6 @@ export const CookingHistoryPage = () => {
         id: recipeId,
         status: "COOKED",
       });
-      // Remove from want-to-cook list
-      setRecipes(recipes.filter((r) => r.id !== recipeId));
     } catch (error) {
       console.error("Failed to mark as cooked:", error);
     }
@@ -58,12 +55,7 @@ export const CookingHistoryPage = () => {
 
   const handleRemoveFromList = async (recipeId) => {
     try {
-      await markRecipeMutation.mutateAsync({
-        id: recipeId,
-        status: null,
-      });
-      // Remove from list
-      setRecipes(recipes.filter((r) => r.id !== recipeId));
+      await removeCookStatusMutation.mutateAsync(recipeId);
     } catch (error) {
       console.error("Failed to remove from list:", error);
     }
@@ -111,73 +103,41 @@ export const CookingHistoryPage = () => {
       {!isLoading && recipes.length > 0 ? (
         <div className="cooking-history__recipes-grid">
           {recipes.map((recipe) => (
-            <Card key={recipe.id} className="cooking-history__recipe-card">
-              <div className="recipe-image-wrapper">
-                <img
-                  src={`${SOCKET_URL}${recipe.preview_img_url}`}
-                  alt={recipe.title}
-                  className="cooking-history__recipe-image"
-                />
-              </div>
-              <CardContent>
-                <h3>{recipe.title}</h3>
-                <p className="cooking-history__recipe-description truncate-single-line">
-                  {recipe.description}
-                </p>
-                {(() => {
-                  const avg =
-                    recipe.rating?.average ??
-                    recipe.avgRating ??
-                    recipe.average_rating ??
-                    recipe.averageRating ??
-                    recipe.rating;
-                  return avg ? (
-                    <div
-                      className="recipe-card__rating"
-                      style={{ marginTop: 6 }}
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              className="cooking-history__recipe-card"
+              onView={() => navigate(`/recipes/${recipe.id}`)}
+              actions={
+                <>
+                  <div className="cooking-history__actions">
+                    <Button
+                      variant="primary"
+                      style={{ flex: 1 }}
+                      onClick={() => navigate(`/recipes/${recipe.id}`)}
                     >
-                      ⭐ {typeof avg === "number" ? avg.toFixed(1) : avg}
-                    </div>
-                  ) : null;
-                })()}
-                <div className="cooking-history__recipe-meta">
-                  <div className="cooking-history__recipe-tags">
-                    <Badge variant="primary">{recipe.difficulty}</Badge>
-                    <Badge variant="success">{recipe.calories} ккал</Badge>
+                      Просмотр
+                    </Button>
+                    {activeTab === "want-to-cook" && (
+                      <>
+                        <Button
+                          variant="secondary"
+                          onClick={() => handleMarkAsCooked(recipe.id)}
+                        >
+                          Приготовил
+                        </Button>
+                        <Button
+                          variant="danger"
+                          onClick={() => handleRemoveFromList(recipe.id)}
+                        >
+                          Удалить
+                        </Button>
+                      </>
+                    )}
                   </div>
-                  <span className="cooking-history__cooking-time">
-                    ⏱️ {recipe.cooking_time} мин
-                  </span>
-                </div>
-
-                {/* Actions */}
-                <div className="cooking-history__actions">
-                  <Button
-                    variant="primary"
-                    style={{ flex: 1 }}
-                    onClick={() => navigate(`/recipes/${recipe.id}`)}
-                  >
-                    Просмотр
-                  </Button>
-                  {activeTab === "want-to-cook" && (
-                    <>
-                      <Button
-                        variant="secondary"
-                        onClick={() => handleMarkAsCooked(recipe.id)}
-                      >
-                        Приготовил
-                      </Button>
-                      <Button
-                        variant="danger"
-                        onClick={() => handleRemoveFromList(recipe.id)}
-                      >
-                        Удалить
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                </>
+              }
+            />
           ))}
         </div>
       ) : !isLoading && recipes.length === 0 ? (

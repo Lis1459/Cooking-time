@@ -266,6 +266,8 @@ export const useAddToFavoritesMutation = () => {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["recipe", id] });
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      queryClient.invalidateQueries({ queryKey: ["popularRecipes"] });
+      queryClient.invalidateQueries({ queryKey: ["recommendedRecipes"] });
     },
   });
 };
@@ -279,6 +281,8 @@ export const useRemoveFromFavoritesMutation = () => {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["recipe", id] });
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      queryClient.invalidateQueries({ queryKey: ["popularRecipes"] });
+      queryClient.invalidateQueries({ queryKey: ["recommendedRecipes"] });
     },
   });
 };
@@ -287,12 +291,30 @@ export const useMarkRecipeMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, status }) => {
-      console.log("id and status", id, { status });
       const response = await api.post(`/recipes/${id}/cook`, { status });
       return response.data;
     },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["recipe", id] });
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      queryClient.invalidateQueries({ queryKey: ["popularRecipes"] });
+      queryClient.invalidateQueries({ queryKey: ["recommendedRecipes"] });
+    },
+  });
+};
+
+export const useRemoveCookStatusMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id) => {
+      const response = await api.delete(`/recipes/${id}/cook`);
+      return response.data;
+    },
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      queryClient.invalidateQueries({ queryKey: ["recipe", id] });
+      queryClient.invalidateQueries({ queryKey: ["popularRecipes"] });
+      queryClient.invalidateQueries({ queryKey: ["recommendedRecipes"] });
     },
   });
 };

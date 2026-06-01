@@ -15,19 +15,21 @@ import {
   addToFavorites,
   removeFromFavorites,
   markRecipeStatus,
+  removeCookStatus,
   registerRecipeView,
   smartSearch,
 } from "../controllers/recipeController.js";
 import { authenticate } from "../middleware/auth.js";
 import { requireAdmin } from "../middleware/role.js";
 import { uploadRecipeImage } from "../middleware/upload.js";
+import { optionalAuth } from "../middleware/optionalAuth.js";
 
 const router = express.Router();
 
 router.get("/recommendations", authenticate, getRecommendedRecipes);
-router.get("/popular", getPopularRecipes);
-router.get("/smart-search", smartSearch);
-router.get("/", getRecipes);
+router.get("/popular", optionalAuth, getPopularRecipes);
+router.get("/smart-search", authenticate, smartSearch);
+router.get("/", optionalAuth, getRecipes);
 router.get("/my", authenticate, getMyRecipes);
 router.get("/pending", authenticate, requireAdmin, getPendingRecipes);
 router.get("/:id", getRecipe);
@@ -43,5 +45,6 @@ router.post("/:id/favorite", authenticate, addToFavorites);
 router.delete("/:id/favorite", authenticate, removeFromFavorites);
 router.post("/:id/view", registerRecipeView);
 router.post("/:id/cook", authenticate, markRecipeStatus);
+router.delete("/:id/cook", authenticate, removeCookStatus);
 
 export default router;
