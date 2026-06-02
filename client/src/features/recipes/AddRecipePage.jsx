@@ -27,7 +27,7 @@ import {
 import "./RecipeForm.css";
 
 const recipeSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
+  title: z.string().min(3, "Название должно быть хотябы 3 символа"),
   description: z
     .string()
     .min(10, "Описание должно содержать не менее 10 символов"),
@@ -36,6 +36,7 @@ const recipeSchema = z.object({
     .min(1, "Время приготовления должно быть положительным"),
   calories: z.coerce.number().min(0),
   difficulty: z.enum(["VERY_EASY", "EASY", "MEDIUM", "HARD", "VERY_HARD"]),
+  image: z.instanceof(File, "Изображения обязательно для загрузки"),
   ingredients: z.array(
     z.object({
       ingredient_id: z.number().optional(),
@@ -55,11 +56,60 @@ const recipeSchema = z.object({
   cuisines: z.array(z.number()).optional(),
 });
 
+const customStyles = {
+  control: (base, state) => ({
+    ...base,
+    padding: "3px",
+
+    borderRadius: "var(--border-radius-md)",
+    borderColor: state.isFocused ? "var(--primary)" : "var(--gray-200)",
+    boxShadow: state.isFocused ? "0 0 0 3px rgba(239, 68, 68, 0.1)" : "none",
+    "&:hover": {
+      borderColor: state.isFocused ? "var(--primary)" : "var(--gray-400)",
+    },
+    minHeight: "45px",
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "var(--primary)"
+      : state.isFocused
+        ? "var(--gray-100)"
+        : "white",
+    ":active": {
+      backgroundColor: "var(--primary)",
+      color: "white",
+      opacity: 0.8,
+    },
+    color: state.isSelected ? "white" : "var(--gray-900)",
+    cursor: "pointer",
+  }),
+  multiValue: (base) => ({
+    ...base,
+    borderRadius: "3px",
+  }),
+  // multiValueLabel: (base) => ({
+  //   ...base,
+  //   color: "var(--primary)",
+  //   fontSize: "13px",
+  // }),
+  multiValueRemove: (base) => ({
+    ...base,
+    ":hover": {
+      backgroundColor: "rgb(194, 194, 194)",
+    },
+  }),
+  menu: (base) => ({
+    ...base,
+    borderRadius: "var(--border-radius-md)",
+    overflow: "hidden",
+  }),
+};
+
 export const AddRecipePage = () => {
   const navigate = useNavigate();
   // const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [image, setImage] = useState(null);
   const [error, setError] = useState(null);
   const createRecipeMutation = useCreateRecipeMutation();
   const { id } = useParams();
@@ -74,8 +124,6 @@ export const AddRecipePage = () => {
   const { data: categories } = useCategoriesQuery();
   const { data: tags } = useTagsQuery();
   const { data: cuisines } = useCuisinesQuery();
-
-  console.log("image", image);
 
   const { data: ingredients, isLoading: ingredientsLoading } =
     useIngredientsQuery({ status: "Verified" });
@@ -101,6 +149,7 @@ export const AddRecipePage = () => {
   } = useForm({
     resolver: zodResolver(recipeSchema),
     defaultValues: {
+      calories: 0,
       difficulty: "MEDIUM",
       ingredients: [
         {
@@ -113,8 +162,10 @@ export const AddRecipePage = () => {
       steps: [{ description: "", step_number: 1 }],
     },
   });
+  console.log("errors: ", errors);
 
   useEffect(() => {
+    console.log("recipesData ", recipeData);
     if (recipeData) {
       // map recipe data to form fields
       const mapped = {
@@ -123,6 +174,7 @@ export const AddRecipePage = () => {
         cooking_time: recipeData.cooking_time,
         calories: recipeData.calories,
         difficulty: recipeData.difficulty,
+        image: recipeData.image,
         ingredients: (recipeData.ingredients || []).map((ing) => ({
           ingredient_id: ing.ingredient?.id,
           ingredient_name: ing.ingredient?.name,
@@ -142,7 +194,6 @@ export const AddRecipePage = () => {
       reset(mapped);
     }
   }, [recipeData]);
-  console.log(ingredients);
 
   const {
     fields: ingredientFields,
@@ -163,6 +214,7 @@ export const AddRecipePage = () => {
   });
 
   const onSubmit = async (data) => {
+    console.log("Data: ", data);
     try {
       setLoading(true);
       const formData = new FormData();
@@ -173,9 +225,7 @@ export const AddRecipePage = () => {
       formData.append("calories", data.calories);
       formData.append("difficulty", data.difficulty);
 
-      if (image) {
-        formData.append("preview_image", image);
-      }
+      formData.append("preview_image", data.image);
 
       formData.append("ingredients", JSON.stringify(data.ingredients));
       formData.append("steps", JSON.stringify(data.steps));
@@ -232,18 +282,20 @@ export const AddRecipePage = () => {
 
               <div className="form-group">
                 <Label htmlFor="description">Описание *</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Опишите ваш вкусный рецепт..."
-                  rows={4}
-                  {...register("description")}
-                  error={!!errors.description}
-                />
-                {errors.description && (
-                  <span className="error-message">
-                    {errors.description.message}
-                  </span>
-                )}
+                <div>
+                  <Textarea
+                    id="description"
+                    placeholder="Опишите ваш вкусный рецепт..."
+                    rows={4}
+                    {...register("description")}
+                    error={!!errors.description}
+                  />
+                  {errors.description && (
+                    <span className="error-message">
+                      {errors.description.message}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="form-row">
@@ -294,14 +346,23 @@ export const AddRecipePage = () => {
               </div>
 
               <div className="form-group">
-                <Label htmlFor="preview_image">Фото рецепта</Label>
-                <input
-                  id="preview_image"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImage(e.target.files?.[0])}
-                  className="file-input"
+                <Label htmlFor="preview_image">Фото рецепта *</Label>
+                <Controller
+                  name="image"
+                  control={control}
+                  render={({ field }) => (
+                    <input
+                      id="preview_image"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => field.onChange(e.target.files?.[0])}
+                      className="file-input"
+                    />
+                  )}
                 />
+                {errors.image && (
+                  <span className="error-message">{errors.image.message}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -312,6 +373,8 @@ export const AddRecipePage = () => {
                   render={({ field }) => (
                     <CreatableSelect
                       isMulti
+                      styles={customStyles}
+                      placeholder="Выберите категории"
                       options={categoryOptions}
                       value={categoryOptions.filter((o) =>
                         (field.value || []).includes(o.value),
@@ -332,6 +395,8 @@ export const AddRecipePage = () => {
                   render={({ field }) => (
                     <CreatableSelect
                       isMulti
+                      styles={customStyles}
+                      placeholder="Выберите теги"
                       options={tagOptions}
                       value={tagOptions.filter((o) =>
                         (field.value || []).includes(o.value),
@@ -352,6 +417,8 @@ export const AddRecipePage = () => {
                   render={({ field }) => (
                     <CreatableSelect
                       isMulti
+                      styles={customStyles}
+                      placeholder="Выберите кухни"
                       options={cuisineOptions}
                       value={cuisineOptions.filter((o) =>
                         (field.value || []).includes(o.value),
@@ -384,8 +451,7 @@ export const AddRecipePage = () => {
                           control={control}
                           rules={{
                             validate: (value) =>
-                              value?.ingredient_name ||
-                              "Ingredient is required",
+                              value?.ingredient_name || "Ингредиент обязателен",
                           }}
                           render={({ field }) => {
                             const value = field.value || {};
@@ -404,6 +470,7 @@ export const AddRecipePage = () => {
                             return (
                               <>
                                 <CreatableSelect
+                                  styles={customStyles}
                                   options={options}
                                   value={selectedOption}
                                   onChange={(selected) => {
@@ -486,7 +553,7 @@ export const AddRecipePage = () => {
                     ingredient_id: undefined,
                     ingredient_name: "",
                     amount: "",
-                    unit: "g",
+                    unit: "г",
                   })
                 }
                 type="button"
@@ -501,7 +568,7 @@ export const AddRecipePage = () => {
               <div className="array-section">
                 {stepFields.map((field, index) => (
                   <div key={field.id} className="array-item">
-                    <Label>Step {index + 1}</Label>
+                    <Label>Этап {index + 1}</Label>
                     <Textarea
                       placeholder="Опишите этот шаг приготовления..."
                       rows={2}
