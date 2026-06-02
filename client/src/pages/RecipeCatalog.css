@@ -199,3 +199,12 @@
     gap: var(--spacing-lg);
   }
 }
+@media (max-width: 500px) {
+  .recipe-catalog__filters-header {
+    flex-direction: column;
+  }
+
+  .recipe-catalog__filters-button {
+    width: 100%;
+  }
+}

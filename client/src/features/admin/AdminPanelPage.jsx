@@ -46,7 +46,7 @@ export const AdminPanelPage = () => {
   const [hasMore, setHasMore] = useState(false);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
-  const usersLimit = 15;
+  const usersLimit = 20;
   const sentinelRef = useRef(null);
   // Fetch users data
   const { data: usersData = {}, isLoading: usersLoading } = useAllUsersQuery(
