@@ -35,6 +35,7 @@ import { SelectButton } from "../components/ui/selectButton/selectButton";
 import { Dropdown } from "../components/ui/dropdownMenu/DropdownMenu";
 import { SOCKET_URL } from "../config/constants";
 import { toast } from "sonner";
+import { RecipeDifficulty } from "./../utils/recipeConst";
 
 export const RecipeDetailPage = () => {
   const { id } = useParams();
@@ -311,6 +312,20 @@ export const RecipeDetailPage = () => {
           </p>
         </div>
         <div className="recipe-actions">
+          <Button
+            variant={isFavorite ? "primary" : "outline"}
+            onClick={handleAddToFavorites}
+          >
+            {isFavorite ? "❤️ Сохранено" : "🤍 Сохранить"}
+          </Button>
+          <SelectButton
+            value={cookMark}
+            options={[
+              { label: "Хочу приготовить", value: "TO_COOK" },
+              { label: "Приготовлено", value: "COOKED" },
+            ]}
+            onChange={(value) => handleMarkRecipe(value)}
+          />
           <Dropdown
             trigger={
               <button
@@ -383,29 +398,6 @@ export const RecipeDetailPage = () => {
               },
             ]}
           />
-          {/* {isAuthenticated && user?.id !== currentRecipe.author_id && (
-            <Button
-              variant="outline"
-              onClick={() => setReportDialogOpen(true)}
-              title="Пожаловаться на этот рецепт"
-            >
-              ⚠️ Пожаловаться
-            </Button>
-          )} */}
-          <Button
-            variant={isFavorite ? "primary" : "outline"}
-            onClick={handleAddToFavorites}
-          >
-            {isFavorite ? "❤️ Сохранено" : "🤍 Сохранить"}
-          </Button>
-          <SelectButton
-            value={cookMark}
-            options={[
-              { label: "Хочу приготовить", value: "TO_COOK" },
-              { label: "Приготовлено", value: "COOKED" },
-            ]}
-            onChange={(value) => handleMarkRecipe(value)}
-          />
         </div>
       </div>
 
@@ -415,7 +407,9 @@ export const RecipeDetailPage = () => {
           <CardContent>
             <div className="info-item">
               <span className="info-label">Сложность</span>
-              <Badge variant="primary">{currentRecipe.difficulty}</Badge>
+              <Badge variant="primary">
+                {RecipeDifficulty[currentRecipe.difficulty]}
+              </Badge>
             </div>
           </CardContent>
         </Card>

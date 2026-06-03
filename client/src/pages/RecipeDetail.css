@@ -52,8 +52,8 @@
 .action-menu-trigger {
   width: 44px;
   height: 44px;
-  border: 1px solid var(--gray-300);
-  background: white;
+  /* border: 1px solid var(--gray-300); */
+  /* background: white; */
   border-radius: 50%;
   cursor: pointer;
   font-size: 24px;

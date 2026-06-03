@@ -75,7 +75,7 @@
 .my-recipes-page__recipe-description {
   color: var(--gray-600);
   font-size: 14px;
-  margin: 0 0 var(--spacing-md) 0;
+  /* margin: 0 0 var(--spacing-md) 0; */
   line-height: 1.5;
 }
 
@@ -83,7 +83,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-lg);
+  margin-top: var(--spacing-md);
 }
 
 .my-recipes-page__recipe-tags {
@@ -93,7 +93,7 @@
 }
 
 .my-recipes-page__cooking-time {
-  font-size: 13px;
+  font-size: 0.95rem;
   color: var(--gray-600);
 }
 
@@ -120,8 +120,8 @@
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  border: 1px solid var(--gray-300);
-  background: white;
+  /* border: 1px solid var(--gray-300); */
+  /* background: white; */
   font-size: 1.5rem;
   cursor: pointer;
   transition: var(--transition);

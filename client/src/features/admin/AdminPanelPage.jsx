@@ -288,7 +288,7 @@ export const AdminPanelPage = () => {
 
   return (
     <div className="admin-panel">
-      <h1>Административная панель</h1>
+      <h1>Панель администратора</h1>
 
       {/* Tab Navigation */}
       <div className="tab-navigation">
@@ -573,8 +573,8 @@ export const AdminPanelPage = () => {
                       <div className="report-info">
                         <p className="report-reason">{report.reason}</p>
                         <p className="report-meta">
-                          Сообщил: <strong>{report.user?.name}</strong> |
-                          <Badge variant="warning">{report.status}</Badge>
+                          Сообщил: <strong>{report.user?.name}</strong>
+                          {/* <Badge variant="warning">{report.status}</Badge> */}
                         </p>
                       </div>
                       <div className="report-actions">

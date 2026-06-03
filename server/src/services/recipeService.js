@@ -40,30 +40,43 @@ const calculatePopularityScore = ({
 
 const enrichRecipesWithUserMetadata = async (recipes, userId) => {
   console.log("enrich data: ", userId, " ", recipes.length);
-  if (!userId || !recipes || recipes.length === 0) {
+  if (!recipes || recipes.length === 0) {
     return recipes;
   }
 
   const recipeIds = recipes.map((recipe) => recipe.id);
 
-  const favoriteRecords = await prisma.favorite.findMany({
-    where: {
-      user_id: userId,
-      recipe_id: { in: recipeIds },
-    },
-    select: { recipe_id: true },
-  });
-
-  const cookHistoryRecords = await prisma.cookHistory.findMany({
-    where: {
-      user_id: userId,
-      recipe_id: { in: recipeIds },
-    },
-    select: {
-      recipe_id: true,
-      status: true,
-    },
-  });
+  const [favoriteRecords, cookHistoryRecords, ratingGroups] = await Promise.all(
+    [
+      userId
+        ? prisma.favorite.findMany({
+            where: {
+              user_id: userId,
+              recipe_id: { in: recipeIds },
+            },
+            select: { recipe_id: true },
+          })
+        : Promise.resolve([]),
+      userId
+        ? prisma.cookHistory.findMany({
+            where: {
+              user_id: userId,
+              recipe_id: { in: recipeIds },
+            },
+            select: {
+              recipe_id: true,
+              status: true,
+            },
+          })
+        : Promise.resolve([]),
+      prisma.rating.groupBy({
+        by: ["recipe_id"],
+        where: { recipe_id: { in: recipeIds } },
+        _avg: { rating: true },
+        _count: { rating: true },
+      }),
+    ],
+  );
 
   const favoriteMap = new Map(
     favoriteRecords.map((record) => [record.recipe_id, true]),
@@ -71,11 +84,21 @@ const enrichRecipesWithUserMetadata = async (recipes, userId) => {
   const cookHistoryMap = new Map(
     cookHistoryRecords.map((record) => [record.recipe_id, record.status]),
   );
+  const ratingMap = new Map(
+    ratingGroups.map((group) => [
+      group.recipe_id,
+      {
+        average: group._avg.rating ?? 0,
+        total: group._count.rating,
+      },
+    ]),
+  );
 
   return recipes.map((recipe) => ({
     ...recipe,
     isFavorite: favoriteMap.has(recipe.id),
     cookMark: cookHistoryMap.get(recipe.id) || null,
+    rating: ratingMap.get(recipe.id) || { average: 0, total: 0 },
   }));
 };
 

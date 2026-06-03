@@ -87,8 +87,8 @@ export const MyRecipesPage = () => {
                 setPage(1);
               }}
             >
-              <option value={6}>6</option>
-              <option value={12}>12</option>
+              <option value={8}>8</option>
+              <option value={16}>16</option>
               <option value={24}>24</option>
             </select>
           </label>
@@ -105,25 +105,20 @@ export const MyRecipesPage = () => {
                 className="my-recipes-page__recipe-image"
               />
               <CardContent>
-                <h3>{recipe.title}</h3>
+                <h3 className="truncate-single-line">{recipe.title}</h3>
                 <p className="my-recipes-page__recipe-description truncate-single-line">
                   {recipe.description}
                 </p>
                 {(() => {
-                  const avg =
-                    recipe.rating?.average ??
-                    recipe.avgRating ??
-                    recipe.average_rating ??
-                    recipe.averageRating ??
-                    recipe.rating;
+                  const avg = recipe.rating?.average;
+
                   return avg ? (
-                    <div
-                      className="recipe-card__rating"
-                      style={{ marginTop: 6 }}
-                    >
+                    <div className="recipe-card__rating">
                       ⭐ {typeof avg === "number" ? avg.toFixed(1) : avg}
                     </div>
-                  ) : null;
+                  ) : (
+                    <div className="recipe-card__rating">Нет оценок</div>
+                  );
                 })()}
                 <div className="my-recipes-page__recipe-meta">
                   <div className="my-recipes-page__recipe-tags">

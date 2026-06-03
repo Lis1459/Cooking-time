@@ -20,9 +20,9 @@ button {
   border-radius: 8px;
 
   background: white;
-  color: var(--red-11);
+  color: var(--primary);
 
-  border: 1px solid var(--red-6);
+  border: 1px solid var(--primary);
 
   box-shadow: 0 2px 8px var(--black-a6);
 
@@ -33,17 +33,22 @@ button {
 }
 
 .SelectTrigger:hover {
-  background: var(--red-2);
-  border-color: var(--red-7);
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary-dark);
 }
 
 .SelectTrigger:focus {
   box-shadow: 0 0 0 2px var(--red-7);
 }
 
-.SelectTrigger[data-placeholder] {
-  color: var(--red-8);
+/* .SelectTrigger[data-placeholder] {
+  color: var(--primary);
 }
+
+.SelectTrigger[data-placeholder] {
+  color: var(--primary);
+} */
 
 .SelectIcon {
   color: var(--red-10);

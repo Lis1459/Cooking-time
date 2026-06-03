@@ -8,6 +8,7 @@ import { setNavigate } from "../../services/navigation";
 import { setLogout } from "../../services/authService";
 import { Dropdown } from "./../ui/dropdownMenu/DropdownMenu";
 import { truncateText } from "../../utils/formatters";
+import LogoIcon from "../../assets/icons/LogoIcon";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -38,7 +39,9 @@ export const Header = () => {
     <header className="header">
       <div className="header-container">
         <Link to="/" className="logo">
-          <span className="logo-text">🍳 Cooking Time</span>
+          <span className="logo-text">
+            <LogoIcon /> Cooking Time
+          </span>
         </Link>
 
         <nav className={`nav ${mobileMenuOpen ? "active" : ""}`}>

@@ -5,12 +5,7 @@ import "./RecipeCard.css";
 import { RecipeDifficulty } from "../../utils/recipeConst";
 
 const getRecipeRating = (recipe) => {
-  const avg =
-    recipe.rating?.average ??
-    recipe.avgRating ??
-    recipe.average_rating ??
-    recipe.averageRating ??
-    recipe.rating;
+  const avg = recipe.rating?.average;
   return avg;
 };
 
@@ -24,6 +19,7 @@ export const RecipeCard = ({
   showIndicators = true,
 }) => {
   const rating = useMemo(() => getRecipeRating(recipe), [recipe]);
+  console.log("recipe: ", recipe);
 
   return (
     <Card className={`recipe-card ${className}`.trim()}>
@@ -48,7 +44,7 @@ export const RecipeCard = ({
       )}
 
       <CardContent>
-        <h3>{recipe.title}</h3>
+        <h3 className="truncate-single-line">{recipe.title}</h3>
         {recipe.description && (
           <p className="recipe-card__description truncate-single-line">
             {recipe.description}
@@ -59,7 +55,9 @@ export const RecipeCard = ({
           <div className="recipe-card__rating">
             ⭐ {typeof rating === "number" ? rating.toFixed(1) : rating}
           </div>
-        ) : null}
+        ) : (
+          <div className="recipe-card__rating">Нет оценок</div>
+        )}
 
         <div className="recipe-card__meta">
           <div className="recipe-card__badges">

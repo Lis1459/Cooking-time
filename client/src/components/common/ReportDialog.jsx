@@ -48,7 +48,7 @@ export const ReportDialog = ({ isOpen, onClose, targetType, targetId }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Пожаловаться на ${targetType}`}
+      title={`Пожаловаться на ${TartgetTypeList[targetType]}`}
       footer={
         <div className="report-dialog-actions">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
