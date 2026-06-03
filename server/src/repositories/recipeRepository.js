@@ -348,6 +348,12 @@ export class RecipeRepository {
     });
   }
 
+  async countByUserId(userId) {
+    return prisma.recipe.count({
+      where: { author_id: userId },
+    });
+  }
+
   // async markAsCooked(userId, recipeId) {
   //   console.log("Marked as cooked");
   //   return prisma.cookHistory.create({

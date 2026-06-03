@@ -46,7 +46,7 @@ export const RecipeDetailPage = () => {
   const { data: currentRecipe, isLoading } = useRecipeQuery(id, userId);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const limit = 3;
+  const limit = 5;
 
   const {
     data: commentsData,
@@ -291,113 +291,117 @@ export const RecipeDetailPage = () => {
       <div className="recipe-header">
         <div>
           <h1>{currentRecipe.title}</h1>
-          {avgRatingData && (
-            <div style={{ marginTop: "6px" }} className="recipe-card__rating">
-              ⭐{" "}
-              {typeof avgRatingData.average === "number"
-                ? avgRatingData.average.toFixed(1)
-                : avgRatingData.average}
-              {avgRatingData.total ? ` (${avgRatingData.total})` : ""}
-            </div>
-          )}
-          <p className="recipe-author">
-            Автор:{" "}
-            {currentRecipe.author?.name ? (
-              <Link to={`/profile/${currentRecipe.author_id}`}>
-                {currentRecipe.author.name}
-              </Link>
-            ) : (
-              "Неизвестен"
-            )}
-          </p>
         </div>
-        <div className="recipe-actions">
-          <Button
-            variant={isFavorite ? "primary" : "outline"}
-            onClick={handleAddToFavorites}
-          >
-            {isFavorite ? "❤️ Сохранено" : "🤍 Сохранить"}
-          </Button>
-          <SelectButton
-            value={cookMark}
-            options={[
-              { label: "Хочу приготовить", value: "TO_COOK" },
-              { label: "Приготовлено", value: "COOKED" },
-            ]}
-            onChange={(value) => handleMarkRecipe(value)}
-          />
-          <Dropdown
-            trigger={
-              <button
-                type="button"
-                className="action-menu-trigger"
-                aria-label="Дополнительные действия"
-              >
-                ⋮
-              </button>
-            }
-            items={[
-              ...(canManage
-                ? [
-                    {
-                      label: "Редактировать",
-                      icon: "✏️",
-                      onClick: () => navigate(`/edit-recipe/${id}`),
-                    },
-                    {
-                      label: "Удалить",
-                      icon: "🗑️",
-                      onClick: () => setDeleteModalOpen(true),
-                      variant: "danger",
-                    },
-                    {
-                      label:
-                        currentRecipe.status === "HIDDEN"
-                          ? "Показать"
-                          : "Скрыть",
-                      icon: "👁️",
-                      onClick: () => setHideModalOpen(true),
-                    },
-                    { separator: true },
-                  ]
-                : []),
-              ...(isAuthenticated && user?.id !== currentRecipe.author_id
-                ? [
-                    {
-                      label: "Пожаловаться",
-                      icon: "⚠️",
-                      onClick: () => setReportDialogOpen(true),
-                    },
-                    { separator: true },
-                  ]
-                : []),
-              {
-                label: "Скопировать ссылку",
-                icon: "🔗",
-                onClick: handleCopyLink,
-              },
-              {
-                label: "Telegram",
-                icon: "✈️",
-                onClick: handleShareTelegram,
-              },
-              {
-                label: "WhatsApp",
-                icon: "💬",
-                onClick: handleShareWhatsApp,
-              },
-              {
-                label: "Viber",
-                icon: "📱",
-                onClick: handleShareViber,
-              },
-              {
-                label: "Instagram",
-                icon: "📸",
-                onClick: handleShareInstagram,
-              },
-            ]}
-          />
+        <div className="recipe-underheader">
+          <div>
+            {avgRatingData && (
+              <div style={{ marginTop: "6px" }} className="recipe-card__rating">
+                ⭐{" "}
+                {typeof avgRatingData.average === "number"
+                  ? avgRatingData.average.toFixed(1)
+                  : avgRatingData.average}
+                {avgRatingData.total ? ` (${avgRatingData.total})` : ""}
+              </div>
+            )}
+            <p className="recipe-author">
+              Автор:{" "}
+              {currentRecipe.author?.name ? (
+                <Link to={`/profile/${currentRecipe.author_id}`}>
+                  {currentRecipe.author.name}
+                </Link>
+              ) : (
+                "Неизвестен"
+              )}
+            </p>
+          </div>
+          <div className="recipe-actions">
+            <Button
+              variant={isFavorite ? "primary" : "outline"}
+              onClick={handleAddToFavorites}
+            >
+              {isFavorite ? "❤️ Сохранено" : "🤍 Сохранить"}
+            </Button>
+            <SelectButton
+              value={cookMark}
+              options={[
+                { label: "Хочу приготовить", value: "TO_COOK" },
+                { label: "Приготовлено", value: "COOKED" },
+              ]}
+              onChange={(value) => handleMarkRecipe(value)}
+            />
+            <Dropdown
+              trigger={
+                <button
+                  type="button"
+                  className="action-menu-trigger"
+                  aria-label="Дополнительные действия"
+                >
+                  ⋮
+                </button>
+              }
+              items={[
+                ...(canManage
+                  ? [
+                      {
+                        label: "Редактировать",
+                        icon: "✏️",
+                        onClick: () => navigate(`/edit-recipe/${id}`),
+                      },
+                      {
+                        label: "Удалить",
+                        icon: "🗑️",
+                        onClick: () => setDeleteModalOpen(true),
+                        variant: "danger",
+                      },
+                      {
+                        label:
+                          currentRecipe.status === "HIDDEN"
+                            ? "Показать"
+                            : "Скрыть",
+                        icon: "👁️",
+                        onClick: () => setHideModalOpen(true),
+                      },
+                      { separator: true },
+                    ]
+                  : []),
+                ...(isAuthenticated && user?.id !== currentRecipe.author_id
+                  ? [
+                      {
+                        label: "Пожаловаться",
+                        icon: "⚠️",
+                        onClick: () => setReportDialogOpen(true),
+                      },
+                      { separator: true },
+                    ]
+                  : []),
+                {
+                  label: "Скопировать ссылку",
+                  icon: "🔗",
+                  onClick: handleCopyLink,
+                },
+                {
+                  label: "Telegram",
+                  icon: "✈️",
+                  onClick: handleShareTelegram,
+                },
+                {
+                  label: "WhatsApp",
+                  icon: "💬",
+                  onClick: handleShareWhatsApp,
+                },
+                {
+                  label: "Viber",
+                  icon: "📱",
+                  onClick: handleShareViber,
+                },
+                {
+                  label: "Instagram",
+                  icon: "📸",
+                  onClick: handleShareInstagram,
+                },
+              ]}
+            />
+          </div>
         </div>
       </div>
 

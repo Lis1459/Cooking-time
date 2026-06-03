@@ -90,14 +90,16 @@ describe("RecipeService", () => {
   });
 
   describe("getRecipesByUser", () => {
-    it("should return recipes by user", async () => {
+    it("should return recipes by user with total count", async () => {
       const recipes = [{ id: "1", title: "User Recipe" }];
       mockRecipeRepo.findByUserId.mockResolvedValue(recipes);
+      mockRecipeRepo.countByUserId.mockResolvedValue(3);
 
       const result = await recipeService.getRecipesByUser("1", 1, 10);
 
       expect(mockRecipeRepo.findByUserId).toHaveBeenCalledWith("1", 1, 10);
-      expect(result).toBe(recipes);
+      expect(mockRecipeRepo.countByUserId).toHaveBeenCalledWith("1");
+      expect(result).toEqual({ recipes, total: 3, page: 1, limit: 10 });
     });
   });
 

@@ -7,7 +7,7 @@ export default {
   testMatch: ["**/tests/**/*.test.js"],
   collectCoverageFrom: ["src/**/*.js", "!src/server.js", "!src/tests/**"],
   setupFilesAfterEnv: ["<rootDir>/src/tests/setup.js"],
-  transformIgnorePatterns: ["node_modules/(?!(supertest)/)", "generated/"],
+  transformIgnorePatterns: ["node_modules/(?!(supertest)/)"],
   moduleNameMapper: {
     "^../config/database.js$": "<rootDir>/src/tests/setup.js",
   },

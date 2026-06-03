@@ -131,6 +131,7 @@ jest.mock("../repositories/recipeRepository.js", () => {
     delete: jest.fn(),
     findAll: jest.fn(),
     findByUserId: jest.fn(),
+    countByUserId: jest.fn(),
     search: jest.fn(),
     findByCategory: jest.fn(),
     findByCuisine: jest.fn(),

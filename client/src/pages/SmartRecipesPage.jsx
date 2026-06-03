@@ -26,6 +26,7 @@ export const SmartRecipesPage = () => {
   const [totalRecipes, setTotalRecipes] = useState(0);
   const [ingredientInput, setIngredientInput] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isNew, setIsNew] = useState(true);
   const searchInput = useRef();
   const sentinelRef = useRef(null);
   const isRestoring = useRef(true);
@@ -93,7 +94,7 @@ export const SmartRecipesPage = () => {
       const data = await ingredientService.getIngredients();
       setAvailableIngredients(data || []);
     } catch (error) {
-      console.error("Failed to fetch ingredients:", error);
+      console.error("Не удалось загрузить ингредиенты: ", error);
     }
   };
 
@@ -151,6 +152,7 @@ export const SmartRecipesPage = () => {
     setMatchedRecipes([]);
     setTotalRecipes(0);
     setHasMore(false);
+    setIsNew(false);
 
     await fetchRecipes(1);
   };
@@ -276,7 +278,7 @@ export const SmartRecipesPage = () => {
                 className="smart-recipes__recipe-card"
                 actions={
                   <>
-                    <div style={{ marginBottom: "var(--spacing-md)" }}>
+                    <div style={{ marginTop: "var(--spacing-md)" }}>
                       <div
                         style={{
                           fontSize: "12px",
@@ -342,14 +344,17 @@ export const SmartRecipesPage = () => {
         </div>
       )}
 
-      {!loading && matchedRecipes.length === 0 && ingredients.length > 0 && (
-        <div className="smart-recipes__no-results">
-          <p>Рецепты с этими ингредиентами не найдены. Попробуйте другие!</p>
-          <Button variant="outline" onClick={() => navigate("/recipes")}>
-            Просмотреть все рецепты
-          </Button>
-        </div>
-      )}
+      {!loading &&
+        matchedRecipes.length === 0 &&
+        ingredients.length > 0 &&
+        !isNew && (
+          <div className="smart-recipes__no-results">
+            <p>Рецепты с этими ингредиентами не найдены. Попробуйте другие!</p>
+            <Button variant="outline" onClick={() => navigate("/recipes")}>
+              Просмотреть все рецепты
+            </Button>
+          </div>
+        )}
     </div>
   );
 };
