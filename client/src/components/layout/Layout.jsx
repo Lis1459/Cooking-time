@@ -21,7 +21,7 @@ export const Layout = ({ children }) => {
                 <a href="/recipes">Рецепты</a>
               </li>
               <li>
-                <a href="/categories">Категории</a>
+                <a href="/smart-recipes">Умный поиск</a>
               </li>
               <li>
                 <a href="/about">О нас</a>

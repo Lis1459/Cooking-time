@@ -267,7 +267,7 @@ export const AddRecipePage = () => {
       }
       navigate(`/recipes/${response.id || (id ? id : response.id)}`);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create recipe");
+      setError(err.response?.data?.message || "Не удалось создать рецепт");
     } finally {
       setLoading(false);
     }
@@ -626,7 +626,7 @@ export const AddRecipePage = () => {
 
             {/* Submit Buttons */}
             <div className="form-actions">
-              <Button variant="primary" type="submit" disabled={loading}>
+              <Button variant="success" type="submit" disabled={loading}>
                 {loading
                   ? id
                     ? "Сохранение..."

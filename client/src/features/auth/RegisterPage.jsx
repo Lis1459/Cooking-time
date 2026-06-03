@@ -13,6 +13,7 @@ import {
   CardContent,
   Label,
   Alert,
+  PasswordToggle,
 } from "../../components/ui";
 import "./Auth.css";
 
@@ -102,7 +103,7 @@ export const RegisterPage = () => {
 
             <div className="form-group">
               <Label htmlFor="password">Пароль</Label>
-              <Input
+              <PasswordToggle
                 id="password"
                 type="password"
                 placeholder="••••••••"
@@ -115,8 +116,8 @@ export const RegisterPage = () => {
             </div>
 
             <div className="form-group">
-              <Label htmlFor="confirmPassword">Подтвердите парольль</Label>
-              <Input
+              <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
+              <PasswordToggle
                 id="confirmPassword"
                 type="password"
                 placeholder="••••••••"
@@ -136,7 +137,7 @@ export const RegisterPage = () => {
               disabled={loading}
               style={{ width: "100%" }}
             >
-              {loading ? "Создание аккаунта..." : "Создать аккаунтнт"}
+              {loading ? "Создание аккаунта..." : "Создать аккаунт"}
             </Button>
           </form>
 

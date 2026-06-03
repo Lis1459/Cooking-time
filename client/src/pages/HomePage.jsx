@@ -130,7 +130,7 @@ export const HomePage = () => {
               Зарегистрироваться бесплатно
             </Button>
             <Button
-              variant="outline"
+              variant="secondary"
               size="lg"
               onClick={() => navigate("/recipes")}
             >
