@@ -56,6 +56,7 @@
   width: 100%;
   border-collapse: collapse;
   min-width: 600px;
+  table-layout: fixed;
 }
 
 .users-table thead {
@@ -77,11 +78,37 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+}
+
+.users-table th:nth-child(1),
+.users-table td:nth-child(1) {
+  width: 220px;
+}
+
+.users-table th:nth-child(2),
+.users-table td:nth-child(2) {
+  width: 320px;
+}
+
+.users-table th:nth-child(3),
+.users-table td:nth-child(3) {
+  width: 140px;
+}
+
+.users-table th:nth-child(4),
+.users-table td:nth-child(4) {
+  width: 160px;
 }
 
 .profile-link {
   color: var(--primary);
   text-decoration: none;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .profile-link:hover {
