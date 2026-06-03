@@ -44,7 +44,7 @@
 /* Recipes Grid */
 .cooking-history__recipes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: var(--spacing-xl);
   margin-bottom: var(--spacing-2xl);
 }
@@ -126,7 +126,7 @@
 .cooking-history__actions {
   display: flex;
   gap: var(--spacing-md);
-  margin-top: auto;
+  margin-top: var(--spacing-md);
   flex-wrap: wrap;
 }
 
@@ -174,7 +174,7 @@
   }
 
   .cooking-history__recipes-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    /* grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); */
     gap: var(--spacing-md);
   }
 
