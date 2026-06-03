@@ -39,6 +39,8 @@ import { SOCKET_URL } from "../../config/constants";
 import { ReportModal } from "../../components/common/ReportModal";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import "./AdminPanel.css";
+import { Link } from "react-router-dom";
+import { RecipeChanges } from "../../utils/recipeConst";
 
 export const AdminPanelPage = () => {
   const [page, setPage] = useState(1);
@@ -361,7 +363,18 @@ export const AdminPanelPage = () => {
                       <tbody>
                         {users.map((user) => (
                           <tr key={user.id}>
-                            <td>{user.profile?.name}</td>
+                            <td>
+                              {user.profile?.name ? (
+                                <Link
+                                  to={`/profile/${user.id}`}
+                                  className="profile-link"
+                                >
+                                  {user.profile.name}
+                                </Link>
+                              ) : (
+                                "—"
+                              )}
+                            </td>
                             <td>{user.email}</td>
                             <td>
                               <Badge
@@ -462,12 +475,12 @@ export const AdminPanelPage = () => {
                             <span className="pending-recipe-time">
                               ⏱ {recipe.cooking_time} мин
                             </span>
-                            <Badge
+                            {/* <Badge
                               variant={isEditPending ? "secondary" : "warning"}
                               style={{ marginLeft: "var(--spacing-sm)" }}
                             >
                               {pendingLabel}
-                            </Badge>
+                            </Badge> */}
                           </div>
 
                           {isEditPending && draftEditor && (
@@ -479,7 +492,11 @@ export const AdminPanelPage = () => {
                           {draftChanges.length > 0 && (
                             <p className="pending-recipe-new">
                               🔧 Изменения:{" "}
-                              <strong>{draftChanges.join(", ")}</strong>
+                              <strong>
+                                {draftChanges
+                                  .map((draft) => RecipeChanges[draft])
+                                  .join(", ")}
+                              </strong>
                             </p>
                           )}
 

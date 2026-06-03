@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { setNavigate } from "../../services/navigation";
 import { setLogout } from "../../services/authService";
 import { Dropdown } from "./../ui/dropdownMenu/DropdownMenu";
+import { truncateText } from "../../utils/formatters";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -114,7 +115,7 @@ export const Header = () => {
                     className="user-button"
                     onClick={() => setUserMobileMenuOpen(!userMobileMenuOpen)}
                   >
-                    {user?.name || "Пользователь"}
+                    {truncateText(user?.name, 15) || "Пользователь"}
                   </button>
                 }
                 items={[

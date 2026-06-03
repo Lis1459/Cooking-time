@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Card, CardContent, Badge, Button } from "../ui";
 import { SOCKET_URL } from "../../config/constants";
 import "./RecipeCard.css";
+import { RecipeDifficulty } from "../../utils/recipeConst";
 
 const getRecipeRating = (recipe) => {
   const avg =
@@ -62,7 +63,9 @@ export const RecipeCard = ({
 
         <div className="recipe-card__meta">
           <div className="recipe-card__badges">
-            <Badge variant="primary">{recipe.difficulty}</Badge>
+            <Badge variant="primary">
+              {RecipeDifficulty[recipe.difficulty]}
+            </Badge>
             {recipe.calories != null && (
               <Badge variant="success">{recipe.calories} ккал</Badge>
             )}

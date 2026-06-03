@@ -99,14 +99,36 @@
 
 .my-recipes-page__actions {
   display: flex;
+  flex-direction: row;
   gap: var(--spacing-md);
-  flex-wrap: wrap;
+  align-items: center;
 }
 
-.my-recipes-page__actions button {
-  flex: 1 1 calc(50% - var(--spacing-md) / 2);
-  min-width: 100px;
+.my-recipes-page__actions button,
+.my-recipes-page__actions .recipe-actions-trigger {
+  width: 100%;
+  min-width: 44px;
+  padding: 0.75rem 1rem;
   margin-top: var(--spacing-md);
+}
+
+.my-recipes-page__actions .recipe-actions-trigger {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--gray-300);
+  background: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.my-recipes-page__actions .recipe-actions-trigger:hover {
+  background: var(--gray-100);
 }
 
 .my-recipes-page__empty-state {

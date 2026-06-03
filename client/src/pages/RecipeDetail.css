@@ -46,6 +46,32 @@
   gap: var(--spacing-lg);
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
+}
+
+.action-menu-trigger {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--gray-300);
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.action-menu-trigger:hover {
+  background: var(--gray-100);
+}
+
+.copy-success {
+  color: var(--success);
+  font-size: 0.9rem;
+  margin-right: var(--spacing-md);
 }
 
 .recipe-info-cards {

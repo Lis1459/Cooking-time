@@ -79,6 +79,15 @@
   white-space: nowrap;
 }
 
+.profile-link {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.profile-link:hover {
+  text-decoration: underline;
+}
+
 .users-table tbody tr:hover {
   background-color: var(--gray-50);
 }

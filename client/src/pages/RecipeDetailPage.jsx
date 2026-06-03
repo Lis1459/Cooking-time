@@ -32,7 +32,9 @@ import { ReportDialog } from "../components/common/ReportDialog";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import "./RecipeDetail.css";
 import { SelectButton } from "../components/ui/selectButton/selectButton";
+import { Dropdown } from "../components/ui/dropdownMenu/DropdownMenu";
 import { SOCKET_URL } from "../config/constants";
+import { toast } from "sonner";
 
 export const RecipeDetailPage = () => {
   const { id } = useParams();
@@ -88,6 +90,8 @@ export const RecipeDetailPage = () => {
   );
 
   const isAdmin = user?.role === "ADMIN";
+  const isOwner = user?.id === currentRecipe?.author_id;
+  const canManage = isAdmin || isOwner;
 
   useEffect(() => {
     if (currentRecipe) {
@@ -181,6 +185,44 @@ export const RecipeDetailPage = () => {
     }
   };
 
+  const recipeUrl = `${window.location.origin}/recipes/${id}`;
+  const shareText = encodeURIComponent(
+    `Посмотрите этот рецепт "${currentRecipe?.title || "рецепт"}" на Cooking Time: ${recipeUrl}`,
+  );
+
+  const openShareLink = (url) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(recipeUrl);
+      toast.success("Ссылка скопирована!");
+    } catch (err) {
+      console.error("Failed to copy recipe link:", err);
+    }
+  };
+
+  const handleShareTelegram = () => {
+    openShareLink(
+      `https://t.me/share/url?url=${encodeURIComponent(recipeUrl)}&text=${shareText}`,
+    );
+  };
+
+  const handleShareWhatsApp = () => {
+    openShareLink(`https://api.whatsapp.com/send?text=${shareText}`);
+  };
+
+  const handleShareViber = () => {
+    openShareLink(`viber://forward?text=${shareText}`);
+  };
+
+  const handleShareInstagram = () => {
+    openShareLink(
+      `https://www.instagram.com/?url=${encodeURIComponent(recipeUrl)}`,
+    );
+  };
+
   const handleAddToFavorites = async () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -269,33 +311,79 @@ export const RecipeDetailPage = () => {
           </p>
         </div>
         <div className="recipe-actions">
-          {(user?.id === currentRecipe.author_id || isAdmin) && (
-            <Button
-              variant="outline"
-              onClick={() => navigate(`/edit-recipe/${id}`)}
-            >
-              Редактировать
-            </Button>
-          )}
-          {(isAdmin || user?.id === currentRecipe.author_id) && (
-            <>
-              <Button
-                variant="danger"
-                onClick={() => setDeleteModalOpen(true)}
-                disabled={deleteRecipeMutation.isLoading}
+          <Dropdown
+            trigger={
+              <button
+                type="button"
+                className="action-menu-trigger"
+                aria-label="Дополнительные действия"
               >
-                Удалить
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setHideModalOpen(true)}
-                disabled={updateRecipeMutation.isLoading}
-              >
-                {currentRecipe.status === "HIDDEN" ? "Показать" : "Скрыть"}
-              </Button>
-            </>
-          )}
-          {isAuthenticated && user?.id !== currentRecipe.author_id && (
+                ⋮
+              </button>
+            }
+            items={[
+              ...(canManage
+                ? [
+                    {
+                      label: "Редактировать",
+                      icon: "✏️",
+                      onClick: () => navigate(`/edit-recipe/${id}`),
+                    },
+                    {
+                      label: "Удалить",
+                      icon: "🗑️",
+                      onClick: () => setDeleteModalOpen(true),
+                      variant: "danger",
+                    },
+                    {
+                      label:
+                        currentRecipe.status === "HIDDEN"
+                          ? "Показать"
+                          : "Скрыть",
+                      icon: "👁️",
+                      onClick: () => setHideModalOpen(true),
+                    },
+                    { separator: true },
+                  ]
+                : []),
+              ...(isAuthenticated && user?.id !== currentRecipe.author_id
+                ? [
+                    {
+                      label: "Пожаловаться",
+                      icon: "⚠️",
+                      onClick: () => setReportDialogOpen(true),
+                    },
+                    { separator: true },
+                  ]
+                : []),
+              {
+                label: "Скопировать ссылку",
+                icon: "🔗",
+                onClick: handleCopyLink,
+              },
+              {
+                label: "Telegram",
+                icon: "✈️",
+                onClick: handleShareTelegram,
+              },
+              {
+                label: "WhatsApp",
+                icon: "💬",
+                onClick: handleShareWhatsApp,
+              },
+              {
+                label: "Viber",
+                icon: "📱",
+                onClick: handleShareViber,
+              },
+              {
+                label: "Instagram",
+                icon: "📸",
+                onClick: handleShareInstagram,
+              },
+            ]}
+          />
+          {/* {isAuthenticated && user?.id !== currentRecipe.author_id && (
             <Button
               variant="outline"
               onClick={() => setReportDialogOpen(true)}
@@ -303,16 +391,13 @@ export const RecipeDetailPage = () => {
             >
               ⚠️ Пожаловаться
             </Button>
-          )}
+          )} */}
           <Button
             variant={isFavorite ? "primary" : "outline"}
             onClick={handleAddToFavorites}
           >
             {isFavorite ? "❤️ Сохранено" : "🤍 Сохранить"}
           </Button>
-          {/* <Button variant="primary" onClick={() => handleMarkRecipe("COOKED")}>
-            ✓ Приготовлено
-          </Button> */}
           <SelectButton
             value={cookMark}
             options={[

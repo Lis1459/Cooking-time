@@ -7,9 +7,11 @@ import {
   useDeleteRecipeMutation,
 } from "../services/apiService";
 import { Card, CardContent, Button, Loader, Badge } from "../components/ui";
+import { Dropdown } from "../components/ui/dropdownMenu/DropdownMenu";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import "./MyRecipesPage.css";
 import { SOCKET_URL } from "../config/constants";
+import { RecipeDifficulty } from "../utils/recipeConst";
 
 export const MyRecipesPage = () => {
   const navigate = useNavigate();
@@ -125,11 +127,13 @@ export const MyRecipesPage = () => {
                 })()}
                 <div className="my-recipes-page__recipe-meta">
                   <div className="my-recipes-page__recipe-tags">
-                    <Badge variant="primary">{recipe.difficulty}</Badge>
-                    <Badge variant="success">{recipe.calories} cal</Badge>
+                    <Badge variant="primary">
+                      {RecipeDifficulty[recipe.difficulty]}
+                    </Badge>
+                    <Badge variant="success">{recipe.calories} ккал</Badge>
                   </div>
                   <span className="my-recipes-page__cooking-time">
-                    ⏱️ {recipe.cooking_time} min
+                    ⏱️ {recipe.cooking_time} мин
                   </span>
                 </div>
                 <div className="my-recipes-page__actions">
@@ -139,30 +143,42 @@ export const MyRecipesPage = () => {
                   >
                     Просмотр
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate(`/edit-recipe/${recipe.id}`)}
-                  >
-                    Редактировать
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setSelectedRecipe(recipe);
-                      setHideModalOpen(true);
-                    }}
-                  >
-                    {recipe.status === "HIDDEN" ? "Показать" : "Скрыть"}
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={() => {
-                      setSelectedRecipe(recipe);
-                      setDeleteModalOpen(true);
-                    }}
-                  >
-                    Удалить
-                  </Button>
+                  <Dropdown
+                    trigger={
+                      <button
+                        type="button"
+                        className="recipe-actions-trigger"
+                        aria-label="Дополнительные действия"
+                      >
+                        ⋮
+                      </button>
+                    }
+                    items={[
+                      {
+                        label: "Редактировать",
+                        icon: "✏️",
+                        onClick: () => navigate(`/edit-recipe/${recipe.id}`),
+                      },
+                      {
+                        label:
+                          recipe.status === "HIDDEN" ? "Показать" : "Скрыть",
+                        icon: "👁️",
+                        onClick: () => {
+                          setSelectedRecipe(recipe);
+                          setHideModalOpen(true);
+                        },
+                      },
+                      {
+                        label: "Удалить",
+                        icon: "🗑️",
+                        onClick: () => {
+                          setSelectedRecipe(recipe);
+                          setDeleteModalOpen(true);
+                        },
+                        variant: "danger",
+                      },
+                    ]}
+                  />
                 </div>
               </CardContent>
             </Card>

@@ -172,7 +172,7 @@
   color: var(--gray-700);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 950px) {
   .header-container {
     flex-wrap: wrap;
     padding: var(--spacing-md) var(--spacing-lg);

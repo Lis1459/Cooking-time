@@ -25,6 +25,7 @@ import {
   Loader,
 } from "../../components/ui";
 import "./RecipeForm.css";
+import { SOCKET_URL } from "../../config/constants";
 
 const recipeSchema = z.object({
   title: z.string().min(3, "Название должно быть хотябы 3 символа"),
@@ -164,9 +165,26 @@ export const AddRecipePage = () => {
   });
   console.log("errors: ", errors);
 
+  const urlToFile = async (url, filename = "image.jpg") => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+
+    return new File([blob], filename, {
+      type: blob.type,
+    });
+  };
+
   useEffect(() => {
     console.log("recipesData ", recipeData);
-    if (recipeData) {
+    const prepareData = async () => {
+      if (!recipeData) return;
+
+      let imageFile = null;
+
+      if (recipeData.preview_img_url) {
+        const fullUrl = `${SOCKET_URL}${recipeData.preview_img_url}`;
+        imageFile = await urlToFile(fullUrl, "recipe.jpg");
+      }
       // map recipe data to form fields
       const mapped = {
         title: recipeData.title,
@@ -174,7 +192,7 @@ export const AddRecipePage = () => {
         cooking_time: recipeData.cooking_time,
         calories: recipeData.calories,
         difficulty: recipeData.difficulty,
-        image: recipeData.image,
+        image: imageFile,
         ingredients: (recipeData.ingredients || []).map((ing) => ({
           ingredient_id: ing.ingredient?.id,
           ingredient_name: ing.ingredient?.name,
@@ -192,7 +210,9 @@ export const AddRecipePage = () => {
 
       // reset form
       reset(mapped);
-    }
+    };
+
+    prepareData();
   }, [recipeData]);
 
   const {
