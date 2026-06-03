@@ -158,11 +158,11 @@ export const UserProfilePage = () => {
       <Card className="profile-card">
         <CardHeader>
           <div className="profile-header">
-            <div className="profile-avatar">
-              {profileName.charAt(0).toUpperCase()}
-            </div>
-
-            <div className="profile-main">
+            {/* <div className="profile-main"> */}
+            <div className="profile-personal-block">
+              <div className="profile-avatar">
+                {profileName.charAt(0).toUpperCase()}
+              </div>
               <div className="profile-name-row">
                 <div>
                   <h1>{profileName}</h1>
@@ -176,8 +176,9 @@ export const UserProfilePage = () => {
                   </p>
                 )} */}
               </div>
+            </div>
 
-              {/* <div className="profile-bio">
+            {/* <div className="profile-bio">
                 {profile?.diet_type && (
                   <Badge variant="outline">{profile.diet_type}</Badge>
                 )}
@@ -193,19 +194,19 @@ export const UserProfilePage = () => {
                 )}
               </div> */}
 
-              <div className="profile-stats">
-                <div className="profile-stat">
-                  <span>{totalRecipes}</span>
-                  <small>Рецептов</small>
-                </div>
-                <div className="profile-stat">
-                  <span>{followersLoading ? "..." : followerCount}</span>
-                  <small>Подписчиков</small>
-                </div>
-                <div className="profile-stat">
-                  <span>{followingLoading ? "..." : followingCount}</span>
-                  <small>Подписок</small>
-                </div>
+            {/* </div> */}
+            <div className="profile-stats">
+              <div className="profile-stat">
+                <span>{totalRecipes}</span>
+                <small>Рецептов</small>
+              </div>
+              <div className="profile-stat">
+                <span>{followersLoading ? "..." : followerCount}</span>
+                <small>Подписчиков</small>
+              </div>
+              <div className="profile-stat">
+                <span>{followingLoading ? "..." : followingCount}</span>
+                <small>Подписок</small>
               </div>
             </div>
 
@@ -322,9 +323,10 @@ export const UserProfilePage = () => {
               {userData?.email
                 ? `Рецепты от ${profileName}`
                 : "Рецепты пользователя"}
+              {<span className="total-recipes-badge"> ({totalRecipes})</span>}
             </p>
           </div>
-          <span>
+          <span className="total-recipes-text">
             {totalRecipes} {totalRecipes === 1 ? "рецепт" : "рецептов"}
           </span>
         </div>
