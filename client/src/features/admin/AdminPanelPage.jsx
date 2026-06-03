@@ -48,6 +48,8 @@ export const AdminPanelPage = () => {
   const [hasMore, setHasMore] = useState(false);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [activeTab, setActiveTab] = useState("users");
+
   const usersLimit = 20;
   const sentinelRef = useRef(null);
   // Fetch users data
@@ -78,7 +80,8 @@ export const AdminPanelPage = () => {
           entries[0].isIntersecting &&
           hasMore &&
           !usersLoading &&
-          !loadingMore
+          !loadingMore &&
+          activeTab === "users"
         ) {
           setPage((prev) => prev + 1);
           setLoadingMore(true);
@@ -88,12 +91,12 @@ export const AdminPanelPage = () => {
     );
 
     const current = sentinelRef.current;
-    if (current) observer.observe(current);
+    if (current && activeTab === "users") observer.observe(current);
 
     return () => {
       if (current) observer.unobserve(current);
     };
-  }, [hasMore, usersLoading, loadingMore]);
+  }, [activeTab, hasMore, usersLoading, loadingMore]);
 
   const { data: reportsData, isLoading: reportsLoading } = useReportsQuery();
   const { data: categories = [], isLoading: categoriesLoading } =
@@ -128,7 +131,6 @@ export const AdminPanelPage = () => {
   const createIngredientMutation = useCreateIngredientMutation();
   const deleteIngredientMutation = useDeleteIngredientMutation();
 
-  const [activeTab, setActiveTab] = useState("users");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newTagName, setNewTagName] = useState("");
   const [newCuisineName, setNewCuisineName] = useState("");
