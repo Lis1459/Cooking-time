@@ -104,126 +104,127 @@ export const AdminStatisticsPage = () => {
         <StatCard label="Комментариев" value={counts.comments} />
       </div>
 
-      <div className="admin-stats-grid">
-        <Card className="chart-card chart-large">
-          <CardHeader>Просмотры по дням</CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={340}>
-              <LineChart
-                data={viewsByDate}
-                margin={{ top: 10, right: 16, left: -10, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={formatXAxis}
-                  stroke="#6B7280"
-                />
-                <YAxis stroke="#6B7280" />
-                <Tooltip formatter={(value) => [value, "Просмотры"]} />
-                <Line
-                  type="monotone"
-                  dataKey="views"
-                  stroke="#4F46E5"
-                  strokeWidth={3}
-                  dot={{ r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card className="chart-card">
-          <CardHeader>Категории рецептов</CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={categoryBreakdown}
-                margin={{ top: 10, right: 0, left: -14, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis
-                  dataKey="name"
-                  stroke="#6B7280"
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis stroke="#6B7280" />
-                <Tooltip formatter={(value) => [value, "Рецептов"]} />
-                <Bar dataKey="count" fill="#0EA5E9" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card className="chart-card">
-          <CardHeader>Распределение оценок</CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={ratingDistribution}
-                  dataKey="count"
-                  nameKey="rating"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  innerRadius={54}
-                  paddingAngle={3}
-                  label={({ rating, percent }) =>
-                    `${rating}⭐ ${Math.round(percent * 100)}%`
-                  }
+      <div className="chart-wrapper">
+        <div className="admin-stats-grid">
+          <Card className="chart-card chart-large">
+            <CardHeader>Просмотры по дням</CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={340}>
+                <LineChart
+                  data={viewsByDate}
+                  margin={{ top: 10, right: 16, left: -10, bottom: 0 }}
                 >
-                  {ratingDistribution.map((entry, index) => (
-                    <Cell
-                      key={entry.rating}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => [value, "Оценок"]} />
-                <Legend
-                  align="center"
-                  verticalAlign="bottom"
-                  iconType="circle"
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={formatXAxis}
+                    stroke="#6B7280"
+                  />
+                  <YAxis stroke="#6B7280" />
+                  <Tooltip formatter={(value) => [value, "Просмотры"]} />
+                  <Line
+                    type="monotone"
+                    dataKey="views"
+                    stroke="#4F46E5"
+                    strokeWidth={3}
+                    dot={{ r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
 
-        <Card className="chart-card">
-          <CardHeader>Топ рецептов</CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={topRecipes}
-                layout="vertical"
-                margin={{ top: 10, right: 12, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#E5E7EB"
-                  horizontal={false}
-                />
-                <XAxis type="number" stroke="#6B7280" />
-                <YAxis
-                  dataKey="title"
-                  type="category"
-                  width={180}
-                  stroke="#6B7280"
-                />
-                <Tooltip formatter={(value) => [value, "Popularity"]} />
-                <Bar
-                  dataKey="popularity_score"
-                  fill="#14B8A6"
-                  radius={[0, 10, 10, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          <Card className="chart-card">
+            <CardHeader>Топ рецептов</CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={topRecipes}
+                  layout="vertical"
+                  margin={{ top: 10, right: 12, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#E5E7EB"
+                    horizontal={false}
+                  />
+                  <XAxis type="number" stroke="#6B7280" />
+                  <YAxis
+                    dataKey="title"
+                    type="category"
+                    width={180}
+                    stroke="#6B7280"
+                  />
+                  <Tooltip formatter={(value) => [value, "Popularity"]} />
+                  <Bar
+                    dataKey="popularity_score"
+                    fill="#14B8A6"
+                    radius={[0, 10, 10, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card className="chart-card">
+            <CardHeader>Распределение оценок</CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={ratingDistribution}
+                    dataKey="count"
+                    nameKey="rating"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    innerRadius={54}
+                    paddingAngle={3}
+                    label={({ rating, percent }) =>
+                      `${rating}⭐ ${Math.round(percent * 100)}%`
+                    }
+                  >
+                    {ratingDistribution.map((entry, index) => (
+                      <Cell
+                        key={entry.rating}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => [value, "Оценок"]} />
+                  <Legend
+                    align="center"
+                    verticalAlign="bottom"
+                    iconType="circle"
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card className="chart-card category-card">
+            <CardHeader>Категории рецептов</CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={categoryBreakdown}
+                  margin={{ top: 10, right: 0, left: -14, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis
+                    dataKey="name"
+                    stroke="#6B7280"
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis stroke="#6B7280" />
+                  <Tooltip formatter={(value) => [value, "Рецептов"]} />
+                  <Bar dataKey="count" fill="#0EA5E9" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
       <Card className="chart-card chart-large">
         <CardHeader>Новые рецепты по дням</CardHeader>
         <CardContent>

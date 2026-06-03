@@ -344,12 +344,12 @@ export const RecipeDetailPage = () => {
                   ? [
                       {
                         label: "Редактировать",
-                        icon: "✏️",
+                        // icon: "✏️",
                         onClick: () => navigate(`/edit-recipe/${id}`),
                       },
                       {
                         label: "Удалить",
-                        icon: "🗑️",
+                        // icon: "🗑️",
                         onClick: () => setDeleteModalOpen(true),
                         variant: "danger",
                       },
@@ -358,7 +358,7 @@ export const RecipeDetailPage = () => {
                           currentRecipe.status === "HIDDEN"
                             ? "Показать"
                             : "Скрыть",
-                        icon: "👁️",
+                        // icon: "👁️",
                         onClick: () => setHideModalOpen(true),
                       },
                       { separator: true },
@@ -368,7 +368,7 @@ export const RecipeDetailPage = () => {
                   ? [
                       {
                         label: "Пожаловаться",
-                        icon: "⚠️",
+                        // icon: "⚠️",
                         onClick: () => setReportDialogOpen(true),
                       },
                       { separator: true },
@@ -376,27 +376,27 @@ export const RecipeDetailPage = () => {
                   : []),
                 {
                   label: "Скопировать ссылку",
-                  icon: "🔗",
+                  // icon: "🔗",
                   onClick: handleCopyLink,
                 },
                 {
-                  label: "Telegram",
-                  icon: "✈️",
+                  label: "Отправить в Telegram",
+                  // icon: "✈️",
                   onClick: handleShareTelegram,
                 },
                 {
-                  label: "WhatsApp",
-                  icon: "💬",
+                  label: "Отправить в WhatsApp",
+                  // icon: "💬",
                   onClick: handleShareWhatsApp,
                 },
+                // {
+                //   label: "Viber",
+                //   icon: "📱",
+                //   onClick: handleShareViber,
+                // },
                 {
-                  label: "Viber",
-                  icon: "📱",
-                  onClick: handleShareViber,
-                },
-                {
-                  label: "Instagram",
-                  icon: "📸",
+                  label: "Отправить в Instagram",
+                  // icon: "📸",
                   onClick: handleShareInstagram,
                 },
               ]}
