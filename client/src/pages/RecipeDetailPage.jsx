@@ -36,6 +36,10 @@ import { Dropdown } from "../components/ui/dropdownMenu/DropdownMenu";
 import { SOCKET_URL } from "../config/constants";
 import { toast } from "sonner";
 import { RecipeDifficulty } from "./../utils/recipeConst";
+import HeartIcon from "../assets/icons/HeartIcon";
+import StarIcon from "../assets/icons/StarIcon";
+import ClockIcon from "../assets/icons/ClockIcon";
+import FireIcon from "../assets/icons/FireIcon";
 
 export const RecipeDetailPage = () => {
   const { id } = useParams();
@@ -296,7 +300,7 @@ export const RecipeDetailPage = () => {
           <div>
             {avgRatingData && (
               <div style={{ marginTop: "6px" }} className="recipe-card__rating">
-                ⭐{" "}
+                <StarIcon filled />{" "}
                 {typeof avgRatingData.average === "number"
                   ? avgRatingData.average.toFixed(1)
                   : avgRatingData.average}
@@ -319,7 +323,8 @@ export const RecipeDetailPage = () => {
               variant={isFavorite ? "primary" : "outline"}
               onClick={handleAddToFavorites}
             >
-              {isFavorite ? "❤️ Сохранено" : "🤍 Сохранить"}
+              <HeartIcon active={isFavorite} />
+              {isFavorite ? " Сохранено" : " Сохранить"}
             </Button>
             <SelectButton
               value={cookMark}
@@ -422,7 +427,7 @@ export const RecipeDetailPage = () => {
             <div className="info-item">
               <span className="info-label">Время приготовления</span>
               <span className="info-value">
-                ⏱️ {currentRecipe.cooking_time} мин
+                <ClockIcon /> {currentRecipe.cooking_time} мин
               </span>
             </div>
           </CardContent>
@@ -432,7 +437,7 @@ export const RecipeDetailPage = () => {
             <div className="info-item">
               <span className="info-label">Калории</span>
               <span className="info-value">
-                🔥 {currentRecipe.calories} cal
+                <FireIcon /> {currentRecipe.calories} cal
               </span>
             </div>
           </CardContent>
@@ -501,7 +506,7 @@ export const RecipeDetailPage = () => {
                     className={`star ${rating >= star ? "active" : ""}`}
                     onClick={() => handleAddRating(star)}
                   >
-                    ⭐
+                    <StarIcon filled size="38" />
                   </button>
                 ))}
               </div>

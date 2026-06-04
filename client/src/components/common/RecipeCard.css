@@ -37,6 +37,9 @@
 }
 
 .recipe-card__rating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   margin-top: 8px;
   font-size: 14px;
   color: var(--gray-700);
@@ -60,6 +63,9 @@
 }
 
 .recipe-card__time {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   color: var(--gray-600);
   font-size: 0.95rem;
   white-space: nowrap;

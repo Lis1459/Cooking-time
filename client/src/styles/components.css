@@ -76,6 +76,7 @@
 .btn-primary {
   background-color: var(--primary);
   color: white;
+  border: 1px solid var(--primary);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -591,14 +592,14 @@
 }
 
 /* Recipe card rating */
-.recipe-card__rating {
+/* .recipe-card__rating {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   color: var(--primary);
   font-weight: 600;
   font-size: 14px;
-}
+} */
 
 /* Modal base styles */
 .modal-overlay {

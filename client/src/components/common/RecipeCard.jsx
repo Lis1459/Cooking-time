@@ -3,6 +3,8 @@ import { Card, CardContent, Badge, Button } from "../ui";
 import { SOCKET_URL } from "../../config/constants";
 import "./RecipeCard.css";
 import { RecipeDifficulty } from "../../utils/recipeConst";
+import ClockIcon from "./../../assets/icons/ClockIcon";
+import StarIcon from "../../assets/icons/StarIcon";
 
 const getRecipeRating = (recipe) => {
   const avg = recipe.rating?.average;
@@ -53,7 +55,8 @@ export const RecipeCard = ({
 
         {rating ? (
           <div className="recipe-card__rating">
-            ⭐ {typeof rating === "number" ? rating.toFixed(1) : rating}
+            <StarIcon filled="true" />{" "}
+            {typeof rating === "number" ? rating.toFixed(1) : rating}
           </div>
         ) : (
           <div className="recipe-card__rating">Нет оценок</div>
@@ -69,7 +72,7 @@ export const RecipeCard = ({
             )}
           </div>
           <span className="recipe-card__time">
-            ⏱️ {recipe.cooking_time} мин
+            <ClockIcon /> {recipe.cooking_time} мин
           </span>
         </div>
 

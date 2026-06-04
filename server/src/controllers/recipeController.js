@@ -23,7 +23,7 @@ export const getRecipe = async (req, res) => {
 export const getRecipes = async (req, res) => {
   try {
     const { page, limit, ...filters } = req.query;
-    const userId = req.query.userId || req.user.id;
+    const userId = req.query.userId || req?.user?.id || null;
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 10;
     const result = await recipeService.getRecipes(

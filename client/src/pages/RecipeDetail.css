@@ -108,6 +108,9 @@
 }
 
 .info-value {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   font-size: 18px;
   font-weight: 600;
   color: var(--gray-900);
@@ -181,6 +184,7 @@
 
 .rating-selector {
   display: flex;
+  justify-content: center;
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-lg);
 }
