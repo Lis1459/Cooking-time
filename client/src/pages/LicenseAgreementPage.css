@@ -1,0 +1,21 @@
+.license-page {
+  padding: 32px 0;
+}
+
+.license-card {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.license-card h3 {
+  margin-top: 24px;
+}
+
+.license-card p,
+.license-card ul {
+  margin-bottom: 16px;
+}
+
+.license-card ul {
+  padding-left: 20px;
+}

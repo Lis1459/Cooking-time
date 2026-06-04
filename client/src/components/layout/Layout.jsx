@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Header from "./Header";
 import "./Layout.css";
 
@@ -18,13 +19,16 @@ export const Layout = ({ children }) => {
             <h4>Быстрые ссылки</h4>
             <ul>
               <li>
-                <a href="/recipes">Рецепты</a>
+                <Link to="/recipes">Рецепты</Link>
               </li>
               <li>
-                <a href="/smart-recipes">Умный поиск</a>
+                <Link to="/smart-recipes">Умный поиск</Link>
               </li>
               <li>
-                <a href="/about">О нас</a>
+                <Link to="/about">О нас</Link>
+              </li>
+              <li>
+                <Link to="/license-agreement">Лицензионное соглашение</Link>
               </li>
             </ul>
           </div>

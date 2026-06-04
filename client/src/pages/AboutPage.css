@@ -1,0 +1,25 @@
+.about-page {
+  padding: 32px 0;
+}
+
+.about-card {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.about-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.about-card p,
+.about-card ul,
+.about-card h3 {
+  margin-bottom: 16px;
+}
+
+.about-card ul {
+  padding-left: 20px;
+}

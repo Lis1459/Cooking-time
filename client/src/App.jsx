@@ -21,6 +21,8 @@ import FavoritesPage from "./pages/FavoritesPage";
 import SmartRecipesPage from "./pages/SmartRecipesPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import CookingHistoryPage from "./pages/CookingHistoryPage";
+import AboutPage from "./pages/AboutPage";
+import LicenseAgreementPage from "./pages/LicenseAgreementPage";
 
 // Features
 import LoginPage from "./features/auth/LoginPage";
@@ -57,6 +59,8 @@ function AppContent() {
           <Route path="/recipes/:id" element={<RecipeDetailPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/license-agreement" element={<LicenseAgreementPage />} />
 
           {/* Protected Routes */}
           <Route

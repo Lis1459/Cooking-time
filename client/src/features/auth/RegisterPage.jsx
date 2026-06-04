@@ -21,13 +21,14 @@ const registerSchema = z
   .object({
     name: z.string().min(2, "Имя должно содержать не менее 2 символов"),
     email: z.string().email("Неверный адрес эл. почты"),
-    password: z
-      .string()
-      .min(6, "Пароль должен содержать не менее 6 символовволов"),
+    password: z.string().min(6, "Пароль должен содержать не менее 6 символов"),
     confirmPassword: z.string(),
+    acceptLicenseAgreement: z.boolean().refine((value) => value === true, {
+      message: "Вы должны принять лицензионное соглашение",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Пароли не совпадаюn",
+    message: "Пароли не совпадают",
     path: ["confirmPassword"],
   });
 
@@ -45,7 +46,11 @@ export const RegisterPage = () => {
 
   const onSubmit = async (data) => {
     setLocalError(null);
-    const { confirmPassword, ...userData } = data;
+    const {
+      confirmPassword: _confirmPassword,
+      acceptLicenseAgreement: _acceptLicenseAgreement,
+      ...userData
+    } = data;
     const result = await registerUser(userData);
     if (result.success) {
       navigate("/");
@@ -127,6 +132,30 @@ export const RegisterPage = () => {
               {errors.confirmPassword && (
                 <span className="error-message">
                   {errors.confirmPassword.message}
+                </span>
+              )}
+            </div>
+
+            <div className="form-group checkbox-group">
+              <label
+                className="checkbox-label"
+                htmlFor="acceptLicenseAgreement"
+              >
+                <input
+                  id="acceptLicenseAgreement"
+                  type="checkbox"
+                  {...register("acceptLicenseAgreement")}
+                />
+                Я соглашаюсь с
+                {
+                  <Link to="/license-agreement" className="auth-link">
+                    лицензионным соглашением
+                  </Link>
+                }
+              </label>
+              {errors.acceptLicenseAgreement && (
+                <span className="error-message">
+                  {errors.acceptLicenseAgreement.message}
                 </span>
               )}
             </div>

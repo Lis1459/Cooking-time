@@ -24,6 +24,24 @@
   margin-bottom: var(--spacing-2xl);
 }
 
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+}
+
+.checkbox-label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--gray-800);
+}
+
+.checkbox-label input {
+  width: 18px;
+  height: 18px;
+}
+
 .error-message {
   display: block;
   color: var(--error);
