@@ -78,7 +78,7 @@ export const RegisterPage = () => {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
-            <div className="form-group">
+            <div className="form-group-input">
               <Label htmlFor="name">Имя и фамилия</Label>
               <Input
                 id="name"
@@ -92,7 +92,7 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            <div className="form-group">
+            <div className="form-group-input">
               <Label htmlFor="email">Эл. почта</Label>
               <Input
                 id="email"
@@ -106,7 +106,7 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            <div className="form-group">
+            <div className="form-group-input">
               <Label htmlFor="password">Пароль</Label>
               <PasswordToggle
                 id="password"
@@ -120,7 +120,7 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            <div className="form-group">
+            <div className="form-group-input">
               <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
               <PasswordToggle
                 id="confirmPassword"
@@ -136,19 +136,20 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            <div className="form-group checkbox-group">
+            <div className="form-group-input checkbox-group">
+              <input
+                id="acceptLicenseAgreement"
+                type="checkbox"
+                {...register("acceptLicenseAgreement")}
+              />
               <label
                 className="checkbox-label"
                 htmlFor="acceptLicenseAgreement"
               >
-                <input
-                  id="acceptLicenseAgreement"
-                  type="checkbox"
-                  {...register("acceptLicenseAgreement")}
-                />
                 Я соглашаюсь с
                 {
                   <Link to="/license-agreement" className="auth-link">
+                    {" "}
                     лицензионным соглашением
                   </Link>
                 }
