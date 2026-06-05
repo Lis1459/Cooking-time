@@ -17,7 +17,7 @@
 
 .report-detail-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(0, 1fr));
+  /* grid-template-columns: repeat(auto-fill, minmax(0, 1fr)); */
   /* display: flex;
   flex-direction: column; */
   gap: var(--spacing-lg);

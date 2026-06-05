@@ -12,6 +12,7 @@ import ConfirmDialog from "../components/common/ConfirmDialog";
 import "./MyRecipesPage.css";
 import { SOCKET_URL } from "../config/constants";
 import { RecipeDifficulty } from "../utils/recipeConst";
+import ClockIcon from "./../assets/icons/ClockIcon";
 
 export const MyRecipesPage = () => {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ export const MyRecipesPage = () => {
         </div>
         <div className="my-recipes-page__pagination-controls">
           <label>
-            Рецептов на страниценице
+            Рецептов на странице
             <select
               value={limit}
               onChange={(e) => {
@@ -128,7 +129,7 @@ export const MyRecipesPage = () => {
                     <Badge variant="success">{recipe.calories} ккал</Badge>
                   </div>
                   <span className="my-recipes-page__cooking-time">
-                    ⏱️ {recipe.cooking_time} мин
+                    <ClockIcon /> {recipe.cooking_time} мин
                   </span>
                 </div>
                 <div className="my-recipes-page__actions">
@@ -151,13 +152,13 @@ export const MyRecipesPage = () => {
                     items={[
                       {
                         label: "Редактировать",
-                        icon: "✏️",
+                        // icon: "✏️",
                         onClick: () => navigate(`/edit-recipe/${recipe.id}`),
                       },
                       {
                         label:
                           recipe.status === "HIDDEN" ? "Показать" : "Скрыть",
-                        icon: "👁️",
+                        // icon: "👁️",
                         onClick: () => {
                           setSelectedRecipe(recipe);
                           setHideModalOpen(true);
@@ -165,7 +166,7 @@ export const MyRecipesPage = () => {
                       },
                       {
                         label: "Удалить",
-                        icon: "🗑️",
+                        // icon: "🗑️",
                         onClick: () => {
                           setSelectedRecipe(recipe);
                           setDeleteModalOpen(true);

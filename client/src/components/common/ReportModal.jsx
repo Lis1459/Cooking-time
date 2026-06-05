@@ -127,8 +127,8 @@ export const ReportModal = ({ isOpen, onClose, report, onSubmit }) => {
                       : report.target_type}
               </p>
             </div>
-            <div>
-              {/* <strong>Статус </strong>
+            {/* <div> */}
+            {/* <strong>Статус </strong>
               <Badge
                 variant={
                   report.status === "PENDING"
@@ -146,7 +146,7 @@ export const ReportModal = ({ isOpen, onClose, report, onSubmit }) => {
                       ? "Отклонено"
                       : report.status}
               </Badge> */}
-            </div>
+            {/* </div> */}
             <div>
               <strong>Создана</strong>
               <p>{new Date(report.created_at).toLocaleString()}</p>

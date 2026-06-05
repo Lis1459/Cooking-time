@@ -35,7 +35,7 @@ export const Layout = ({ children }) => {
           <div className="footer-section">
             <h4>Контакты</h4>
             <p>Эл. почта: info@cookingtime.com</p>
-            <p>Телефон: +1 234 567 8900</p>
+            <p>Телефон: +375 29 896 3019</p>
           </div>
         </div>
         <div className="footer-bottom">

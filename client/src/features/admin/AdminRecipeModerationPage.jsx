@@ -444,10 +444,10 @@ export const AdminRecipeModerationPage = () => {
           <Card>
             <CardHeader>Сводка</CardHeader>
             <CardContent>
-              <div className="info-item">
+              {/* <div className="info-item">
                 <span className="info-label">Статус</span>
                 <Badge variant="warning">{recipe.status}</Badge>
-              </div>
+              </div> */}
               <div style={{ marginTop: "var(--spacing-sm)" }}>
                 <strong>Категории:</strong>{" "}
                 {(previewRecipe.categories || [])

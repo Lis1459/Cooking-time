@@ -25,7 +25,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node prisma/recipe.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/recipe.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",

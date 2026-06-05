@@ -93,6 +93,8 @@
 }
 
 .my-recipes-page__cooking-time {
+  display: flex;
+  align-items: center;
   font-size: 0.95rem;
   color: var(--gray-600);
 }
