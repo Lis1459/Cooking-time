@@ -26,6 +26,7 @@ import {
 } from "../../components/ui";
 import "./RecipeForm.css";
 import { SOCKET_URL } from "../../config/constants";
+import { RecipeDifficulty } from "./../../utils/recipeConst";
 
 const recipeSchema = z.object({
   title: z.string().min(3, "Название должно быть хотябы 3 символа"),
@@ -356,11 +357,15 @@ export const AddRecipePage = () => {
                 <div className="form-group">
                   <Label htmlFor="difficulty">Уровень сложности *</Label>
                   <select {...register("difficulty")} className="select">
-                    <option value="VERY_EASY">Очень легко</option>
-                    <option value="EASY">Легко</option>
-                    <option value="MEDIUM">Средне</option>
-                    <option value="HARD">Сложно</option>
-                    <option value="VERY_HARD">Очень сложно</option>
+                    <option value="VERY_EASY">
+                      {RecipeDifficulty.VERY_EASY}
+                    </option>
+                    <option value="EASY">{RecipeDifficulty.EASY}</option>
+                    <option value="MEDIUM">{RecipeDifficulty.MEDIUM}</option>
+                    <option value="HARD">{RecipeDifficulty.HARD}</option>
+                    <option value="VERY_HARD">
+                      {RecipeDifficulty.VERY_HARD}
+                    </option>
                   </select>
                 </div>
               </div>

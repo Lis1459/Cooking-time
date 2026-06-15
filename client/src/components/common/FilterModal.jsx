@@ -6,6 +6,7 @@ import {
 } from "../../services/apiService";
 import { Button, Input, CheckBox } from "../ui";
 import "./FilterModal.css";
+import { RecipeDifficulty } from "../../utils/recipeConst";
 
 export const FilterModal = ({
   isOpen,
@@ -230,11 +231,11 @@ export const FilterModal = ({
             <h3 className="filter-modal__title">Сложность</h3>
             <div className="filter-modal__difficulty-grid">
               {[
-                { value: "VERY_EASY", label: "Очень легко" },
-                { value: "EASY", label: "Легко" },
-                { value: "MEDIUM", label: "Средне" },
-                { value: "HARD", label: "Сложно" },
-                { value: "VERY_HARD", label: "Очень сложно" },
+                { value: "VERY_EASY", label: RecipeDifficulty.VERY_EASY },
+                { value: "EASY", label: RecipeDifficulty.EASY },
+                { value: "MEDIUM", label: RecipeDifficulty.MEDIUM },
+                { value: "HARD", label: RecipeDifficulty.HARD },
+                { value: "VERY_HARD", label: RecipeDifficulty.VERY_HARD },
               ].map((item) => (
                 <button
                   key={item.value}

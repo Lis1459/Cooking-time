@@ -3,7 +3,7 @@ export const RecipeDifficulty = {
   EASY: "Легко",
   MEDIUM: "Средне",
   HARD: "Сложно",
-  VERY_HARD: "ОЧень сложно",
+  VERY_HARD: "Профи",
 };
 
 export const RecipeChanges = {
