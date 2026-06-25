@@ -170,19 +170,36 @@
 }
 
 .items-list {
-  display: flex;
-  flex-flow: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: var(--spacing-lg);
+  align-items: start;
 }
 
 .list-item {
-  /* max-width: 80%; */
   min-width: 0;
-  flex: 1;
-  white-space: nowrap; /* Запрет переноса строк */
-  overflow: hidden; /* Скрытие лишнего текста */
+  white-space: nowrap; /* запрет переноса строк */
+  overflow: hidden;
   text-overflow: ellipsis;
   color: var(--gray-800);
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+/* Tidy card appearance inside lists */
+.items-list .card {
+  padding: calc(var(--spacing-md));
+}
+
+.items-list .card > div {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.items-list .card .btn {
+  min-width: 80px;
 }
 
 .loading-container {
