@@ -616,9 +616,12 @@ export class RecipeService {
       const updateData = { ...data };
 
       if (data.ingredients) {
-        const recipeIngredients = await parseRecipeIngredients(data.ingredients, {
-          verifyIngredient: true,
-        });
+        const recipeIngredients = await parseRecipeIngredients(
+          data.ingredients,
+          {
+            verifyIngredient: true,
+          },
+        );
         updateData.ingredients = {
           deleteMany: {},
           create: recipeIngredients,

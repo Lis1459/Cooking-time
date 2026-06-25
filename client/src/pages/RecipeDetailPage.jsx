@@ -518,7 +518,7 @@ export const RecipeDetailPage = () => {
 
           {/* Comments */}
           <Card className="comments-card">
-            <CardHeader>Comments ({totalComments})</CardHeader>
+            <CardHeader>Комментарии ({totalComments})</CardHeader>
             <CardContent>
               {isAuthenticated && (
                 <div className="add-comment">
