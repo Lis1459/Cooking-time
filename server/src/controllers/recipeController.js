@@ -126,7 +126,7 @@ export const createRecipe = async (req, res) => {
     const recipe = await recipeService.createRecipe(recipeData);
     res.status(201).json(recipe);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Не удалось создать рецепт!" });
   }
 };
 

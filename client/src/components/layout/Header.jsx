@@ -39,9 +39,8 @@ export const Header = () => {
     <header className="header">
       <div className="header-container">
         <Link to="/" className="logo">
-          <span className="logo-text">
-            <LogoIcon /> Cooking Time
-          </span>
+          <LogoIcon />
+          <span className="logo-text">Cooking Time</span>
         </Link>
 
         <nav className={`nav ${mobileMenuOpen ? "active" : ""}`}>

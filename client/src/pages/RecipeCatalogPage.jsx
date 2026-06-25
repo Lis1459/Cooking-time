@@ -10,6 +10,7 @@ import { Button, Input, Badge, Loader } from "../components/ui";
 import { FilterModal } from "../components/common/FilterModal";
 import RecipeCard from "../components/common/RecipeCard";
 import "./RecipeCatalog.css";
+import { RecipeDifficulty } from "./../utils/recipeConst";
 
 export const RecipeCatalogPage = () => {
   const navigate = useNavigate();
@@ -259,7 +260,7 @@ export const RecipeCatalogPage = () => {
                 className="recipe-catalog__active-filter-badge"
                 onClick={() => handleRemoveFilter("difficulty")}
               >
-                Сложность: {filters.difficulty} ×
+                Сложность: {RecipeDifficulty[filters.difficulty]} ×
               </button>
             )}
             {(filters.caloriesMin || filters.caloriesMax) && (

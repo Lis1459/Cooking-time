@@ -23,7 +23,7 @@
   text-decoration: none;
   font-size: 24px;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--gray-900);
   white-space: nowrap;
 }
 
@@ -170,6 +170,10 @@
   font-size: 24px;
   cursor: pointer;
   color: var(--gray-700);
+}
+
+.logo:hover {
+  color: var(--gray-900);
 }
 
 @media (max-width: 950px) {
