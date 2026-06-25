@@ -577,18 +577,19 @@ export const RecipeDetailPage = () => {
                                 🗑️
                               </button>
                             )}
-                          {isAuthenticated && user?.id !== comment.user_id && (
-                            <button
-                              className="comment-report-btn"
-                              onClick={() => {
-                                setSelectedCommentId(comment.id);
-                                setReportCommentDialogOpen(true);
-                              }}
-                              title="Пожаловаться на этот комментарий"
-                            >
-                              ⚠️
-                            </button>
-                          )}
+                          {isAuthenticated &&
+                            (user?.id !== comment.user_id || isAdmin) && (
+                              <button
+                                className="comment-report-btn"
+                                onClick={() => {
+                                  setSelectedCommentId(comment.id);
+                                  setReportCommentDialogOpen(true);
+                                }}
+                                title="Пожаловаться на этот комментарий"
+                              >
+                                ⚠️
+                              </button>
+                            )}
                         </div>
                       </div>
                       <p className="comment-text">{comment.text}</p>
