@@ -47,9 +47,7 @@ export const MyRecipesPage = () => {
       refetch();
     } catch (error) {
       console.error("Failed to delete recipe:", error);
-      toast.error(
-        error.response?.data?.message || "Не удалось удалить рецепт",
-      );
+      toast.error(error.response?.data?.message || "Не удалось удалить рецепт");
     }
   };
 

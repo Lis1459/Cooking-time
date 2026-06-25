@@ -225,7 +225,8 @@ export const useCreateRecipeMutation = () => {
     },
     onError: (err) => {
       toast.error(
-        err.response?.data?.message || "Не удалось отправить рецепт на модерацию",
+        err.response?.data?.message ||
+          "Не удалось отправить рецепт на модерацию",
       );
     },
   });

@@ -14,6 +14,8 @@ export const RecipeChanges = {
   Difficulty: "Сложность",
   Image: "Изображение",
   Categories: "Категории",
+  Ingredients: "Ингредиенты",
+  Steps: "Шаги приготовления",
   Tags: "Теги",
   Cuisines: "Кухни",
 };
