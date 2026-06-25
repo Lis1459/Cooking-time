@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import {
   Button,
@@ -38,9 +39,11 @@ export const LoginPage = () => {
     setLocalError(null);
     const result = await login(data);
     if (result.success) {
+      toast.success("Вы успешно вошли");
       navigate("/");
     } else {
-      setLocalError(result.error);
+      // setLocalError(result.error);
+      toast.error("Ошибка при входе");
     }
   };
 
@@ -49,7 +52,7 @@ export const LoginPage = () => {
       <Card className="auth-card">
         <CardHeader>Войти</CardHeader>
         <CardContent>
-          {error && (
+          {/* {error && (
             <Alert variant="error" onClose={() => {}}>
               {typeof error === "string"
                 ? error
@@ -60,7 +63,7 @@ export const LoginPage = () => {
             <Alert variant="error" onClose={() => setLocalError(null)}>
               {localError}
             </Alert>
-          )}
+          )} */}
 
           <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
             <div className="form-group">

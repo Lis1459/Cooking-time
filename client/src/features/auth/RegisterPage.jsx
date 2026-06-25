@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { toast } from "sonner";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 import {
@@ -53,9 +54,11 @@ export const RegisterPage = () => {
     } = data;
     const result = await registerUser(userData);
     if (result.success) {
+      toast.success("Аккаунт успешно создан");
       navigate("/");
     } else {
       setLocalError(result.error);
+      toast.error(result.error || "Ошибка при регистрации");
     }
   };
 

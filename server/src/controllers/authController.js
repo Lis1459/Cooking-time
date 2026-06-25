@@ -58,7 +58,6 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("controller", error.message);
     res.status(401).json({ message: error.message });
   }
 };

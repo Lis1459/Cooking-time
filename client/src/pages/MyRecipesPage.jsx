@@ -76,7 +76,7 @@ export const MyRecipesPage = () => {
       <div className="my-recipes-page__header">
         <div>
           <h1>Мои рецепты</h1>
-          <p className="my-recipes-page__subtitle">Рецепты, созданные вамии</p>
+          <p className="my-recipes-page__subtitle">Рецепты, созданные вами</p>
         </div>
         <div className="my-recipes-page__pagination-controls">
           <label>

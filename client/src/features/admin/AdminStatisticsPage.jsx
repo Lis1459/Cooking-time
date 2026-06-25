@@ -155,7 +155,9 @@ export const AdminStatisticsPage = () => {
                     width={180}
                     stroke="#6B7280"
                   />
-                  <Tooltip formatter={(value) => [value, "Popularity"]} />
+                  <Tooltip
+                    formatter={(value) => [value, "Индекс популярности"]}
+                  />
                   <Bar
                     dataKey="popularity_score"
                     fill="#14B8A6"

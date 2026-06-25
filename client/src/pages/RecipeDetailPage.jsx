@@ -578,7 +578,8 @@ export const RecipeDetailPage = () => {
                               </button>
                             )}
                           {isAuthenticated &&
-                            (user?.id !== comment.user_id || isAdmin) && (
+                            user?.id !== comment.user_id &&
+                            !isAdmin && (
                               <button
                                 className="comment-report-btn"
                                 onClick={() => {
