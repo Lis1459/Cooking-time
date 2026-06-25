@@ -223,6 +223,11 @@ export const useCreateRecipeMutation = () => {
       toast.success("Рецепт отправлен на модерацию!");
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
     },
+    onError: (err) => {
+      toast.error(
+        err.response?.data?.message || "Не удалось отправить рецепт на модерацию",
+      );
+    },
   });
 };
 
@@ -234,7 +239,6 @@ export const useUpdateRecipeMutation = (id) => {
       return response.data;
     },
     onSuccess: () => {
-      toast.success("Изменения в рецепте отправлены на модерацию!");
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
       queryClient.invalidateQueries({ queryKey: ["recipe", id] });
     },
@@ -254,6 +258,9 @@ export const useDeleteRecipeMutation = (id) => {
       queryClient.invalidateQueries({ queryKey: ["myRecipes"] });
       queryClient.invalidateQueries({ queryKey: ["popularRecipes"] });
       queryClient.invalidateQueries({ queryKey: ["comments", id] });
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Не удалось удалить рецепт");
     },
   });
 };

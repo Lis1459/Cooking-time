@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import CreatableSelect from "react-select/creatable";
@@ -263,12 +264,16 @@ export const AddRecipePage = () => {
       let response;
       if (id) {
         response = await updateRecipeMutation.mutateAsync(formData);
+        toast.success("Изменения в рецепте отправлены на модерацию!");
       } else {
         response = await createRecipeMutation.mutateAsync(formData);
       }
       navigate(`/recipes/${response.id || (id ? id : response.id)}`);
     } catch (err) {
-      setError(err.response?.data?.message || "Не удалось создать рецепт");
+      const errorMessage =
+        err.response?.data?.message || "Не удалось создать рецепт";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

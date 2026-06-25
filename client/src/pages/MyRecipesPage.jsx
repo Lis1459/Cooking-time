@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "sonner";
 import {
   useMyRecipesQuery,
   useUpdateRecipeMutation,
@@ -46,20 +47,29 @@ export const MyRecipesPage = () => {
       refetch();
     } catch (error) {
       console.error("Failed to delete recipe:", error);
+      toast.error(
+        error.response?.data?.message || "Не удалось удалить рецепт",
+      );
     }
   };
 
   const handleToggleHideRecipe = async () => {
     const nextStatus =
       selectedRecipe.status === "HIDDEN" ? "PUBLISHED" : "HIDDEN";
+    const successMessage =
+      nextStatus === "HIDDEN" ? "Рецепт скрыт" : "Рецепт опубликован";
 
     try {
       await updateRecipeMutation.mutateAsync({ status: nextStatus });
       setHideModalOpen(false);
       setSelectedRecipe(null);
       refetch();
+      toast.success(successMessage);
     } catch (error) {
       console.error("Failed to update recipe status:", error);
+      toast.error(
+        error.response?.data?.message || "Не удалось изменить статус рецепта",
+      );
     }
   };
 
