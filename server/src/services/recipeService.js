@@ -199,13 +199,17 @@ const normalizeRelationForCreate = (value) => {
   return undefined;
 };
 
-const parseRecipeIngredients = async (ingredientsData) => {
+const parseRecipeIngredients = async (
+  ingredientsData,
+  options = { verifyIngredient: false },
+) => {
   const parsedIngredients =
     typeof ingredientsData === "string"
       ? JSON.parse(ingredientsData)
       : ingredientsData || [];
 
   const recipeIngredients = [];
+  const { verifyIngredient } = options;
 
   for (const ingredientEntry of parsedIngredients) {
     let ingredientId = null;
@@ -228,11 +232,17 @@ const parseRecipeIngredients = async (ingredientsData) => {
       });
       if (existingIngredient) {
         ingredientId = existingIngredient.id;
+        if (verifyIngredient && existingIngredient.status === "NotVerified") {
+          await prisma.ingredient.updateMany({
+            where: { id: ingredientId, status: "NotVerified" },
+            data: { status: "Verified" },
+          });
+        }
       } else {
         const createdIngredient = await prisma.ingredient.create({
           data: {
             name: capitalizeFirst(ingredientEntry.ingredient_name),
-            status: "NotVerified",
+            status: verifyIngredient ? "Verified" : "NotVerified",
           },
         });
         ingredientId = createdIngredient.id;
@@ -241,6 +251,13 @@ const parseRecipeIngredients = async (ingredientsData) => {
 
     if (!ingredientId) {
       throw new Error("Ingredient is required");
+    }
+
+    if (verifyIngredient) {
+      await prisma.ingredient.updateMany({
+        where: { id: ingredientId, status: "NotVerified" },
+        data: { status: "Verified" },
+      });
     }
 
     recipeIngredients.push({
@@ -599,9 +616,9 @@ export class RecipeService {
       const updateData = { ...data };
 
       if (data.ingredients) {
-        const recipeIngredients = await parseRecipeIngredients(
-          data.ingredients,
-        );
+        const recipeIngredients = await parseRecipeIngredients(data.ingredients, {
+          verifyIngredient: true,
+        });
         updateData.ingredients = {
           deleteMany: {},
           create: recipeIngredients,

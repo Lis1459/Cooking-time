@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import prisma from "../config/database.js";
 import { RecipeService } from "../services/recipeService.js";
 import { RecipeRepository } from "../repositories/recipeRepository.js";
 
@@ -62,6 +63,61 @@ describe("RecipeService", () => {
       const result = await recipeService.updateRecipe(recipeId, updateData);
 
       expect(mockRecipeRepo.update).toHaveBeenCalledWith(recipeId, updateData);
+      expect(result).toBe(updatedRecipe);
+    });
+
+    it("should verify newly added ingredient when admin updates recipe", async () => {
+      const recipeId = "1";
+      const adminUser = { role: "ADMIN" };
+      const existingRecipe = { id: recipeId };
+      const ingredientEntry = {
+        ingredient_name: "Tomato",
+        amount: 100,
+        unit: "g",
+      };
+      const ingredientId = 10;
+      const existingIngredient = {
+        id: ingredientId,
+        name: "Tomato",
+        status: "NotVerified",
+      };
+      const updatedRecipe = { id: recipeId, title: "Updated", ingredients: [] };
+
+      mockRecipeRepo.findById.mockResolvedValue(existingRecipe);
+      prisma.ingredient.findFirst.mockResolvedValue(existingIngredient);
+      prisma.ingredient.updateMany.mockResolvedValue({ count: 1 });
+      mockRecipeRepo.update.mockResolvedValue(updatedRecipe);
+
+      const result = await recipeService.updateRecipe(
+        recipeId,
+        { ingredients: [ingredientEntry] },
+        adminUser,
+      );
+
+      expect(prisma.ingredient.findFirst).toHaveBeenCalledWith({
+        where: {
+          name: {
+            equals: ingredientEntry.ingredient_name,
+            mode: "insensitive",
+          },
+        },
+      });
+      expect(prisma.ingredient.updateMany).toHaveBeenCalledWith({
+        where: { id: ingredientId, status: "NotVerified" },
+        data: { status: "Verified" },
+      });
+      expect(mockRecipeRepo.update).toHaveBeenCalledWith(recipeId, {
+        ingredients: {
+          deleteMany: {},
+          create: [
+            {
+              ingredient: { connect: { id: ingredientId } },
+              amount: Number(ingredientEntry.amount),
+              unit: ingredientEntry.unit,
+            },
+          ],
+        },
+      });
       expect(result).toBe(updatedRecipe);
     });
   });

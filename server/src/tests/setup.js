@@ -70,8 +70,10 @@ jest.mock("../config/database.js", () => ({
     },
     ingredient: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
       delete: jest.fn(),
       findMany: jest.fn(),
     },
