@@ -1,52 +1,164 @@
-# Cooking-time
+# Cooking Time
 
-добавить проверку на то, что действие для комментария выполняется пользователем, создавшим комментарий ☑️
+Cooking Time is a full-stack web application for discovering, saving, creating, and rating recipes. Users can register, publish their own recipes, add them to favorites, follow authors, view cooking history, receive notifications, and interact with moderation features.
 
-Добавить генерацию уведомлений. ☑️
+## Description
 
-переделать recipe service. пересмотреть реализацию
+The project consists of two parts:
 
-добавить get для favorites ☑️
+- Frontend: React + Vite + React Query + React Router
+- Backend: Node.js + Express + Prisma ORM + PostgreSQL + Redis
 
-проверить что происходит с рецептом, если его тег удаляется
+Main features:
 
-глянуть как работает register ☑️
+- user authentication and profile management
+- creating, editing, and viewing recipes
+- favorites, cooking history, and personalized recommendations
+- comments, ratings, reports, and notifications
+- admin panel for content moderation
 
-добавить дату добавления в favorites
+## Dependencies
 
-singletone
+### Frontend
 
-//
+- React
+- React DOM
+- Vite
+- React Router DOM
+- TanStack Query
+- Axios
+- React Hook Form
+- Radix UI components
+- Zod
+- Sonner
 
-проверить работает ли фильтр по категориям, кухням и тегам ☑️
+### Backend
 
-в панели администратора предусмотреть ссылку на то, на что жалуются через проверку на то, на какой ресурс жалоба ☑️
+- Express
+- Prisma
+- PostgreSQL driver
+- Redis
+- JWT / bcrypt
+- Helmet, CORS, cookie-parser
+- Multer and Sharp for image upload handling
 
-сделать оценку рецептов ☑️
+## Project Structure
 
-переделать список рецептов, чтобы отображалась оценка ☑️
+- client/ — frontend application
+  - src/ — components, pages, context, services, and utilities
+  - public/ — static assets
+- server/ — backend application
+  - src/ — routes, controllers, services, middleware, and configuration
+  - prisma/ — Prisma schema and migrations
+  - public/uploads/ — uploaded images
+  - docker-compose.yaml — local PostgreSQL and Redis services
 
-переписать фронт используя radix themes. Так будет проще
+## Running the Project
 
-/////////////////
+To run the project, clone the repository and follow the steps below locally.
 
-## general
+### 1. Requirements
 
-переделать логику добавления ингредиентов: нужно чтобы они добавлялись динамически, если в рецепте используется новый ингредиент, то он добавляется в базу. При этом надо избежать дубликатов. Но все рецепты должны подлежать модерации, чтобы не было неправильных ингредиентов ☑️
+Before starting, make sure you have:
 
-жалобы ☑️
+- Git
+- Node.js 20+
+- npm
+- Docker Desktop (for PostgreSQL and Redis)
 
-поменять иконки на свг
+### 2. Clone the repository
 
-страницу myRecipes ☑️
+```bash
+git clone https://github.com/Lis1459/Cooking-time.git
+cd Cooking-time
+```
 
-баг на выбор двух одинаковых ингредиентов при создании рецепта
-....
-сделать профиль пользователя более функциональным, добавить ссылку на профиль в рецепте ☑️
+### 3. Configure environment variables
 
-сделать выбор категорий при создании рецепта ☑️
+Create a .env file in the server folder with the following content:
 
-сделать подписку на авторов ☑️
+```env
+PORT=3000
+CLIENT_URL=http://localhost:5173
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/cooking_time_db?schema=public
+REDIS_URL=redis://localhost:6379
+JWT_ACCESS_SECRET=dev-access-secret
+JWT_REFRESH_SECRET=dev-refresh-secret
+```
 
-перевести на русский язык ☑️
-персональные рекомендации на основе часто встречающихся ингредиентов ☑️
+### 4. Start the databases
+
+```bash
+cd server
+docker compose up -d
+```
+
+### 5. Install dependencies
+
+```bash
+cd ../client
+npm install
+
+cd ../server
+npm install
+```
+
+### 6. Apply database migrations
+
+```bash
+npx prisma migrate deploy
+npx prisma generate
+```
+
+### 7. Start the application
+
+Open two terminals.
+
+In the first terminal, start the backend:
+
+```bash
+cd server
+npm run dev
+```
+
+In the second terminal, start the frontend:
+
+```bash
+cd client
+npm run dev
+```
+
+Then open your browser at:
+
+```text
+http://localhost:5173
+```
+
+## Useful Commands
+
+- Run backend tests:
+
+```bash
+cd server
+npm test
+```
+
+- Build the frontend:
+
+```bash
+cd client
+npm run build
+```
+
+## Contributing
+
+If you would like to contribute, we recommend:
+
+1. create a new branch
+2. make your changes
+3. verify the build and tests
+4. open a pull request
+
+## License
+
+This project is distributed under the ISC license.
