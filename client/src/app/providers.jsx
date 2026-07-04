@@ -13,7 +13,7 @@ export function Providers({ children }) {
         <NotificationProvider>
           {children}
           <Toaster richColors position="top-center" />
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </NotificationProvider>
       </AuthProvider>
     </QueryClientProvider>

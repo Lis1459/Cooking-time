@@ -71,7 +71,7 @@ export const LoginPage = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="ваш@почта.ру"
+                placeholder="user@gmail.com"
                 {...register("email")}
                 error={!!errors.email}
               />
